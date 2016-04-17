@@ -3,11 +3,12 @@ package protocol
 import (
 	"fmt"
 	"io"
+	"net/url"
 )
 
 // Protocol is abstraction of methods to get source stream.
 type Protocol interface {
-	Open(path string) (io.ReadCloser, error)
+	Open(u *url.URL) (io.ReadCloser, error)
 }
 
 var protocols = map[string]Protocol{}
@@ -18,6 +19,7 @@ func Register(name string, p Protocol) error {
 	if ok {
 		return fmt.Errorf("duplicated protocol name %q", name)
 	}
+	protocols[name] = p
 	return nil
 }
 

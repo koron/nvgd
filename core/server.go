@@ -53,7 +53,7 @@ func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		s.log.Printf("not found protocol for %q", u.Scheme)
 		return
 	}
-	r, err := p.Open(u.Path)
+	r, err := p.Open(u)
 	if err != nil {
 		// TODO: error response
 		s.log.Printf("failed to open: %s", path)

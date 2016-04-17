@@ -18,6 +18,7 @@ func Register(name string, f Filter) error {
 	if ok {
 		return fmt.Errorf("duplicated filter name %q", name)
 	}
+	filters[name] = f
 	return nil
 }
 
