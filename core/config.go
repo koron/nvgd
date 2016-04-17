@@ -1,11 +1,16 @@
 package core
 
+import (
+	"log"
+	"os"
+)
+
 // Config represents NVGD server configuration.
 type Config struct {
 	Addr string
 }
 
-const default_addr = "127.0.0.1:9280"
+const defaultAddr = "127.0.0.1:9280"
 
 // LoadConfig loads a configuration from a file.
 func LoadConfig(filename string) (*Config, error) {
@@ -18,7 +23,12 @@ func LoadConfig(filename string) (*Config, error) {
 
 func (c *Config) addr() string {
 	if c.Addr == "" {
-		return default_addr
+		return defaultAddr
 	}
 	return c.Addr
+}
+
+func (c *Config) logger() (*log.Logger, error) {
+	// FIXME: better logger.
+	return log.New(os.Stderr, "", log.LstdFlags), nil
 }
