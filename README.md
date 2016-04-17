@@ -1,13 +1,17 @@
-# NVD - file server with filters (grep, head and tail)
+# NVGD - Night Vision Goggles Daemon
 
 HTTP file server to help DevOps.
 
-## Install/Update
+## How to use
 
 Install:
 
-    $ go get github.com/koron/nvd
+    $ go get github.com/koron/nvgd
+
+Run:
+
+    $ nvgd
 
 Update:
 
-    $ go get -u github.com/koron/nvd
+    $ go get -u github.com/koron/nvgd
