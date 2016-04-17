@@ -2,38 +2,22 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
-	"os"
 
-	"github.com/koron/nvd/night"
+	"github.com/koron/nvgd/core"
 )
 
-var config = flag.String("c", "nvd-conf.json", "configuration file")
-var verbose = flag.Bool("v", false, "verbose message")
-var help = flag.Bool("h", false, "show help message")
-
-func showHelp() {
-	fmt.Fprintln(os.Stderr, `USAGE: nvd [OPTIONS]
-
-OPTIONS:`)
-	flag.PrintDefaults()
-}
-
-func getLogger(v bool) *log.Logger {
-	if v {
-		return log.New(os.Stderr, "", log.LstdFlags)
-	}
-	return nil
-}
+var (
+	config = flag.String("c", "", "configuration file")
+)
 
 func main() {
 	flag.Parse()
-	if *help {
-		showHelp()
-		return
+	c, err := core.LoadConfig(*config)
+	if err != nil {
+		log.Fatalf("failed to load config: %s", err)
 	}
-	if err := night.Run(*config, getLogger(*verbose)); err != nil {
-		panic(err)
+	if err := core.Run(c); err != nil {
+		log.Fatalf("failed to run server: %s", err)
 	}
 }
