@@ -116,7 +116,7 @@ func (s *Server) applyFilter(name, params string, r io.ReadCloser) (io.ReadClose
 	if err != nil {
 		return nil, err
 	}
-	return f.Filter(r, p)
+	return f(r, p)
 }
 
 func (s *Server) parseParams(q string) (map[string]string, error) {

@@ -7,13 +7,10 @@ import (
 )
 
 func init() {
-	MustRegister("head", &headFactory{})
+	MustRegister("head", newHead)
 }
 
-type headFactory struct {
-}
-
-func (f *headFactory) Filter(r io.ReadCloser, p Params) (io.ReadCloser, error) {
+func newHead(r io.ReadCloser, p Params) (io.ReadCloser, error) {
 	start := p.Int("start", 0)
 	if start < 0 {
 		start = 0
