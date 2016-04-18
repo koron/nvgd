@@ -3,11 +3,12 @@ package filter
 import (
 	"fmt"
 	"io"
+	"strconv"
 )
 
 // Filter is abstraction of methods of filtering.
 type Filter interface {
-	Filter(io.ReadCloser, map[string]string) (io.ReadCloser, error)
+	Filter(io.ReadCloser, Params) (io.ReadCloser, error)
 }
 
 var filters = map[string]Filter{}
@@ -36,4 +37,18 @@ func Find(name string) Filter {
 		return nil
 	}
 	return f
+}
+
+type Params map[string]string
+
+func (p Params) Int(n string, value int) int {
+	s, ok := p[n]
+	if !ok {
+		return value
+	}
+	v, err := strconv.Atoi(s)
+	if err != nil {
+		return value
+	}
+	return v
 }

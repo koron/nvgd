@@ -59,7 +59,7 @@ func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		s.log.Printf("failed to open: %s", path)
 		return
 	}
-	r, err = s.applyFilters(u.RawQuery, r)
+	r, err = s.applyFilters(req.URL.RawQuery, r)
 	if err != nil {
 		if r != nil {
 			r.Close()
@@ -70,7 +70,7 @@ func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	}
 	defer r.Close()
 	// TODO: better log
-	s.log.Printf("%s %s", req.Method, req.URL.Path)
+	s.log.Printf("%s %s %s", req.Method, req.URL.Path, req.URL.RawQuery)
 	res.WriteHeader(http.StatusOK)
 	_, err = io.Copy(res, r)
 }
