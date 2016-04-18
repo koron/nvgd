@@ -24,10 +24,7 @@ func newHead(r io.ReadCloser, p Params) (io.ReadCloser, error) {
 
 // Head is "head" like filter.
 type Head struct {
-	buf    bytes.Buffer
-	closed bool
-	raw    io.ReadCloser
-	rd     *bufio.Reader
+	Base
 	start  uint
 	last   uint
 	curr   uint
@@ -39,35 +36,18 @@ var (
 
 // NewHead creates an instance of head filter.
 func NewHead(r io.ReadCloser, start, limit uint) *Head {
-	return &Head{
-		raw:   r,
-		rd:    bufio.NewReader(r),
+	h := &Head{
 		start: start,
 		last:  start + limit,
 	}
-}
-
-func (h *Head) Read(buf []byte) (int, error) {
-	if h.buf.Len() == 0 {
-		if h.closed {
-			return 0, io.EOF
-		}
-		// read next data to h.buf
-		h.buf.Reset()
-		err := h.readNext(&h.buf)
-		if err == io.EOF {
-			h.Close()
-		} else if err != nil {
-			return 0, err
-		}
-	}
-	return h.buf.Read(buf)
+	h.Base.Init(r, h.readNext)
+	return h
 }
 
 func (h *Head) readNext(buf *bytes.Buffer) error {
 	for h.curr < h.last {
 		lnum := h.curr
-		b, err := h.rd.ReadSlice('\n')
+		b, err := h.Reader.ReadSlice('\n')
 		if err != nil {
 			if err != bufio.ErrBufferFull {
 				return err
@@ -83,13 +63,4 @@ func (h *Head) readNext(buf *bytes.Buffer) error {
 		}
 	}
 	return io.EOF
-}
-
-// Close closes head filter.
-func (h *Head) Close() error {
-	if h.closed {
-		return nil
-	}
-	h.closed = true
-	return h.raw.Close()
 }
