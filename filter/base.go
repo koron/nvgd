@@ -15,8 +15,10 @@ type Base struct {
 	rn     BaseReadNext
 }
 
+// BaseReadNext is callback to read next data hunk to buf
 type BaseReadNext func(buf *bytes.Buffer) error
 
+// Init initializes Base object.
 func (b *Base) Init(r io.ReadCloser, readNext BaseReadNext) {
 	b.Reader = bufio.NewReader(r)
 	b.raw = r

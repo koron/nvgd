@@ -6,12 +6,8 @@ import (
 	"strconv"
 )
 
+// Factory is filter factory.
 type Factory func(io.ReadCloser, Params) (io.ReadCloser, error)
-
-// Filter is abstraction of methods of filtering.
-type Filter interface {
-	Filter(io.ReadCloser, Params) (io.ReadCloser, error)
-}
 
 var filters = map[string]Factory{}
 
@@ -41,8 +37,10 @@ func Find(name string) Factory {
 	return f
 }
 
+// Params represents parameters for filter.
 type Params map[string]string
 
+// Int gets int value from Params by name.
 func (p Params) Int(n string, value int) int {
 	s, ok := p[n]
 	if !ok {

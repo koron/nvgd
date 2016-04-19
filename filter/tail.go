@@ -1,16 +1,19 @@
 package filter
 
 import (
+	"bufio"
 	"bytes"
 	"io"
 )
 
+// Tail is "tail" like filter.
 type Tail struct {
 	Base
 	b    [][]byte
 	w, r int
 }
 
+// NewTail creates an instance of tail filter.
 func NewTail(r io.ReadCloser, limit int) *Tail {
 	t := &Tail{
 		b: make([][]byte, limit),
@@ -26,38 +29,72 @@ func (t *Tail) readNext(buf *bytes.Buffer) error {
 			return err
 		}
 	}
-	for t.r != t.w {
-		if _, err := buf.Write(t.b[t.r]); err != nil {
-			return err
-		}
-		t.r++
-		if t.r >= len(t.b) {
-			t.r = 0
-		}
-		return nil
+	if t.r == t.w {
+		return io.EOF
 	}
-	// TODO:
-	return io.EOF
+	for {
+		if b := t.b[t.r]; b != nil {
+			if _, err := buf.Write(b); err != nil {
+				return err
+			}
+		}
+		if t.r == t.w {
+			return io.EOF
+		}
+		t.r = t.addr(t.r + 1)
+	}
 }
 
 func (t *Tail) readAll() error {
-	w := 0
 	for {
-		b, err := t.Reader.ReadSlice('\n')
-		// TODO:
+		b, err := t.readLine()
 		if err == io.EOF {
 			break
 		} else if err != nil {
 			return err
 		}
-		t.b[w] = b
-		w++
-		if w >= len(t.b) {
-			w = 0
+		t.putLine(b)
+	}
+	// setup read pointer
+	t.r = t.addr(t.w + 1)
+	return nil
+}
+
+func (t *Tail) readLine() ([]byte, error) {
+	b, err := t.Reader.ReadSlice('\n')
+	if err == nil {
+		return b, nil
+	} else if err != bufio.ErrBufferFull {
+		return nil, err
+	}
+	bb := bytes.NewBuffer(b)
+	for {
+		b2, err := t.Reader.ReadSlice('\n')
+		if len(b2) > 0 {
+			if _, err := bb.Write(b2); err != nil {
+				return nil, err
+			}
+		}
+		if err == nil || err == io.EOF {
+			return bb.Bytes(), nil
+		}
+		if err != bufio.ErrBufferFull {
+			return nil, err
 		}
 	}
-	t.w = w + 1
-	return nil
+}
+
+func (t *Tail) putLine(b []byte) {
+	t.w = t.addr(t.w + 1)
+	t.b[t.w] = b
+}
+
+func (t *Tail) addr(n int) int {
+	l := len(t.b)
+	for n >= l {
+		n -= l
+	}
+	return n
 }
 
 func newTail(r io.ReadCloser, p Params) (io.ReadCloser, error) {
@@ -69,5 +106,5 @@ func newTail(r io.ReadCloser, p Params) (io.ReadCloser, error) {
 }
 
 func init() {
-	MustRegister("head", newTail)
+	MustRegister("tail", newTail)
 }
