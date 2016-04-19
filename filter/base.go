@@ -42,6 +42,31 @@ func (b *Base) Read(buf []byte) (int, error) {
 	return b.buf.Read(buf)
 }
 
+// ReadLine reads a line as []byte.
+func (b *Base) ReadLine() ([]byte, error) {
+	d, err := b.Reader.ReadSlice('\n')
+	if err == nil {
+		return d, nil
+	} else if err != bufio.ErrBufferFull {
+		return nil, err
+	}
+	bb := bytes.NewBuffer(d)
+	for {
+		b2, err := b.Reader.ReadSlice('\n')
+		if len(b2) > 0 {
+			if _, err := bb.Write(b2); err != nil {
+				return nil, err
+			}
+		}
+		if err == nil || err == io.EOF {
+			return bb.Bytes(), nil
+		}
+		if err != bufio.ErrBufferFull {
+			return nil, err
+		}
+	}
+}
+
 // Close closes head filter.
 func (b *Base) Close() error {
 	if b.closed {

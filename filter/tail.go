@@ -1,7 +1,6 @@
 package filter
 
 import (
-	"bufio"
 	"bytes"
 	"io"
 )
@@ -47,7 +46,7 @@ func (t *Tail) readNext(buf *bytes.Buffer) error {
 
 func (t *Tail) readAll() error {
 	for {
-		b, err := t.readLine()
+		b, err := t.ReadLine()
 		if err == io.EOF {
 			break
 		} else if err != nil {
@@ -58,30 +57,6 @@ func (t *Tail) readAll() error {
 	// setup read pointer
 	t.r = t.addr(t.w + 1)
 	return nil
-}
-
-func (t *Tail) readLine() ([]byte, error) {
-	b, err := t.Reader.ReadSlice('\n')
-	if err == nil {
-		return b, nil
-	} else if err != bufio.ErrBufferFull {
-		return nil, err
-	}
-	bb := bytes.NewBuffer(b)
-	for {
-		b2, err := t.Reader.ReadSlice('\n')
-		if len(b2) > 0 {
-			if _, err := bb.Write(b2); err != nil {
-				return nil, err
-			}
-		}
-		if err == nil || err == io.EOF {
-			return bb.Bytes(), nil
-		}
-		if err != bufio.ErrBufferFull {
-			return nil, err
-		}
-	}
 }
 
 func (t *Tail) putLine(b []byte) {
