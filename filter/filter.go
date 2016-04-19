@@ -52,3 +52,12 @@ func (p Params) Int(n string, value int) int {
 	}
 	return v
 }
+
+// String gets string value from Params by name.
+func (p Params) String(n string, value string) string {
+	s, ok := p[n]
+	if !ok {
+		return value
+	}
+	return s
+}
