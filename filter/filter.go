@@ -61,3 +61,16 @@ func (p Params) String(n string, value string) string {
 	}
 	return s
 }
+
+// Bool gets bool value from Params by name.
+func (p Params) Bool(n string, value bool) bool {
+	s, ok := p[n]
+	if !ok {
+		return value
+	}
+	v, err := strconv.ParseBool(s)
+	if err != nil {
+		return value
+	}
+	return v
+}

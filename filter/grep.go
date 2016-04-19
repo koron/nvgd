@@ -9,12 +9,17 @@ import (
 // Grep represents grep like filter.
 type Grep struct {
 	Base
-	re *regexp.Regexp
+	re    *regexp.Regexp
+	match bool
+	lf    LineFilter
 }
 
-func NewGrep(r io.ReadCloser, re *regexp.Regexp) *Grep {
+// NewGrep creates an instance of grep filter.
+func NewGrep(r io.ReadCloser, re *regexp.Regexp, match bool, lf LineFilter) *Grep {
 	g := &Grep{
-		re: re,
+		re:    re,
+		match: match,
+		lf:    TrimEOL.Chain(lf),
 	}
 	g.Base.Init(r, g.readNext)
 	return g
@@ -22,12 +27,13 @@ func NewGrep(r io.ReadCloser, re *regexp.Regexp) *Grep {
 
 func (g *Grep) readNext(buf *bytes.Buffer) error {
 	for {
-		b, err := g.ReadLine()
+		raw, err := g.ReadLine()
 		if err != nil {
 			return err
 		}
-		if g.re.Match(b) {
-			if _, err := buf.Write(b); err != nil {
+		b := g.lf.Apply(raw)
+		if g.re.Match(b) == g.match {
+			if _, err := buf.Write(raw); err != nil {
 				return err
 			}
 			return nil
@@ -40,7 +46,17 @@ func newGrep(r io.ReadCloser, p Params) (io.ReadCloser, error) {
 	if err != nil {
 		return nil, err
 	}
-	return NewGrep(r, re), nil
+	match := p.Bool("match", true)
+	var lf LineFilter
+	// field filter
+	var (
+		field = p.Int("field", 0)
+		delim = []byte(p.String("delim", "\t"))
+	)
+	if field > 0 {
+		lf = lf.Chain(NewCutLF(delim, field-1))
+	}
+	return NewGrep(r, re, match, lf), nil
 }
 
 func init() {
