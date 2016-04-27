@@ -151,18 +151,50 @@ func newCutOne(value int) cutSelector {
 }
 
 func newCutRange(start, end int) cutSelector {
-	// TODO:
-	return nil
+	if start <= end {
+		return func(dst, src [][]byte) [][]byte {
+			l := len(src)
+			if start >= l {
+				return dst
+			}
+			if end >= l {
+				end = l - 1
+			}
+			return append(dst, src[start:end+1]...)
+		}
+	}
+	return func(dst, src [][]byte) [][]byte {
+		l := len(src)
+		if end >= l {
+			return dst
+		}
+		if start >= l {
+			start = l - 1
+		}
+		for i := start; i >= end; i-- {
+			dst = append(dst, src[i])
+		}
+		return dst
+	}
 }
 
-func newCutRangeBegin(start, end int) cutSelector {
-	// TODO:
-	return nil
+func newCutRangeBegin(n int) cutSelector {
+	return func(dst, src [][]byte) [][]byte {
+		if n >= len(src) {
+			return dst
+		}
+		return append(dst, src[n:]...)
+	}
 }
 
-func newCutRangeEnd(start, end int) cutSelector {
-	// TODO:
-	return nil
+func newCutRangeEnd(n int) cutSelector {
+	return func(dst, src [][]byte) [][]byte {
+		l := len(src)
+		if n >= l {
+			n = l - 1
+		}
+		return append(dst, src[:n+1]...)
+	}
 }
 
 func newCut(r io.ReadCloser, p Params) (io.ReadCloser, error) {
