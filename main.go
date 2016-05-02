@@ -4,16 +4,17 @@ import (
 	"flag"
 	"log"
 
+	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/core"
 )
 
 var (
-	config = flag.String("c", "", "configuration file")
+	configOpt = flag.String("c", "nvgd.conf.yml", "configuration file")
 )
 
 func main() {
 	flag.Parse()
-	c, err := core.LoadConfig(*config)
+	c, err := config.LoadConfig(*configOpt)
 	if err != nil {
 		log.Fatalf("failed to load config: %s", err)
 	}

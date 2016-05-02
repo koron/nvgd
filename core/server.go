@@ -11,6 +11,7 @@ import (
 
 	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/protocol"
+	"github.com/koron/nvgd/config"
 )
 
 // Server represents NVGD server.
@@ -20,8 +21,8 @@ type Server struct {
 }
 
 // New creates a server instance.
-func New(c *Config) (*Server, error) {
-	logger, err := c.logger()
+func New(c *config.Config) (*Server, error) {
+	logger, err := c.GetLogger()
 	if err != nil {
 		return nil, err
 	}
@@ -29,9 +30,10 @@ func New(c *Config) (*Server, error) {
 		log: logger,
 	}
 	s.httpd = &http.Server{
-		Addr:    c.addr(),
+		Addr:    c.Addr,
 		Handler: s,
 	}
+	fmt.Printf("%#v\n", c)
 	return s, nil
 }
 
