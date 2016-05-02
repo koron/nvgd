@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/koron/nvgd/filter"
@@ -59,7 +60,13 @@ func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		s.log.Printf("failed to open: %s", path)
 		return
 	}
-	r, err = s.applyFilters(req.URL.RawQuery, r)
+	qp, err := qparamsParse(req.URL.RawQuery)
+	if err != nil {
+		s.log.Printf("failed to parse query string: %s", err)
+		return
+	}
+	qp, refresh := s.splitRefresh(qp)
+	r, err = s.applyFilters(qp, r)
 	if err != nil {
 		if r != nil {
 			r.Close()
@@ -71,34 +78,29 @@ func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	defer r.Close()
 	// TODO: better log
 	s.log.Printf("%s %s %s", req.Method, req.URL.Path, req.URL.RawQuery)
+	if refresh > 0 {
+		v := fmt.Sprintf("%d; URL=%s", refresh, req.URL.String())
+		res.Header().Set("Refresh", v)
+	}
 	res.WriteHeader(http.StatusOK)
 	_, err = io.Copy(res, r)
 }
 
-func (s *Server) applyFilters(q string, r io.ReadCloser) (io.ReadCloser, error) {
-	for q != "" {
-		k := q
-		if i := strings.Index(k, "&"); i >= 0 {
-			k, q = k[:i], k[i+1:]
-		} else {
-			q = ""
-		}
-		if k == "" {
-			continue
-		}
-		v := ""
-		if i := strings.Index(k, "="); i >= 0 {
-			k, v = k[:i], k[i+1:]
-		}
-		k, err := url.QueryUnescape(k)
-		if err != nil {
-			return r, err
-		}
-		v, err = url.QueryUnescape(v)
-		if err != nil {
-			return r, err
-		}
-		r2, err := s.applyFilter(k, v, r)
+func (s *Server) splitRefresh(q qparams) (qparams, int) {
+	refreshes, others := q.split("refresh")
+	if len(refreshes) == 0 {
+		return q, 0
+	}
+	n, err := strconv.Atoi(refreshes[0].value)
+	if err != nil && n < 0 {
+		n = 0
+	}
+	return others, n
+}
+
+func (s *Server) applyFilters(qp qparams, r io.ReadCloser) (io.ReadCloser, error) {
+	for _, item := range qp {
+		r2, err := s.applyFilter(item.name, item.value, r)
 		if err != nil {
 			return r, err
 		}
