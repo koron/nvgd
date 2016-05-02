@@ -29,6 +29,6 @@ func (c *Config) addr() string {
 }
 
 func (c *Config) logger() (*log.Logger, error) {
-	// FIXME: better logger.
+	// TODO: better logger.
 	return log.New(os.Stderr, "", log.LstdFlags), nil
 }
