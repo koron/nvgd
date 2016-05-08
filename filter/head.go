@@ -25,9 +25,9 @@ func newHead(r io.ReadCloser, p Params) (io.ReadCloser, error) {
 // Head is "head" like filter.
 type Head struct {
 	Base
-	start  uint
-	last   uint
-	curr   uint
+	start uint
+	last  uint
+	curr  uint
 }
 
 var (

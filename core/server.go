@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/protocol"
-	"github.com/koron/nvgd/config"
 )
 
 // Server represents NVGD server.
