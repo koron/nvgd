@@ -33,7 +33,7 @@ func New(c *config.Config) (*Server, error) {
 		Addr:    c.Addr,
 		Handler: s,
 	}
-	fmt.Printf("%#v\n", c)
+	s.log.Printf("listening %s", c.Addr)
 	return s, nil
 }
 
@@ -44,6 +44,10 @@ func (s *Server) Run() error {
 
 func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	path := req.URL.Path[1:]
+	const files_prefix = "files/"
+	if strings.HasPrefix(path, files_prefix) {
+		path = "file:///" + path[len(files_prefix):]
+	}
 	u, err := url.Parse(path)
 	if err != nil {
 		// TODO: error response
