@@ -44,9 +44,10 @@ func (s *Server) Run() error {
 
 func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	path := req.URL.Path[1:]
-	const files_prefix = "files/"
-	if strings.HasPrefix(path, files_prefix) {
-		path = "file:///" + path[len(files_prefix):]
+	// rewrite "/files/" to "/file:///" for compatibility with koron/night.
+	const filesPrefix = "files/"
+	if strings.HasPrefix(path, filesPrefix) {
+		path = "file:///" + path[len(filesPrefix):]
 	}
 	u, err := url.Parse(path)
 	if err != nil {
