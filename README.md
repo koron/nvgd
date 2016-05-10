@@ -38,15 +38,9 @@ Nvgd supports these `protocol`s:
   * `file` - `/file:///path/to/source`
   * `s3` - `/s3://bucket-name/key/to/object`
 
-Supported filters are:
+See also:
 
-  * [Grep filter](#grep-filter)
-  * [Head filter](#head-filter)
-  * [Tail filter](#tail-filter)
-  * [Cut filter](#cut-filter)
-  * [Hash filter](#hash-filter)
-  * [LTSV filter](#ltsv-filter)
-  * [Refresh filter](#refresh-filter)
+  * [Filters](#filters)
 
 
 ## Configuration file
@@ -106,6 +100,16 @@ s3:
 
 
 ## Filters
+
+Nvgd supports these filters:
+
+  * [Grep filter](#grep-filter)
+  * [Head filter](#head-filter)
+  * [Tail filter](#tail-filter)
+  * [Cut filter](#cut-filter)
+  * [Hash filter](#hash-filter)
+  * [LTSV filter](#ltsv-filter)
+  * [Refresh filter](#refresh-filter)
 
 ### Filter Spec
 
@@ -207,7 +211,7 @@ Output, match to value of specified label, and output selected labels.
     * `match` - output when match or not match.  default is true.
     * `cut` - selected labels, combinable by comma `,`.
 
-### Refresh  filter
+### Refresh filter
 
 Add "Refresh" header with specified time (sec).
 
