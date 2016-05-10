@@ -222,3 +222,8 @@ Example: Open below URL using WEB browser, it refresh in each 5 seconds
 automatically.
 
     http://127.0.0.1:9280/file:///var/log/messages?tail&refresh=5
+
+
+## References
+
+  * [koron/night](https://github.com/koron/night) previous impl in NodeJS.
