@@ -19,3 +19,8 @@ Access:
 Update:
 
     $ go get -u github.com/koron/nvgd
+
+## Configuration file
+
+nvgd takes a configuration file `nvgd.conf.yml` in current directory or given
+with `-c` option.

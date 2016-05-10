@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -29,7 +30,7 @@ func (cc customConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		}
 		v, ok := cc[k]
 		if !ok {
-			continue
+			return fmt.Errorf("unknown configuration name: %s", k)
 		}
 		b, err := yaml.Marshal(item.Value)
 		if err != nil {
