@@ -13,6 +13,7 @@ import (
 
 var s3handler = &S3Handler{
 	Config: S3Config{
+		Default: S3BucketConfig{},
 		Buckets: map[string]S3BucketConfig{},
 	},
 }

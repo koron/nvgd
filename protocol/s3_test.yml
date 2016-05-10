@@ -3,13 +3,14 @@ protocols:
     default:
       access_key_id: XXX
       secret_access_key: YYY
-    foo:
-      region: aaa
-      access_key_id: bbb
-      secret_access_key: ccc
-      session_token: ddd
-    bar:
-      region: eee
-      access_key_id: fff
-      secret_access_key: ggg
-      session_token: hhh
+    buckets:
+      foo:
+        region: aaa
+        access_key_id: bbb
+        secret_access_key: ccc
+        session_token: ddd
+      bar:
+        region: eee
+        access_key_id: fff
+        secret_access_key: ggg
+        session_token: hhh

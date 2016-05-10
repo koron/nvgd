@@ -1,7 +1,6 @@
 package protocol
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 
@@ -9,17 +8,16 @@ import (
 )
 
 func TestS3Config(t *testing.T) {
-	conf, err := config.LoadConfig("s3_test.yml")
+	_, err := config.LoadConfig("s3_test.yml")
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Printf("conf=%#v\n", conf)
 
 	var (
 		act0 = s3handler.Config.bucketConfig("")
 		exp0 = &S3BucketConfig{
 			AccessKeyID:     "XXX",
-			SecretAccessKey: "XXX",
+			SecretAccessKey: "YYY",
 		}
 	)
 	if !reflect.DeepEqual(act0, exp0) {

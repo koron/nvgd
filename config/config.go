@@ -12,7 +12,34 @@ import (
 type Config struct {
 	Addr string
 
-	Protocols map[string]interface{}
+	Protocols customConfig
+}
+
+type customConfig map[string]interface{}
+
+func (cc customConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var m yaml.MapSlice
+	if err := unmarshal(&m); err != nil {
+		return err
+	}
+	for _, item := range m {
+		k, ok := item.Key.(string)
+		if !ok {
+			continue
+		}
+		v, ok := cc[k]
+		if !ok {
+			continue
+		}
+		b, err := yaml.Marshal(item.Value)
+		if err != nil {
+			return err
+		}
+		if err := yaml.Unmarshal(b, v); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // GetLogger gets logger.
@@ -22,8 +49,8 @@ func (c *Config) GetLogger() (*log.Logger, error) {
 }
 
 var root = &Config{
-	Addr: "127.0.0.1:9280",
-	Protocols: map[string]interface{}{},
+	Addr:      "127.0.0.1:9280",
+	Protocols: customConfig{},
 }
 
 // LoadConfig loads a configuration from a file.
