@@ -11,9 +11,9 @@ import (
 
 // Config represents NVGD server configuration.
 type Config struct {
-	Addr string
+	Addr string `yaml:"addr"`
 
-	Protocols customConfig
+	Protocols customConfig `yaml:"protocols"`
 }
 
 type customConfig map[string]interface{}
