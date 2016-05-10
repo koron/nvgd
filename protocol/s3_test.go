@@ -1,0 +1,54 @@
+package protocol
+
+import (
+	"fmt"
+	"reflect"
+	"testing"
+
+	"github.com/koron/nvgd/config"
+)
+
+func TestS3Config(t *testing.T) {
+	conf, err := config.LoadConfig("s3_test.yml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Printf("conf=%#v\n", conf)
+
+	var (
+		act0 = s3handler.Config.bucketConfig("")
+		exp0 = &S3BucketConfig{
+			AccessKeyID:     "XXX",
+			SecretAccessKey: "XXX",
+		}
+	)
+	if !reflect.DeepEqual(act0, exp0) {
+		t.Errorf("default config:%#v is not as expected %#v", act0, exp0)
+	}
+
+	var (
+		act1 = s3handler.Config.bucketConfig("foo")
+		exp1 = &S3BucketConfig{
+			Region:          "aaa",
+			AccessKeyID:     "bbb",
+			SecretAccessKey: "ccc",
+			SessionToken:    "ddd",
+		}
+	)
+	if !reflect.DeepEqual(act1, exp1) {
+		t.Errorf("foo %#v is not as expected %#v", act1, exp1)
+	}
+
+	var (
+		act2 = s3handler.Config.bucketConfig("bar")
+		exp2 = &S3BucketConfig{
+			Region:          "eee",
+			AccessKeyID:     "fff",
+			SecretAccessKey: "ggg",
+			SessionToken:    "hhh",
+		}
+	)
+	if !reflect.DeepEqual(act2, exp2) {
+		t.Errorf("bar %#v is not as expected %#v", act2, exp2)
+	}
+}

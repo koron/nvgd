@@ -11,10 +11,19 @@ import (
 // Config represents NVGD server configuration.
 type Config struct {
 	Addr string
+
+	Protocols map[string]interface{}
+}
+
+// GetLogger gets logger.
+func (c *Config) GetLogger() (*log.Logger, error) {
+	// TODO: better logger.
+	return log.New(os.Stderr, "", log.LstdFlags), nil
 }
 
 var root = &Config{
 	Addr: "127.0.0.1:9280",
+	Protocols: map[string]interface{}{},
 }
 
 // LoadConfig loads a configuration from a file.
@@ -40,8 +49,7 @@ func LoadConfig(filename string) (*Config, error) {
 	return root, nil
 }
 
-// GetLogger gets logger.
-func (c *Config) GetLogger() (*log.Logger, error) {
-	// TODO: better logger.
-	return log.New(os.Stderr, "", log.LstdFlags), nil
+// RegisterProtocol registers protocol configuration.
+func RegisterProtocol(name string, v interface{}) {
+	root.Protocols[name] = v
 }
