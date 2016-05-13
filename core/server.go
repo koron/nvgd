@@ -43,6 +43,14 @@ func (s *Server) Run() error {
 }
 
 func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	if err := s.serve(res, req); err != nil {
+		// TODO: error response
+		s.log.Printf("ERROR: %s", err)
+		return
+	}
+}
+
+func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	path := req.URL.Path[1:]
 	// rewrite "/files/" to "/file:///" for compatibility with koron/night.
 	const filesPrefix = "files/"
@@ -51,26 +59,19 @@ func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	}
 	u, err := url.Parse(path)
 	if err != nil {
-		// TODO: error response
-		s.log.Printf("failed to parse %q as URL: %s", path, err)
-		return
+		return fmt.Errorf("failed to parse %q as URL: %s", path, err)
 	}
 	p := protocol.Find(u.Scheme)
 	if p == nil {
-		// TODO: error response
-		s.log.Printf("not found protocol for %q", u.Scheme)
-		return
+		return fmt.Errorf("not found protocol for %q", u.Scheme)
 	}
 	r, err := p.Open(u)
 	if err != nil {
-		// TODO: error response
-		s.log.Printf("failed to open: %s", path)
-		return
+		return fmt.Errorf("failed to open: %s", path)
 	}
 	qp, err := qparamsParse(req.URL.RawQuery)
 	if err != nil {
-		s.log.Printf("failed to parse query string: %s", err)
-		return
+		return fmt.Errorf("failed to parse query string: %s", err)
 	}
 	qp, refresh := s.splitRefresh(qp)
 	r, err = s.applyFilters(qp, r)
@@ -78,9 +79,7 @@ func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		if r != nil {
 			r.Close()
 		}
-		// TODO: error response
-		s.log.Printf("filter error: %s", err)
-		return
+		return fmt.Errorf("filter error: %s", err)
 	}
 	defer r.Close()
 	// TODO: better log
@@ -91,6 +90,10 @@ func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	}
 	res.WriteHeader(http.StatusOK)
 	_, err = io.Copy(res, r)
+	if err != nil {
+		s.log.Printf("failed to copy body content")
+	}
+	return nil
 }
 
 func (s *Server) splitRefresh(q qparams) (qparams, int) {
