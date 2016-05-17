@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"compress/bzip2"
 	"compress/gzip"
-	"errors"
 	"io"
 	"io/ioutil"
 	"log"
@@ -14,6 +13,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/koron/nvgd/lz4"
 )
 
 // File is file protocol handler.
@@ -80,7 +81,7 @@ func (f *File) openFile(name string) (io.ReadCloser, error) {
 	} else if rxBz2.MatchString(name) {
 		return ioutil.NopCloser(bzip2.NewReader(r)), nil
 	} else if rxLz4.MatchString(name) {
-		return nil, errors.New("lz4 is not supported yet")
+		return lz4.NewReader(r)
 	}
 	return r, nil
 }

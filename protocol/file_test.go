@@ -7,7 +7,7 @@ import (
 
 func TestBzip2(t *testing.T) {
 	f := &File{}
-	r, err := f.openFile("file_test.bz2")
+	r, err := f.openFile("testdata/file_test.bz2")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -17,13 +17,13 @@ func TestBzip2(t *testing.T) {
 	}
 	s := (string)(b)
 	if s != "this is bz2 compressed" {
-		t.Errorf("content of \"file_test.bz2\" is unexpected: %q", s)
+		t.Errorf("content of \"testdata/file_test.bz2\" is unexpected: %q", s)
 	}
 }
 
 func TestGzip(t *testing.T) {
 	f := &File{}
-	r, err := f.openFile("file_test.gz")
+	r, err := f.openFile("testdata/file_test.gz")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -33,6 +33,6 @@ func TestGzip(t *testing.T) {
 	}
 	s := (string)(b)
 	if s != "this is gzip compressed" {
-		t.Errorf("content of \"file_test.gz\" is unexpected: %q", s)
+		t.Errorf("content of \"testdata/file_test.gz\" is unexpected: %q", s)
 	}
 }
