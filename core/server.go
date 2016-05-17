@@ -44,8 +44,14 @@ func (s *Server) Run() error {
 
 func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	if err := s.serve(res, req); err != nil {
-		// TODO: error response
-		s.log.Printf("ERROR: %s", err)
+		// TODO: log an error.
+		if herr, ok := err.(httpError); ok {
+			res.WriteHeader(herr.statusCode())
+			res.Write(([]byte)(herr.body()))
+			return
+		}
+		res.WriteHeader(http.StatusInternalServerError)
+		res.Write(([]byte)(err.Error()))
 		return
 	}
 }
