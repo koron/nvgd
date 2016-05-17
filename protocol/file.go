@@ -2,11 +2,15 @@ package protocol
 
 import (
 	"bytes"
+	"compress/bzip2"
+	"compress/gzip"
+	"errors"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/url"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -59,6 +63,24 @@ func (f *File) openDir(name string) (io.ReadCloser, error) {
 	return ioutil.NopCloser(buf), nil
 }
 
+var (
+	rxGz  = regexp.MustCompile(`\.gz$`)
+	rxBz2 = regexp.MustCompile(`\.bz2$`)
+	rxLz4 = regexp.MustCompile(`\.lz4$`)
+)
+
 func (f *File) openFile(name string) (io.ReadCloser, error) {
-	return os.Open(name)
+	r, err := os.Open(name)
+	if err != nil {
+		return nil, err
+	}
+	// Apply decompress filter.
+	if rxGz.MatchString(name) {
+		return gzip.NewReader(r)
+	} else if rxBz2.MatchString(name) {
+		return ioutil.NopCloser(bzip2.NewReader(r)), nil
+	} else if rxLz4.MatchString(name) {
+		return nil, errors.New("lz4 is not supported yet")
+	}
+	return r, nil
 }
