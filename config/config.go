@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -12,6 +13,12 @@ import (
 // Config represents NVGD server configuration.
 type Config struct {
 	Addr string `yaml:"addr"`
+
+	// ErrorLogPath specify path of access log. default is "(stderr)".
+	ErrorLogPath string `yaml:"error_log"`
+
+	// AccessLogPath specify path of access log. default is "(discard)".
+	AccessLogPath string `yaml:"access_log"`
 
 	Protocols customConfig `yaml:"protocols"`
 }
@@ -45,14 +52,40 @@ func (cc customConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 // AccessLog creates a new access logger.
 func (c *Config) AccessLog() (*log.Logger, error) {
-	// TODO: make Writer customizable.
-	return log.New(ioutil.Discard, "", log.LstdFlags), nil
+	w, err := c.openLogFile(c.AccessLogPath, "(discard)")
+	if err != nil {
+		return nil, err
+	}
+	return log.New(w, "", log.LstdFlags), nil
 }
 
 // ErrorLog creates new error logger.
 func (c *Config) ErrorLog() (*log.Logger, error) {
-	// TODO: make Writer customizable.
-	return log.New(os.Stderr, "", log.LstdFlags), nil
+	w, err := c.openLogFile(c.ErrorLogPath, "(stderr)")
+	if err != nil {
+		return nil, err
+	}
+	return log.New(w, "", log.LstdFlags), nil
+}
+
+func (c *Config) openLogFile(v, d string) (io.Writer, error) {
+	if v == "" {
+		v = d
+	}
+	switch v {
+	case "(discard)":
+		return ioutil.Discard, nil
+	case "(stderr)":
+		return os.Stderr, nil
+	case "(stdout)":
+		return os.Stdout, nil
+	default:
+		f, err := os.OpenFile(v, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
+		if err != nil {
+			return nil, err
+		}
+		return f, nil
+	}
 }
 
 var root = &Config{
