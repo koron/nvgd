@@ -43,9 +43,15 @@ func (cc customConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return nil
 }
 
-// GetLogger gets logger.
-func (c *Config) GetLogger() (*log.Logger, error) {
-	// TODO: better logger.
+// AccessLog creates a new access logger.
+func (c *Config) AccessLog() (*log.Logger, error) {
+	// TODO: make Writer customizable.
+	return log.New(ioutil.Discard, "", log.LstdFlags), nil
+}
+
+// ErrorLog creates new error logger.
+func (c *Config) ErrorLog() (*log.Logger, error) {
+	// TODO: make Writer customizable.
 	return log.New(os.Stderr, "", log.LstdFlags), nil
 }
 

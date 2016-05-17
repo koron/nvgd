@@ -16,24 +16,30 @@ import (
 
 // Server represents NVGD server.
 type Server struct {
-	httpd *http.Server
-	log   *log.Logger
+	httpd     *http.Server
+	accessLog *log.Logger
+	errorLog  *log.Logger
 }
 
 // New creates a server instance.
 func New(c *config.Config) (*Server, error) {
-	logger, err := c.GetLogger()
+	alog, err := c.AccessLog()
+	if err != nil {
+		return nil, err
+	}
+	elog, err := c.ErrorLog()
 	if err != nil {
 		return nil, err
 	}
 	s := &Server{
-		log: logger,
+		accessLog: alog,
+		errorLog:  elog,
 	}
 	s.httpd = &http.Server{
 		Addr:    c.Addr,
 		Handler: s,
 	}
-	s.log.Printf("listening %s", c.Addr)
+	s.errorLog.Printf("start to listening on %s", c.Addr)
 	return s, nil
 }
 
@@ -43,6 +49,7 @@ func (s *Server) Run() error {
 }
 
 func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	s.accessLog.Printf("%s %s %s", req.Method, req.URL.Path, req.URL.RawQuery)
 	if err := s.serve(res, req); err != nil {
 		// TODO: log an error.
 		if herr, ok := err.(httpError); ok {
@@ -88,8 +95,6 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 		return fmt.Errorf("filter error: %s", err)
 	}
 	defer r.Close()
-	// TODO: better log
-	s.log.Printf("%s %s %s", req.Method, req.URL.Path, req.URL.RawQuery)
 	if refresh > 0 {
 		v := fmt.Sprintf("%d; URL=%s", refresh, req.URL.String())
 		res.Header().Set("Refresh", v)
@@ -97,7 +102,7 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	res.WriteHeader(http.StatusOK)
 	_, err = io.Copy(res, r)
 	if err != nil {
-		s.log.Printf("failed to copy body content")
+		s.errorLog.Printf("failed to copy body content")
 	}
 	return nil
 }
