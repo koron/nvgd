@@ -52,7 +52,7 @@ func (cc customConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 // AccessLog creates a new access logger.
 func (c *Config) AccessLog() (*log.Logger, error) {
-	w, err := c.openLogFile(c.AccessLogPath, "(discard)")
+	w, err := c.openLogFile(c.AccessLogPath)
 	if err != nil {
 		return nil, err
 	}
@@ -61,17 +61,14 @@ func (c *Config) AccessLog() (*log.Logger, error) {
 
 // ErrorLog creates new error logger.
 func (c *Config) ErrorLog() (*log.Logger, error) {
-	w, err := c.openLogFile(c.ErrorLogPath, "(stderr)")
+	w, err := c.openLogFile(c.ErrorLogPath)
 	if err != nil {
 		return nil, err
 	}
 	return log.New(w, "", log.LstdFlags), nil
 }
 
-func (c *Config) openLogFile(v, d string) (io.Writer, error) {
-	if v == "" {
-		v = d
-	}
+func (c *Config) openLogFile(v string) (io.Writer, error) {
 	switch v {
 	case "(discard)":
 		return ioutil.Discard, nil
@@ -89,8 +86,10 @@ func (c *Config) openLogFile(v, d string) (io.Writer, error) {
 }
 
 var root = &Config{
-	Addr:      "127.0.0.1:9280",
-	Protocols: customConfig{},
+	Addr:          defaultAddr,
+	AccessLogPath: defaultAccessLog,
+	ErrorLogPath:  defaultErrorLog,
+	Protocols:     customConfig{},
 }
 
 // LoadConfig loads a configuration from a file.
