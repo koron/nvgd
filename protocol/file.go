@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/koron/nvgd/lz4"
+	"github.com/pierrec/lz4"
 )
 
 // File is file protocol handler.
@@ -77,11 +77,29 @@ func (f *File) openFile(name string) (io.ReadCloser, error) {
 	}
 	// Apply decompress filter.
 	if rxGz.MatchString(name) {
-		return gzip.NewReader(r)
+		zr, err := gzip.NewReader(r)
+		if err != nil {
+			r.Close()
+			return nil, err
+		}
+		return zr, nil
 	} else if rxBz2.MatchString(name) {
-		return ioutil.NopCloser(bzip2.NewReader(r)), nil
+		return newWrapRC(bzip2.NewReader(r), r), nil
 	} else if rxLz4.MatchString(name) {
-		return lz4.NewReader(r)
+		return newWrapRC(lz4.NewReader(r), r), nil
 	}
 	return r, nil
+}
+
+type wrapRC struct {
+	io.Reader
+	c io.Closer
+}
+
+func newWrapRC(r io.Reader, c io.Closer) io.ReadCloser {
+	return &wrapRC{Reader: r, c: c}
+}
+
+func (rc *wrapRC) Close() error {
+	return rc.c.Close()
 }
