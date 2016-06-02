@@ -36,7 +36,10 @@ Nvgd accepts path in these like format:
 Nvgd supports these `protocol`s:
 
   * `file` - `/file:///path/to/source`
-  * `s3` - `/s3://bucket-name/key/to/object`
+  * `s3`
+    * get object: `/s3://bucket-name/key/to/object`
+    * list objects (end with slash): `/s3://bucket-name/prefix/of/key/`
+    * list objects (with free form prefix): `/s3://bucket-name/%3fprefix=logs/2016-`
 
 See also:
 

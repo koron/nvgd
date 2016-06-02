@@ -1,8 +1,14 @@
 package protocol
 
 import (
+	"bytes"
 	"io"
+	"io/ioutil"
+	"log"
 	"net/url"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -37,6 +43,41 @@ func (ph *S3Handler) Open(u *url.URL) (io.ReadCloser, error) {
 	conf := ph.Config.bucketConfig(bucket).awsConfig()
 	sess := session.New(conf)
 	svc := s3.New(sess)
+	if key == "/" {
+		return ph.listObjects(svc, bucket, u.Query().Get("prefix"))
+	}
+	if strings.HasSuffix(key, "/") {
+		// strip leading '/' from key
+		return ph.listObjects(svc, bucket, key[1:])
+	}
+	return ph.getObject(svc, bucket, key)
+}
+
+func (ph *S3Handler) listObjects(svc *s3.S3, bucket, prefix string) (io.ReadCloser, error) {
+	out, err := svc.ListObjectsV2(&s3.ListObjectsV2Input{
+		Bucket: aws.String(bucket),
+		Prefix: aws.String(prefix),
+	})
+	if err != nil {
+		return nil, err
+	}
+	var (
+		buf  = &bytes.Buffer{}
+		cols = make([]string, 0, 4)
+	)
+	for _, obj := range out.Contents {
+		cols := append(cols, *obj.Key, "obj", strconv.FormatInt(*obj.Size, 10),
+			obj.LastModified.Format(time.RFC1123))
+		_, err := buf.WriteString(strings.Join(cols, "\t") + "\n")
+		if err != nil {
+			return nil, err
+		}
+		cols = cols[0:0]
+	}
+	return ioutil.NopCloser(buf), nil
+}
+
+func (ph *S3Handler) getObject(svc *s3.S3, bucket, key string) (io.ReadCloser, error) {
 	out, err := svc.GetObject(&s3.GetObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
