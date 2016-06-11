@@ -14,7 +14,7 @@ func TestS3Config(t *testing.T) {
 	}
 
 	var (
-		act0 = s3handler.Config.bucketConfig("")
+		act0 = s3config.bucketConfig("")
 		exp0 = &S3BucketConfig{
 			AccessKeyID:     "XXX",
 			SecretAccessKey: "YYY",
@@ -25,7 +25,7 @@ func TestS3Config(t *testing.T) {
 	}
 
 	var (
-		act1 = s3handler.Config.bucketConfig("foo")
+		act1 = s3config.bucketConfig("foo")
 		exp1 = &S3BucketConfig{
 			Region:          "aaa",
 			AccessKeyID:     "bbb",
@@ -38,7 +38,7 @@ func TestS3Config(t *testing.T) {
 	}
 
 	var (
-		act2 = s3handler.Config.bucketConfig("bar")
+		act2 = s3config.bucketConfig("bar")
 		exp2 = &S3BucketConfig{
 			Region:          "eee",
 			AccessKeyID:     "fff",

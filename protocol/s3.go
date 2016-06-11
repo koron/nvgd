@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/url"
 	"strconv"
 	"strings"
@@ -17,25 +16,32 @@ import (
 	"github.com/koron/nvgd/config"
 )
 
-var s3handler = &S3Handler{
-	Config: S3Config{
-		Default: S3BucketConfig{},
-		Buckets: map[string]S3BucketConfig{},
-	},
+var s3config = S3Config{
+	Default: S3BucketConfig{},
+	Buckets: map[string]S3BucketConfig{},
+}
+
+var s3ObjHandler = &S3ObjHandler{
+	Config: &s3config,
+}
+
+var s3ListHandler = &S3ListHandler{
+	Config: &s3config,
 }
 
 func init() {
-	MustRegister("s3", s3handler)
-	config.RegisterProtocol("s3", &s3handler.Config)
+	MustRegister("s3obj", s3ObjHandler)
+	MustRegister("s3list", s3ListHandler)
+	config.RegisterProtocol("s3", &s3config)
 }
 
-// S3Handler is AWS S3 protocol handler
-type S3Handler struct {
-	Config S3Config
+// S3ObjHandler is AWS S3 object protocol handler
+type S3ObjHandler struct {
+	Config *S3Config
 }
 
 // Open opens a S3 URL.
-func (ph *S3Handler) Open(u *url.URL) (io.ReadCloser, error) {
+func (ph *S3ObjHandler) Open(u *url.URL) (io.ReadCloser, error) {
 	var (
 		bucket = u.Host
 		key    = u.Path
@@ -43,20 +49,42 @@ func (ph *S3Handler) Open(u *url.URL) (io.ReadCloser, error) {
 	conf := ph.Config.bucketConfig(bucket).awsConfig()
 	sess := session.New(conf)
 	svc := s3.New(sess)
-	if key == "/" {
-		return ph.listObjects(svc, bucket, u.Query().Get("prefix"))
-	}
-	if strings.HasSuffix(key, "/") {
-		// strip leading '/' from key
-		return ph.listObjects(svc, bucket, key[1:])
-	}
 	return ph.getObject(svc, bucket, key)
 }
 
-func (ph *S3Handler) listObjects(svc *s3.S3, bucket, prefix string) (io.ReadCloser, error) {
-	out, err := svc.ListObjectsV2(&s3.ListObjectsV2Input{
+func (ph *S3ObjHandler) getObject(svc *s3.S3, bucket, key string) (io.ReadCloser, error) {
+	out, err := svc.GetObject(&s3.GetObjectInput{
 		Bucket: aws.String(bucket),
-		Prefix: aws.String(prefix),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return out.Body, nil
+}
+
+// S3ListHandler is AWS S3 list protocol handler
+type S3ListHandler struct {
+	Config *S3Config
+}
+
+// Open opens a S3 URL.
+func (ph *S3ListHandler) Open(u *url.URL) (io.ReadCloser, error) {
+	var (
+		bucket = u.Host
+		key    = u.Path
+	)
+	conf := ph.Config.bucketConfig(bucket).awsConfig()
+	sess := session.New(conf)
+	svc := s3.New(sess)
+	return ph.listObjects(svc, bucket, key[1:])
+}
+
+func (ph *S3ListHandler) listObjects(svc *s3.S3, bucket, prefix string) (io.ReadCloser, error) {
+	out, err := svc.ListObjectsV2(&s3.ListObjectsV2Input{
+		Bucket:    aws.String(bucket),
+		Prefix:    aws.String(prefix),
+		Delimiter: aws.String("/"),
 	})
 	if err != nil {
 		return nil, err
@@ -75,17 +103,6 @@ func (ph *S3Handler) listObjects(svc *s3.S3, bucket, prefix string) (io.ReadClos
 		cols = cols[0:0]
 	}
 	return ioutil.NopCloser(buf), nil
-}
-
-func (ph *S3Handler) getObject(svc *s3.S3, bucket, key string) (io.ReadCloser, error) {
-	out, err := svc.GetObject(&s3.GetObjectInput{
-		Bucket: aws.String(bucket),
-		Key:    aws.String(key),
-	})
-	if err != nil {
-		return nil, err
-	}
-	return out.Body, nil
 }
 
 // S3Config is configuration of S3 protocol handler.
