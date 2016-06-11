@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/bzip2"
 	"compress/gzip"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -14,6 +15,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/koron/nvgd/ltsv"
 	"github.com/pierrec/lz4"
 )
 
@@ -47,19 +49,24 @@ func (f *File) openDir(name string) (io.ReadCloser, error) {
 	}
 	var (
 		buf = &bytes.Buffer{}
-		out = make([]string, 0, 4)
+		w   = ltsv.NewWriter(buf, "name", "type", "size", "modified_at", "link")
 	)
+	path := strings.TrimRight(name, "/")
 	for _, fi := range list {
-		t := "file"
+		n := fi.Name()
+		var t, link string
 		if fi.IsDir() {
 			t = "dir"
+			link = fmt.Sprintf("/file://%s/%s/", path, n)
+		} else {
+			t = "file"
+			link = fmt.Sprintf("/file://%s/%s", path, n)
 		}
-		out := append(out, fi.Name(), t, strconv.FormatInt(fi.Size(), 10), fi.ModTime().Format(time.RFC1123))
-		_, err := buf.WriteString(strings.Join(out, "\t") + "\n")
+		err := w.Write(n, t, strconv.FormatInt(fi.Size(), 10),
+			fi.ModTime().Format(time.RFC1123), link)
 		if err != nil {
 			return nil, err
 		}
-		out = out[0:0]
 	}
 	return ioutil.NopCloser(buf), nil
 }
