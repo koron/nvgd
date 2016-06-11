@@ -36,10 +36,10 @@ Nvgd accepts path in these like format:
 Nvgd supports these `protocol`s:
 
   * `file` - `/file:///path/to/source`
-  * `s3`
+  * `s3obj`
     * get object: `/s3://bucket-name/key/to/object`
-    * list objects (end with slash): `/s3://bucket-name/prefix/of/key/`
-    * list objects (with free form prefix): `/s3://bucket-name/%3fprefix=logs/2016-`
+  * `s3list`
+    * list objects: `/s3://bucket-name/prefix/of/key`
 
 See also:
 
@@ -65,9 +65,9 @@ protocols:
     ...
 ```
 
-### Config S3 Protocol Handler
+### Config S3 Protocol Handlers
 
-Configuration of S3 protocol handler consist from 2 parts: `default` and
+Configuration of S3 protocor handlers consist from 2 parts: `default` and
 `buckets`.  `default` part cotains default configuration to connect S3.  And
 `buckets` part could contain configuration for each buckets specific.
 
