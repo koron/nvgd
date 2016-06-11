@@ -57,7 +57,7 @@ func (f *File) openDir(name string) (io.ReadCloser, error) {
 		var t, link string
 		if fi.IsDir() {
 			t = "dir"
-			link = fmt.Sprintf("/file://%s/%s/", path, n)
+			link = fmt.Sprintf("/file://%s/%s/?htmltable", path, n)
 		} else {
 			t = "file"
 			link = fmt.Sprintf("/file://%s/%s", path, n)

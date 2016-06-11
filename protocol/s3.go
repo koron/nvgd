@@ -95,7 +95,7 @@ func (ph *S3ListHandler) listObjects(svc *s3.S3, bucket, prefix string) (io.Read
 		w   = ltsv.NewWriter(buf, "name", "type", "size", "modified_at", "link")
 	)
 	for _, item := range out.CommonPrefixes {
-		link := fmt.Sprintf("/s3list://%s/%s", bucket, *item.Prefix)
+		link := fmt.Sprintf("/s3list://%s/%s?htmltable", bucket, *item.Prefix)
 		err := w.Write(*item.Prefix, "prefix", "", "", link)
 		if err != nil {
 			return nil, err

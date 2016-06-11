@@ -112,6 +112,7 @@ Nvgd supports these filters:
   * [Cut filter](#cut-filter)
   * [Hash filter](#hash-filter)
   * [LTSV filter](#ltsv-filter)
+  * [HTML Table filter](#html-table-filter)
   * [Refresh filter](#refresh-filter)
 
 ### Filter Spec
@@ -213,6 +214,17 @@ Output, match to value of specified label, and output selected labels.
     * `grep` - match parameter: `{label},{pattern}`
     * `match` - output when match or not match.  default is true.
     * `cut` - selected labels, combinable by comma `,`.
+
+### HTML Table filter
+
+Convert LTSV to HTML table.
+
+  * filter\_name: `htmltable`
+  * options: (none)
+
+Example: list objects in S3 bucket "foo" with HTML.
+
+    http://127.0.0.1:9280/s3list://foo/?htmltable
 
 ### Refresh filter
 
