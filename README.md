@@ -37,9 +37,9 @@ Nvgd supports these `protocol`s:
 
   * `file` - `/file:///path/to/source`
   * `s3obj`
-    * get object: `/s3://bucket-name/key/to/object`
+    * get object: `/s3obj://bucket-name/key/to/object`
   * `s3list`
-    * list objects: `/s3://bucket-name/prefix/of/key`
+    * list common prefixes and objects: `/s3list://bucket-name/prefix/of/key`
 
 See also:
 
