@@ -93,8 +93,16 @@ func (ph *S3ListHandler) listObjects(svc *s3.S3, bucket, prefix string) (io.Read
 		buf  = &bytes.Buffer{}
 		cols = make([]string, 0, 4)
 	)
+	for _, item := range out.CommonPrefixes {
+		cols := append(cols, *item.Prefix, "prefix", "(none)", "(none)")
+		_, err := buf.WriteString(strings.Join(cols, "\t") + "\n")
+		if err != nil {
+			return nil, err
+		}
+		cols = cols[0:0]
+	}
 	for _, obj := range out.Contents {
-		cols := append(cols, *obj.Key, "obj", strconv.FormatInt(*obj.Size, 10),
+		cols := append(cols, *obj.Key, "object", strconv.FormatInt(*obj.Size, 10),
 			obj.LastModified.Format(time.RFC1123))
 		_, err := buf.WriteString(strings.Join(cols, "\t") + "\n")
 		if err != nil {
