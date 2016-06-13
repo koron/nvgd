@@ -98,6 +98,11 @@ func (s *Set) GetFirst(label string) string {
 	return s.Properties[indexes[0]].Value
 }
 
+// Empty checks set is empty or not.
+func (s *Set) Empty() bool {
+	return len(s.Properties) == 0
+}
+
 // Property is a pair of label and value.
 type Property struct {
 	Label string

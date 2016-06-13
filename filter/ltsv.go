@@ -7,10 +7,10 @@ import (
 	"strings"
 )
 
-type ltsv map[string][]string
+type ltsvValue map[string][]string
 
-func parseLTSV(s string) ltsv {
-	r := ltsv{}
+func parseLTSV(s string) ltsvValue {
+	r := ltsvValue{}
 	for _, raw := range strings.Split(s, "\t") {
 		kv := strings.SplitN(raw, ":", 2)
 		if len(kv) != 2 {
@@ -23,7 +23,7 @@ func parseLTSV(s string) ltsv {
 	return r
 }
 
-func (v ltsv) put(buf *bytes.Buffer) error {
+func (v ltsvValue) put(buf *bytes.Buffer) error {
 	first := true
 	for k, slot := range v {
 		for _, v := range slot {
@@ -88,7 +88,7 @@ func (l *LTSV) readNext(buf *bytes.Buffer) error {
 	}
 }
 
-func (l *LTSV) isMatch(v ltsv) bool {
+func (l *LTSV) isMatch(v ltsvValue) bool {
 	if l.label == "" {
 		return true
 	}
@@ -104,11 +104,11 @@ func (l *LTSV) isMatch(v ltsv) bool {
 	return false
 }
 
-func (l *LTSV) filter(v ltsv) ltsv {
+func (l *LTSV) filter(v ltsvValue) ltsvValue {
 	if len(l.cut) == 0 {
 		return v
 	}
-	r := ltsv{}
+	r := ltsvValue{}
 	for _, label := range l.cut {
 		slot, ok := v[label]
 		if !ok {

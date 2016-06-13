@@ -78,7 +78,10 @@ func (ph *S3ListHandler) Open(u *url.URL) (io.ReadCloser, error) {
 	conf := ph.Config.bucketConfig(bucket).awsConfig()
 	sess := session.New(conf)
 	svc := s3.New(sess)
-	return ph.listObjects(svc, bucket, key[1:])
+	if len(key) > 0 {
+		key = key[1:]
+	}
+	return ph.listObjects(svc, bucket, key)
 }
 
 func (ph *S3ListHandler) listObjects(svc *s3.S3, bucket, prefix string) (io.ReadCloser, error) {
