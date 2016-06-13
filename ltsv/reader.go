@@ -20,7 +20,7 @@ func NewReader(r io.Reader) *Reader {
 
 func (r *Reader) readLine() ([]byte, error) {
 	d, err := r.rd.ReadSlice('\n')
-	if err == nil {
+	if err == nil || (err == io.EOF && len(d) > 0) {
 		return d, nil
 	} else if err != bufio.ErrBufferFull {
 		return nil, err
@@ -92,7 +92,7 @@ func (s *Set) Get(label string) []string {
 // GetFirst gets a first value for the label.
 func (s *Set) GetFirst(label string) string {
 	indexes, ok := s.Index[label]
-	if !ok || len(indexes) == 0{
+	if !ok || len(indexes) == 0 {
 		return ""
 	}
 	return s.Properties[indexes[0]].Value
