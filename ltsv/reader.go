@@ -6,12 +6,12 @@ import (
 	"io"
 )
 
-// Reader reads LSTV values.
+// Reader reads LTSV values.
 type Reader struct {
 	rd *bufio.Reader
 }
 
-// NewReader creates a new LSTV reader.
+// NewReader creates a new LTSV reader.
 func NewReader(r io.Reader) *Reader {
 	return &Reader{
 		rd: bufio.NewReader(r),
@@ -42,12 +42,14 @@ func (r *Reader) readLine() ([]byte, error) {
 	}
 }
 
-// Read read a LSTV value.
+// Read read a LTSV value.
 func (r *Reader) Read() (*Set, error) {
 	d, err := r.readLine()
 	if err != nil {
 		return nil, err
 	}
+	d = bytes.TrimLeft(d, " \n\r\t")
+	d = bytes.TrimRight(d, "\n\r\t")
 	s := &Set{
 		Index: make(map[string][]int),
 	}
@@ -61,7 +63,7 @@ func (r *Reader) Read() (*Set, error) {
 	return s, nil
 }
 
-// Set is a set of LSTV values in a line.
+// Set is a set of LTSV values in a line.
 type Set struct {
 	Properties []Property
 	Index      map[string][]int
@@ -70,7 +72,7 @@ type Set struct {
 // Put puts a property to the set.
 func (s *Set) Put(label, value string) {
 	n := len(s.Properties)
-	s.Properties = append(s.Properties, Property{Lavel: label, Value: value})
+	s.Properties = append(s.Properties, Property{Label: label, Value: value})
 	s.Index[label] = append(s.Index[label], n)
 }
 
@@ -88,6 +90,6 @@ func (s *Set) Get(label string) []string {
 
 // Property is a pair of label and value.
 type Property struct {
-	Lavel string
+	Label string
 	Value string
 }
