@@ -226,6 +226,8 @@ Example: list objects in S3 bucket "foo" with HTML.
 
     http://127.0.0.1:9280/s3list://foo/?htmltable
 
+This filter should be last of filters.
+
 ### Refresh filter
 
 Add "Refresh" header with specified time (sec).

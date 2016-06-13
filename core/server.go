@@ -99,6 +99,9 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 		v := fmt.Sprintf("%d; URL=%s", refresh, req.URL.String())
 		res.Header().Set("Refresh", v)
 	}
+	if s.isHTML(qp) {
+		res.Header().Set("Content-Type", "text/html")
+	}
 	res.WriteHeader(http.StatusOK)
 	_, err = io.Copy(res, r)
 	if err != nil {
@@ -161,4 +164,12 @@ func (s *Server) parseParams(q string) (map[string]string, error) {
 		p[k] = v
 	}
 	return p, nil
+}
+
+func (s *Server) isHTML(qp qparams) bool {
+	if len(qp) == 0 {
+		return false
+	}
+	item := qp[len(qp)-1]
+	return item.name == "htmltable"
 }
