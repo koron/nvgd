@@ -76,6 +76,7 @@ func (s *Set) Put(label, value string) {
 	s.Index[label] = append(s.Index[label], n)
 }
 
+// Get gets values for the label.
 func (s *Set) Get(label string) []string {
 	indexes, ok := s.Index[label]
 	if !ok {
@@ -86,6 +87,15 @@ func (s *Set) Get(label string) []string {
 		list[i] = s.Properties[n].Value
 	}
 	return list
+}
+
+// GetFirst gets a first value for the label.
+func (s *Set) GetFirst(label string) string {
+	indexes, ok := s.Index[label]
+	if !ok || len(indexes) == 0{
+		return ""
+	}
+	return s.Properties[indexes[0]].Value
 }
 
 // Property is a pair of label and value.
