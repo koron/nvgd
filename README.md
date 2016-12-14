@@ -4,6 +4,7 @@ HTTP file server to help DevOps.
 
 Index:
 
+  * [How to use](#how-to-use)
   * [Acceptable path](#acceptable-path)
   * [Configuration file](#configuration-file)
   * [Filters](#filters)
