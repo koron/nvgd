@@ -41,6 +41,12 @@ Nvgd supports these `protocol`s:
     * get object: `/s3obj://bucket-name/key/to/object`
   * `s3list`
     * list common prefixes and objects: `/s3list://bucket-name/prefix/of/key`
+  * `db` - query pre-defined databases
+    * query `id` and `email` form users in `db_pq`:
+
+        ```
+        /db://db_pq/select id,email from users
+        ```
 
 See also:
 
@@ -63,6 +69,10 @@ protocols:
 
   # AWS S3 protocol handler configuration (see other section, OPTIONAL).
   s3:
+    ...
+
+  # DB protocol handler configuration (OPTIONAL, see below)
+  db:
     ...
 ```
 
@@ -101,6 +111,30 @@ s3:
     "your_bucket_name2":
       ...
 ```
+
+### Config DB Protocol Handler
+
+Sample of configuration for DB protocol handler.
+
+```yml
+db:
+  # key could be set favorite name for your database
+  db_pq:
+    # driver supports 'postgres' or 'mysql' for now
+    driver: 'postgres'
+    # name is driver-specific source name (DSN)
+    name: 'postgres://pqgotest:password@localhost/pqgotest?sslmode=verify-full'
+
+  # sample of connecting to MySQL
+  db_mysql:
+    driver: 'mysql'
+    name:   'user:password@/dbname'
+```
+
+With above configuration, you will be able to access those databases with below URLs or commands.
+
+  * `curl 'http://127.0.0.1:9280/db://db_pq/select%20email%20from%20users'`
+  * `curl 'http://127.0.0.1:9280/db://db_mysql/select%20email%20from%20users'`
 
 
 ## Filters
@@ -219,6 +253,7 @@ Output, match to value of specified label, and output selected labels.
 ### HTML Table filter
 
 Convert LTSV to HTML table.
+(limited for s3list and files (dir) source for now)
 
   * filter\_name: `htmltable`
   * options: (none)

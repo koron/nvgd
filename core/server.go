@@ -80,7 +80,7 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	}
 	r, err := p.Open(u)
 	if err != nil {
-		return fmt.Errorf("failed to open: %s", path)
+		return fmt.Errorf("failed to open %s; %s", path, err)
 	}
 	qp, err := qparamsParse(req.URL.RawQuery)
 	if err != nil {
@@ -105,7 +105,7 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	res.WriteHeader(http.StatusOK)
 	_, err = io.Copy(res, r)
 	if err != nil {
-		s.errorLog.Printf("failed to copy body content")
+		s.errorLog.Printf("failed to copy body content: %s", err)
 	}
 	return nil
 }
