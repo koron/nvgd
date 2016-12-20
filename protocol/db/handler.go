@@ -15,8 +15,8 @@ import (
 	"github.com/koron/nvgd/protocol"
 )
 
-// DBParam is connection parameter for the database.
-type DBParam struct {
+// Param is connection parameter for the database.
+type Param struct {
 	// Driver represents driver name for database.
 	Driver string `yaml:"driver"`
 
@@ -24,33 +24,34 @@ type DBParam struct {
 	Name string `yaml:"name"`
 }
 
-// DBConfig represents configuration for DBHandler.
-type DBConfig map[string]DBParam
+// Config represents configuration for Handler.
+type Config map[string]Param
 
-// DBHandler is database protocol handler.
-type DBHandler struct {
-	Config *DBConfig
+// Handler is database protocol handler.
+type Handler struct {
+	Config *Config
 
-	l sync.Mutex
-	h map[string]*sql.DB
+	l         sync.Mutex
+	databases map[string]*sql.DB
 }
 
-var dbconfig DBConfig
+var dbconfig Config
 
 func init() {
-	protocol.MustRegister("db", &DBHandler{
-		Config: &dbconfig,
-		h:      make(map[string]*sql.DB),
+	protocol.MustRegister("db", &Handler{
+		Config:    &dbconfig,
+		databases: make(map[string]*sql.DB),
 	})
 	config.RegisterProtocol("db", &dbconfig)
 }
 
-func (dbh *DBHandler) Open(u *url.URL) (io.ReadCloser, error) {
+// Open creates a database handler.
+func (h *Handler) Open(u *url.URL) (io.ReadCloser, error) {
 	var (
 		name  = u.Host
 		query = u.Path
 	)
-	db, err := dbh.openDB(name)
+	db, err := h.openDB(name)
 	if err != nil {
 		return nil, err
 	}
@@ -64,23 +65,28 @@ func (dbh *DBHandler) Open(u *url.URL) (io.ReadCloser, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	return dbh.rows2ltsv(rows)
+	return h.rows2ltsv(rows)
 }
 
-func (dbh *DBHandler) openDB(name string) (*sql.DB, error) {
-	dbh.l.Lock()
-	defer dbh.l.Unlock()
-	if db, ok := dbh.h[name]; ok {
+func (h *Handler) openDB(name string) (*sql.DB, error) {
+	h.l.Lock()
+	defer h.l.Unlock()
+	if db, ok := h.databases[name]; ok {
 		return db, nil
 	}
-	p, ok := (*dbh.Config)[name]
+	p, ok := (*h.Config)[name]
 	if !ok {
-		return nil, fmt.Errorf("unknown database: %q")
+		return nil, fmt.Errorf("unknown database: %q", name)
 	}
-	return sql.Open(p.Driver, p.Name)
+	db, err := sql.Open(p.Driver, p.Name)
+	if err != nil {
+		return nil, err
+	}
+	h.databases[name] = db
+	return db, nil
 }
 
-func (dbh *DBHandler) rows2ltsv(rows *sql.Rows) (io.ReadCloser, error) {
+func (h *Handler) rows2ltsv(rows *sql.Rows) (io.ReadCloser, error) {
 	cols, err := rows.Columns()
 	if err != nil {
 		return nil, err
@@ -92,7 +98,7 @@ func (dbh *DBHandler) rows2ltsv(rows *sql.Rows) (io.ReadCloser, error) {
 	)
 
 	vals := make([]interface{}, n)
-	for i, _ := range vals {
+	for i := range vals {
 		vals[i] = new(string)
 	}
 	strs := make([]string, n)
