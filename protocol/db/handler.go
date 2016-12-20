@@ -15,6 +15,8 @@ import (
 	"github.com/koron/nvgd/protocol"
 )
 
+var NullReplacement = "(null)"
+
 // Param is connection parameter for the database.
 type Param struct {
 	// Driver represents driver name for database.
@@ -99,7 +101,7 @@ func (h *Handler) rows2ltsv(rows *sql.Rows) (io.ReadCloser, error) {
 
 	vals := make([]interface{}, n)
 	for i := range vals {
-		vals[i] = new(string)
+		vals[i] = new(sql.NullString)
 	}
 	strs := make([]string, n)
 
@@ -108,7 +110,12 @@ func (h *Handler) rows2ltsv(rows *sql.Rows) (io.ReadCloser, error) {
 			return nil, err
 		}
 		for i, v := range vals {
-			strs[i] = *v.(*string)
+			ns := v.(*sql.NullString)
+			if ns.Valid {
+				strs[i] = ns.String
+			} else {
+				strs[i] = NullReplacement
+			}
 		}
 		w.Write(strs...)
 	}
