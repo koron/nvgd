@@ -1,4 +1,4 @@
-package protocol
+package db
 
 import (
 	"bytes"
@@ -12,6 +12,7 @@ import (
 
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/ltsv"
+	"github.com/koron/nvgd/protocol"
 )
 
 // DBParam is connection parameter for the database.
@@ -37,7 +38,7 @@ type DBHandler struct {
 var dbconfig DBConfig
 
 func init() {
-	MustRegister("db", &DBHandler{
+	protocol.MustRegister("db", &DBHandler{
 		Config: &dbconfig,
 		h:      make(map[string]*sql.DB),
 	})
