@@ -3,10 +3,12 @@ package db
 import (
 	"bytes"
 	"database/sql"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/url"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -60,9 +62,20 @@ func (h *Handler) Open(u *url.URL) (io.ReadCloser, error) {
 	if strings.HasPrefix(query, "/") {
 		query = query[1:]
 	}
-	// TODO: sanitize query!
-	//fmt.Printf("query=%s\n", query)
+	if err := h.checkSanity(query); err != nil {
+		return nil, err
+	}
 	return h.execQuery(db, query)
+}
+
+var reBadQuery = regexp.MustCompile(`(?i:^\s*(?:insert|update|delete|create|drop|alter|truncate|prepare|execute))`)
+
+func (h *Handler) checkSanity(q string) error {
+	// FIXME: too simple, should do more.
+	if reBadQuery.MatchString(q) {
+		return errors.New("including invalid keywords")
+	}
+	return nil
 }
 
 // execQuery executes a query in a transaction which will be rollbacked.
