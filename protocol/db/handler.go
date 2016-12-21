@@ -57,12 +57,22 @@ func (h *Handler) Open(u *url.URL) (io.ReadCloser, error) {
 	if err != nil {
 		return nil, err
 	}
-	// TODO: sanitize query!
 	if strings.HasPrefix(query, "/") {
 		query = query[1:]
 	}
-	fmt.Printf("query=%s\n", query)
-	rows, err := db.Query(query)
+	// TODO: sanitize query!
+	//fmt.Printf("query=%s\n", query)
+	return h.execQuery(db, query)
+}
+
+// execQuery executes a query in a transaction which will be rollbacked.
+func (h *Handler) execQuery(db *sql.DB, q string) (io.ReadCloser, error) {
+	tx, err := db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+	rows, err := tx.Query(q)
 	if err != nil {
 		return nil, err
 	}
