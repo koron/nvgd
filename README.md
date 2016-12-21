@@ -148,6 +148,7 @@ Nvgd supports these filters:
   * [Hash filter](#hash-filter)
   * [LTSV filter](#ltsv-filter)
   * [HTML Table filter](#html-table-filter)
+  * [HTML Table filter 2](#html-table-filter-2)
   * [Refresh filter](#refresh-filter)
 
 ### Filter Spec
@@ -262,7 +263,20 @@ Example: list objects in S3 bucket "foo" with HTML.
 
     http://127.0.0.1:9280/s3list://foo/?htmltable
 
-This filter should be last of filters.
+This filter should be the last of filters.
+
+### HTML Table filter 2
+
+Convert LTSV to HTML table (general purpose).
+
+  * filter\_name: `htmltable2`
+  * options: (none)
+
+Example: query id and email column from users table on mine database.
+
+    http://127.0.0.1:9280/db://mine/select%20id,email%20from%20users?htmltable2
+
+This filter should be the last of filters.
 
 ### Refresh filter
 
