@@ -7,8 +7,8 @@ Index:
   * [How to use](#how-to-use)
   * [Acceptable path](#acceptable-path)
   * [Configuration file](#configuration-file)
-    * [Command Protocol Handlers](#config-protocol-hanlders)
-    * [S3 Protocol Handlers](#config-s3-protocol-hanlders)
+    * [Command Protocol Handlers](#config-protocol-handlers)
+    * [S3 Protocol Handlers](#config-s3-protocol-handlers)
     * [Config DB Protocol Handler](#config-db-protocol-handler)
   * [Filters](#filters)
 
