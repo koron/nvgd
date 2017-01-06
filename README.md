@@ -40,6 +40,7 @@ Nvgd accepts path in these like format:
 Nvgd supports these `protocol`s:
 
   * `file` - `/file:///path/to/source`
+  * `command` - result of pre-defined commands
   * `s3obj`
     * get object: `/s3obj://bucket-name/key/to/object`
   * `s3list`
