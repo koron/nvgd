@@ -7,6 +7,9 @@ Index:
   * [How to use](#how-to-use)
   * [Acceptable path](#acceptable-path)
   * [Configuration file](#configuration-file)
+    * [Command Protocol Handlers](#config-protocol-hanlders)
+    * [S3 Protocol Handlers](#config-s3-protocol-hanlders)
+    * [Config DB Protocol Handler](#config-db-protocol-handler)
   * [Filters](#filters)
 
 ## How to use
@@ -67,6 +70,10 @@ addr: "0.0.0.0:8080"
 # Configuratio for protocols (OPTIONAL)
 protocols:
 
+  # Pre-defined command handlers.
+  command:
+    ...
+
   # AWS S3 protocol handler configuration (see other section, OPTIONAL).
   s3:
     ...
@@ -75,6 +82,26 @@ protocols:
   db:
     ...
 ```
+
+### Commnad Protocol Handlers
+
+Configuration of pre-defined command protocol handler maps a key to
+corresponding command source.
+
+Example:
+
+```yml
+command:
+  "df": "df -h"
+  "lstmp": "ls -l /tmp"
+```
+
+This enables two resources under `command` protocol.
+
+  * `/command://df`
+  * `/command://lstmp`
+
+You could add filters of course, like: `/command://df?grep=re:foo`
 
 ### Config S3 Protocol Handlers
 
