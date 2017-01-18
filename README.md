@@ -177,6 +177,7 @@ Nvgd supports these filters:
   * [LTSV filter](#ltsv-filter)
   * [Index HTML filter](#index-html-filter)
   * [HTML Table filter](#html-table-filter)
+  * [Text Table filter](#text-table-filter)
   * [Refresh filter](#refresh-filter)
 
 ### Filter Spec
@@ -295,7 +296,7 @@ This filter should be the last of filters.
 
 ### HTML Table filter
 
-Convert LTSV to HTML table (general purpose).
+Convert LTSV to HTML table.
 
   * filter\_name: `htmltable`
   * options: (none)
@@ -303,6 +304,28 @@ Convert LTSV to HTML table (general purpose).
 Example: query id and email column from users table on mine database.
 
     http://127.0.0.1:9280/db://mine/select%20id,email%20from%20users?htmltable
+
+This filter should be the last of filters.
+
+### Text Table filter
+
+Convert LTSV to plain text table.
+
+  * filter\_name: `texttable`
+  * options: (none)
+
+Example: query id and email column from users table on mine database.
+
+    http://127.0.0.1:9280/db://mine/select%20id,email%20from%20users?texttable
+
+Above query generate this table.
+
+    +-----+-----------------------+
+    |  id |        email          |
+    +-----+-----------------------+
+    |    0|foo@example.com        |
+    |    1|bar@example.com        |
+    +-----+-----------------------+
 
 This filter should be the last of filters.
 
