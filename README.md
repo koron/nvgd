@@ -175,8 +175,8 @@ Nvgd supports these filters:
   * [Cut filter](#cut-filter)
   * [Hash filter](#hash-filter)
   * [LTSV filter](#ltsv-filter)
+  * [Index HTML filter](#index-html-filter)
   * [HTML Table filter](#html-table-filter)
-  * [HTML Table filter 2](#html-table-filter-2)
   * [Refresh filter](#refresh-filter)
 
 ### Filter Spec
@@ -279,30 +279,30 @@ Output, match to value of specified label, and output selected labels.
     * `match` - output when match or not match.  default is true.
     * `cut` - selected labels, combinable by comma `,`.
 
+### Index HTML filter
+
+Convert LTSV to Index HTML.
+(limited for s3list and files (dir) source for now)
+
+  * filter\_name: `indexhtml`
+  * options: (none)
+
+Example: list objects in S3 bucket "foo" with Index HTML.
+
+    http://127.0.0.1:9280/s3list://foo/?indexhtml
+
+This filter should be the last of filters.
+
 ### HTML Table filter
 
-Convert LTSV to HTML table.
-(limited for s3list and files (dir) source for now)
+Convert LTSV to HTML table (general purpose).
 
   * filter\_name: `htmltable`
   * options: (none)
 
-Example: list objects in S3 bucket "foo" with HTML.
-
-    http://127.0.0.1:9280/s3list://foo/?htmltable
-
-This filter should be the last of filters.
-
-### HTML Table filter 2
-
-Convert LTSV to HTML table (general purpose).
-
-  * filter\_name: `htmltable2`
-  * options: (none)
-
 Example: query id and email column from users table on mine database.
 
-    http://127.0.0.1:9280/db://mine/select%20id,email%20from%20users?htmltable2
+    http://127.0.0.1:9280/db://mine/select%20id,email%20from%20users?htmltable
 
 This filter should be the last of filters.
 
