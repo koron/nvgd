@@ -17,6 +17,8 @@ import (
 	"github.com/koron/nvgd/protocol"
 )
 
+const maxRows = 100
+
 var NullReplacement = "(null)"
 
 // Param is connection parameter for the database.
@@ -128,6 +130,7 @@ func (h *Handler) rows2ltsv(rows *sql.Rows) (io.ReadCloser, error) {
 	}
 	strs := make([]string, n)
 
+	nrow := 0
 	for rows.Next() {
 		if err := rows.Scan(vals...); err != nil {
 			return nil, err
@@ -141,6 +144,10 @@ func (h *Handler) rows2ltsv(rows *sql.Rows) (io.ReadCloser, error) {
 			}
 		}
 		w.Write(strs...)
+		nrow++
+		if nrow >= maxRows {
+			break
+		}
 	}
 	return ioutil.NopCloser(buf), nil
 }
