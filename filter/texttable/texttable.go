@@ -81,7 +81,6 @@ func filterFunc(r io.ReadCloser, p filter.Params) (io.ReadCloser, error) {
 	// execute template.
 	buf := new(bytes.Buffer)
 	t := tablewriter.NewWriter(buf)
-	t.SetAlignment(tablewriter.ALIGN_LEFT)
 	t.SetHeader(d.Headers)
 	for _, row := range d.Rows {
 		t.Append(row.Values)

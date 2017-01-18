@@ -171,5 +171,5 @@ func (s *Server) isHTML(qp qparams) bool {
 		return false
 	}
 	item := qp[len(qp)-1]
-	return item.name == "htmltable"
+	return item.name == "htmltable" || item.name == "indexhtml"
 }
