@@ -1,10 +1,10 @@
 default: test
 
 test:
-	go test ./...
+	go list ./... | grep -v /vendor/ | xargs go test
 
 test-full:
-	go test -v -race ./...
+	go list ./... | grep -v /vendor/ | xargs go test -v -race
 
 lint:
 	go vet ./...
