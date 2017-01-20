@@ -19,6 +19,7 @@ import (
 
 const maxRows = 100
 
+// NullReplacement replaces null value in LTSV.
 var NullReplacement = "(null)"
 
 // Param is connection parameter for the database.

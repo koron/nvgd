@@ -1,28 +1,36 @@
+GO_SUBPKGS = $(shell go list ./... | grep -v /vendor/ | sed -e "s!$$(go list)!.!")
+
 default: test
 
 test:
-	go list ./... | grep -v /vendor/ | xargs go test
+	go test $(GO_SUBPKGS)
 
 test-full:
-	go list ./... | grep -v /vendor/ | xargs go test -v -race
+	go test -v -race $(GO_SUBPKGS)
 
 lint:
-	go vet ./...
+	@echo "go vet"
+	@go vet $(GO_SUBPKGS)
 	@echo ""
-	golint ./...
+	@echo "golint"
+	@for f in $(GO_SUBPKGS) ; do golint $$f ; done
+	@echo ""
 
 cyclo:
-	-gocyclo -top 10 -avg .
+	-gocyclo -top 10 -avg $(GO_SUBPKGS)
+	@echo ""
 
-report:
-	@echo "misspell"
-	@find . -name *.go | xargs misspell
+cyclo-report:
+	@echo gocyclo -over 14 -avg
+	-@gocyclo -over 14 -avg $(GO_SUBPKGS)
 	@echo ""
-	-gocyclo -over 14 -avg .
+
+misspell:
+	@echo misspell
+	@find $(GO_SUBPKGS) -maxdepth 1 -type f | xargs misspell
 	@echo ""
-	go vet ./...
-	@echo ""
-	golint ./...
+
+report: misspell cyclo-report lint
 
 deps:
 	go get -v -u -d -t ./...

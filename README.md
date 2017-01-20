@@ -2,6 +2,8 @@
 
 HTTP file server to help DevOps.
 
+[![Build Status](https://travis-ci.org/koron/nvgd.svg?branch=master)](https://travis-ci.org/koron/nvgd)
+
 Index:
 
   * [How to use](#how-to-use)
@@ -227,7 +229,7 @@ Output the first N lines.
   * filter\_name: `head`
   * options
     * `start` - start line number for output.  begging 0.  default is 0.
-    * `limit` - line number for output.  defualt is 10.
+    * `limit` - line number for output.  default is 10.
 
 ### Tail filter
 
@@ -237,7 +239,7 @@ Output the last N lines.
 
   * filter\_name: `tail`
   * options
-    * `limit` - line number for output.  defualt is 10.
+    * `limit` - line number for output.  default is 10.
 
 ### Cut filter
 
