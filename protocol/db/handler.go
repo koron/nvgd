@@ -17,8 +17,6 @@ import (
 	"github.com/koron/nvgd/protocol"
 )
 
-const maxRows = 100
-
 // NullReplacement replaces null value in LTSV.
 var NullReplacement = "(null)"
 
@@ -29,6 +27,9 @@ type Param struct {
 
 	// Name represents driver-specific data source name.
 	Name string `yaml:"name"`
+
+	// MaxRows is limitation of rows.
+	MaxRows int `yaml:"max_rows"`
 }
 
 // Config represents configuration for Handler.
@@ -38,16 +39,16 @@ type Config map[string]Param
 type Handler struct {
 	Config *Config
 
-	l         sync.Mutex
-	databases map[string]*sql.DB
+	l     sync.Mutex
+	conns map[string]*conn
 }
 
 var dbconfig Config
 
 func init() {
 	protocol.MustRegister("db", &Handler{
-		Config:    &dbconfig,
-		databases: make(map[string]*sql.DB),
+		Config: &dbconfig,
+		conns:  make(map[string]*conn),
 	})
 	config.RegisterProtocol("db", &dbconfig)
 }
@@ -58,7 +59,7 @@ func (h *Handler) Open(u *url.URL) (io.ReadCloser, error) {
 		name  = u.Host
 		query = u.Path
 	)
-	db, err := h.openDB(name)
+	c, err := h.openDB(name)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +69,7 @@ func (h *Handler) Open(u *url.URL) (io.ReadCloser, error) {
 	if err := h.checkSanity(query); err != nil {
 		return nil, err
 	}
-	return h.execQuery(db, query)
+	return h.execQuery(c, query)
 }
 
 var reBadQuery = regexp.MustCompile(`(?i:^\s*(?:insert|update|delete|create|drop|alter|truncate|prepare|execute))`)
@@ -82,8 +83,8 @@ func (h *Handler) checkSanity(q string) error {
 }
 
 // execQuery executes a query in a transaction which will be rollbacked.
-func (h *Handler) execQuery(db *sql.DB, q string) (io.ReadCloser, error) {
-	tx, err := db.Begin()
+func (h *Handler) execQuery(c *conn, q string) (io.ReadCloser, error) {
+	tx, err := c.db.Begin()
 	if err != nil {
 		return nil, err
 	}
@@ -93,28 +94,28 @@ func (h *Handler) execQuery(db *sql.DB, q string) (io.ReadCloser, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	return h.rows2ltsv(rows)
+	return h.rows2ltsv(rows, c.maxRows)
 }
 
-func (h *Handler) openDB(name string) (*sql.DB, error) {
+func (h *Handler) openDB(name string) (*conn, error) {
 	h.l.Lock()
 	defer h.l.Unlock()
-	if db, ok := h.databases[name]; ok {
-		return db, nil
+	if c, ok := h.conns[name]; ok {
+		return c, nil
 	}
 	p, ok := (*h.Config)[name]
 	if !ok {
 		return nil, fmt.Errorf("unknown database: %q", name)
 	}
-	db, err := sql.Open(p.Driver, p.Name)
+	c, err := connect(p.Driver, p.Name, p.MaxRows)
 	if err != nil {
 		return nil, err
 	}
-	h.databases[name] = db
-	return db, nil
+	h.conns[name] = c
+	return c, nil
 }
 
-func (h *Handler) rows2ltsv(rows *sql.Rows) (io.ReadCloser, error) {
+func (h *Handler) rows2ltsv(rows *sql.Rows, maxRows int) (io.ReadCloser, error) {
 	cols, err := rows.Columns()
 	if err != nil {
 		return nil, err

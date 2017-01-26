@@ -155,6 +155,8 @@ db:
     driver: 'postgres'
     # name is driver-specific source name (DSN)
     name: 'postgres://pqgotest:password@localhost/pqgotest?sslmode=verify-full'
+    # limit number of rows for a query (default: 100)
+    max_rows: 50
 
   # sample of connecting to MySQL
   db_mysql:
