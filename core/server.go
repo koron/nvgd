@@ -65,11 +65,7 @@ func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	path := req.URL.Path[1:]
-	// rewrite "/files/" to "/file:///" for compatibility with koron/night.
-	const filesPrefix = "files/"
-	if strings.HasPrefix(path, filesPrefix) {
-		path = "file:///" + path[len(filesPrefix):]
-	}
+	path = defaultAliases.apply(path)
 	u, err := url.Parse(path)
 	if err != nil {
 		return fmt.Errorf("failed to parse %q as URL: %s", path, err)

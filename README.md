@@ -10,10 +10,11 @@ Index:
   * [How to use](#how-to-use)
   * [Acceptable path](#acceptable-path)
   * [Configuration file](#configuration-file)
-    * [Command Protocol Handlers](#config-protocol-handlers)
+    * [Command Protocol Handlers](#command-protocol-handlers)
     * [S3 Protocol Handlers](#config-s3-protocol-handlers)
     * [Config DB Protocol Handler](#config-db-protocol-handler)
   * [Filters](#filters)
+  * [Prefix Aliases](#prefix-aliases)
 
 ## How to use
 
@@ -347,6 +348,25 @@ automatically.
     http://127.0.0.1:9280/file:///var/log/messages?tail&refresh=5
 
 
+## Prefix Aliases
+
+nvgd supports prefix aliases to keep compatiblities with [koron/night][night].
+Currently these aliases are registered.
+
+* `files/` -> `file:///`
+* `commands/` -> `command:///`
+
+For example this URL:
+
+    http://127.0.0.1:9280/files/var/log/messages
+
+works same as below URL:
+
+    http://127.0.0.1:9280/file:///var/log/messages
+
+
 ## References
 
-  * [koron/night](https://github.com/koron/night) previous impl in NodeJS.
+  * [koron/night][night] previous impl in NodeJS.
+
+[night]:https://github.com/koron/night
