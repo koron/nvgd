@@ -117,6 +117,9 @@ Configuration of S3 protocor handlers consist from 2 parts: `default` and
 ```yml
 s3:
 
+  # IANA timezone to show times (optional).  "Asia/Tokyo" for JST.
+  timezone: Asia/Tokyo
+
   # default configuration to connect to S3 (REQUIRED for S3)
   default:
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/url"
 	"strconv"
 	"time"
@@ -106,8 +107,9 @@ func (ph *S3ListHandler) listObjects(svc *s3.S3, bucket, prefix string) (io.Read
 	}
 	for _, obj := range out.Contents {
 		link := fmt.Sprintf("/s3obj://%s/%s", bucket, *obj.Key)
+		t := obj.LastModified.In(ph.Config.location())
 		err := w.Write(*obj.Key, "object", strconv.FormatInt(*obj.Size, 10),
-			obj.LastModified.Format(time.RFC1123), link)
+			t.Format(time.RFC1123), link)
 		if err != nil {
 			return nil, err
 		}
@@ -118,11 +120,33 @@ func (ph *S3ListHandler) listObjects(svc *s3.S3, bucket, prefix string) (io.Read
 // S3Config is configuration of S3 protocol handler.
 type S3Config struct {
 
+	// Timezone forces timezone of modified times or so.
+	Timezone string `yaml:"timezone,omitempty"`
+
 	// Default is default bucket configuration.
 	Default S3BucketConfig `yaml:"default,omitempty"`
 
 	// Buckets
 	Buckets map[string]S3BucketConfig `yaml:"buckets"`
+
+	loc *time.Location
+}
+
+func (c *S3Config) location() *time.Location {
+	if c.loc != nil {
+		return c.loc
+	}
+	if c.Timezone != "" {
+		l, err := time.LoadLocation(c.Timezone)
+		if err == nil {
+			c.loc = l
+			return c.loc
+		}
+		// FIXME: use server's logger.
+		log.Printf("unknown timezone %q: %s", c.Timezone, err)
+	}
+	c.loc = time.Local
+	return c.loc
 }
 
 func (c *S3Config) bucketConfig(bucket string) *S3BucketConfig {
