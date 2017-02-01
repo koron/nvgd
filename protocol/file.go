@@ -49,30 +49,31 @@ func (f *File) openDir(name string) (io.ReadCloser, error) {
 	}
 	var (
 		buf = &bytes.Buffer{}
-		w   = ltsv.NewWriter(buf, "name", "type", "size", "modified_at", "link")
+		w   = ltsv.NewWriter(buf, "name", "type", "size", "modified_at", "link", "download")
 	)
 	path := strings.TrimRight(name, "/")
 	// add updir
 	if path != "" {
 		up := strings.TrimRight(rxLastComponent.ReplaceAllString(path, ""), "/")
 		link := fmt.Sprintf("/file://%s/?indexhtml", up)
-		err := w.Write("..", "updir", "", "", link)
+		err := w.Write("..", "updir", "", "", link, "")
 		if err != nil {
 			return nil, err
 		}
 	}
 	for _, fi := range list {
 		n := fi.Name()
-		var t, link string
+		var t, link, download string
 		if fi.IsDir() {
 			t = "dir"
 			link = fmt.Sprintf("/file://%s/%s/?indexhtml", path, n)
 		} else {
 			t = "file"
 			link = fmt.Sprintf("/file://%s/%s", path, n)
+			download = link + "?download"
 		}
 		err := w.Write(n, t, strconv.FormatInt(fi.Size(), 10),
-			fi.ModTime().Format(time.RFC1123), link)
+			fi.ModTime().Format(time.RFC1123), link, download)
 		if err != nil {
 			return nil, err
 		}

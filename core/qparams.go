@@ -1,6 +1,8 @@
 package core
 
 import (
+	"bytes"
+	"fmt"
 	"net/url"
 	"strings"
 )
@@ -16,6 +18,19 @@ func (qp qparams) split(n string) (matched qparams, others qparams) {
 		others = append(others, item)
 	}
 	return matched, others
+}
+
+func (qp qparams) String() string {
+	b := &bytes.Buffer{}
+	b.WriteString("[")
+	for i, p := range qp {
+		if i != 0 {
+			b.WriteString(" ")
+		}
+		fmt.Fprintf(b, "%+v", *p)
+	}
+	b.WriteString("]")
+	return b.String()
 }
 
 func qparamsParse(qs string) (qparams, error) {

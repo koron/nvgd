@@ -13,13 +13,14 @@ import (
 var tmpl = template.Must(template.New("indexhtml").Parse(`<!DOCTYPE! html>
 <meta charset="UTF-8">
 <table border="1">
-  <tr><th>Name</th><th>Type</th><th>Size</th><th>Modified At</th></tr>
+  <tr><th>Name</th><th>Type</th><th>Size</th><th>Modified At</th><th>Download</th></tr>
   {{range .Entries}}
   <tr>
     <td><a href="{{.Link}}">{{.Name}}</a></td>
     <td>{{.Type}}</td>
     <td>{{.Size}}</td>
     <td>{{.ModifiedAt}}</td>
+	<td>{{if .Download}}<a href="{{.Download}}">DL</a>{{end}}</td>
   </tr>
   {{end}}
 </table>`))
@@ -34,6 +35,7 @@ type entry struct {
 	Size       string
 	ModifiedAt string
 	Link       string
+	Download   string
 }
 
 func filterFunc(r io.ReadCloser, p filter.Params) (io.ReadCloser, error) {
@@ -58,6 +60,7 @@ func filterFunc(r io.ReadCloser, p filter.Params) (io.ReadCloser, error) {
 			Size:       s.GetFirst("size"),
 			ModifiedAt: s.GetFirst("modified_at"),
 			Link:       s.GetFirst("link"),
+			Download:   s.GetFirst("download"),
 		}
 		d.Entries = append(d.Entries, e)
 	}

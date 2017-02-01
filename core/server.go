@@ -83,6 +83,7 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 		return fmt.Errorf("failed to parse query string: %s", err)
 	}
 	qp, refresh := s.splitRefresh(qp)
+	qp, download := s.splitDownload(qp)
 	r, err = s.applyFilters(qp, r)
 	if err != nil {
 		if r != nil {
@@ -94,6 +95,9 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	if refresh > 0 {
 		v := fmt.Sprintf("%d; URL=%s", refresh, req.URL.String())
 		res.Header().Set("Refresh", v)
+	}
+	if download {
+		res.Header().Set("Content-Disposition", "attachment")
 	}
 	if s.isHTML(qp) {
 		res.Header().Set("Content-Type", "text/html")
@@ -116,6 +120,14 @@ func (s *Server) splitRefresh(q qparams) (qparams, int) {
 		n = 0
 	}
 	return others, n
+}
+
+func (s *Server) splitDownload(q qparams) (qparams, bool) {
+	downloads, others := q.split("download")
+	if len(downloads) == 0 {
+		return q, false
+	}
+	return others, true
 }
 
 func (s *Server) applyFilters(qp qparams, r io.ReadCloser) (io.ReadCloser, error) {

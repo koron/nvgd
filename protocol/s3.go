@@ -96,13 +96,13 @@ func (ph *S3ListHandler) listObjects(svc *s3.S3, bucket, prefix string) (io.Read
 	}
 	var (
 		buf = &bytes.Buffer{}
-		w   = ltsv.NewWriter(buf, "name", "type", "size", "modified_at", "link")
+		w   = ltsv.NewWriter(buf, "name", "type", "size", "modified_at", "link", "download")
 	)
 	// add uplink
 	if prefix != "" {
 		up := rxLastComponent.ReplaceAllString(prefix, "")
 		link := fmt.Sprintf("/s3list://%s/%s?indexhtml", bucket, up)
-		err := w.Write("..", "uplink", "", "", link)
+		err := w.Write("..", "uplink", "", "", link, "")
 		if err != nil {
 			return nil, err
 		}
@@ -110,7 +110,7 @@ func (ph *S3ListHandler) listObjects(svc *s3.S3, bucket, prefix string) (io.Read
 	// add prefixes
 	for _, item := range out.CommonPrefixes {
 		link := fmt.Sprintf("/s3list://%s/%s?indexhtml", bucket, *item.Prefix)
-		err := w.Write(*item.Prefix, "prefix", "", "", link)
+		err := w.Write(*item.Prefix, "prefix", "", "", link, "")
 		if err != nil {
 			return nil, err
 		}
@@ -118,9 +118,10 @@ func (ph *S3ListHandler) listObjects(svc *s3.S3, bucket, prefix string) (io.Read
 	// show objects
 	for _, obj := range out.Contents {
 		link := fmt.Sprintf("/s3obj://%s/%s", bucket, *obj.Key)
+		download := link + "?download"
 		t := obj.LastModified.In(ph.Config.location())
 		err := w.Write(*obj.Key, "object", strconv.FormatInt(*obj.Size, 10),
-			t.Format(time.RFC1123), link)
+			t.Format(time.RFC1123), link, download)
 		if err != nil {
 			return nil, err
 		}
