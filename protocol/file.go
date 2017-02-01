@@ -52,6 +52,15 @@ func (f *File) openDir(name string) (io.ReadCloser, error) {
 		w   = ltsv.NewWriter(buf, "name", "type", "size", "modified_at", "link")
 	)
 	path := strings.TrimRight(name, "/")
+	// add updir
+	if path != "" {
+		up := strings.TrimRight(rxLastComponent.ReplaceAllString(path, ""), "/")
+		link := fmt.Sprintf("/file://%s/?indexhtml", up)
+		err := w.Write("..", "updir", "", "", link)
+		if err != nil {
+			return nil, err
+		}
+	}
 	for _, fi := range list {
 		n := fi.Name()
 		var t, link string
