@@ -1,13 +1,15 @@
-package filter
+package tail
 
 import (
 	"bytes"
 	"io"
+
+	"github.com/koron/nvgd/filter"
 )
 
 // Tail is "tail" like filter.
 type Tail struct {
-	Base
+	filter.Base
 	b    [][]byte
 	w, r int
 }
@@ -70,16 +72,4 @@ func (t *Tail) addr(n int) int {
 		n -= l
 	}
 	return n
-}
-
-func newTail(r io.ReadCloser, p Params) (io.ReadCloser, error) {
-	limit := p.Int("limit", 10)
-	if limit <= 0 {
-		limit = 10
-	}
-	return NewTail(r, limit), nil
-}
-
-func init() {
-	MustRegister("tail", newTail)
 }
