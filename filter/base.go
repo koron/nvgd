@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-// Base is base of filters.  It provides common
+// Base is base of filters.  It provides common features for filter.
 type Base struct {
 	Reader *bufio.Reader
 	buf    bytes.Buffer
