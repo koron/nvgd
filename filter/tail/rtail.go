@@ -49,7 +49,7 @@ func (rt *RTail) Close() error {
 }
 
 func (rt *RTail) findTop() error {
-	sz, err := rt.raw.Seek(0, io.SeekEnd)
+	sz, err := rt.raw.Seek(0, 2)
 	if err != nil {
 		return err
 	}
@@ -93,6 +93,6 @@ func (rt *RTail) findTop() error {
 }
 
 func (rt *RTail) seekStart(off int64) error {
-	_, err := rt.raw.Seek(off, io.SeekStart)
+	_, err := rt.raw.Seek(off, 0)
 	return err
 }
