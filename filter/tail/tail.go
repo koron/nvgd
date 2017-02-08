@@ -1,4 +1,4 @@
-package filter
+package tail
 
 import (
 	"bytes"
@@ -72,16 +72,4 @@ func (t *Tail) addr(n int) int {
 		n -= l
 	}
 	return n
-}
-
-func newTail(r io.ReadCloser, p filter.Params) (io.ReadCloser, error) {
-	limit := p.Int("limit", 10)
-	if limit <= 0 {
-		limit = 10
-	}
-	return NewTail(r, limit), nil
-}
-
-func init() {
-	filter.MustRegister("tail", newTail)
 }
