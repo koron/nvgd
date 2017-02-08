@@ -45,8 +45,8 @@ func (b *Base) Read(buf []byte) (int, error) {
 // ReadLine reads a line as []byte.
 func (b *Base) ReadLine() ([]byte, error) {
 	d, err := b.Reader.ReadSlice('\n')
-	if err == nil {
-		return d, nil
+	if err == nil || err == io.EOF {
+		return d, err
 	} else if err != bufio.ErrBufferFull {
 		return nil, err
 	}

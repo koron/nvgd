@@ -32,7 +32,7 @@ func checkRTail(t *testing.T, src string, limit, bufsize int, exp string) {
 	}
 	act := string(b)
 	if act != exp {
-		t.Errorf("rtail returns unexpected\n  actual:%q\n  expect:%q\n  limit:%d bufsize:%d", act, exp, limit, bufsize)
+		t.Errorf("rtail returns unexpected\nactual:%q\nexpect:%q\nlimit:%d bufsize:%d", act, exp, limit, bufsize)
 	}
 }
 

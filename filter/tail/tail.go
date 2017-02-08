@@ -30,7 +30,7 @@ func (t *Tail) readNext(buf *bytes.Buffer) error {
 			return err
 		}
 	}
-	if t.r == t.w {
+	if t.r == t.w && len(t.b) != 1 {
 		return io.EOF
 	}
 	for {
@@ -50,6 +50,9 @@ func (t *Tail) readAll() error {
 	for {
 		b, err := t.ReadLine()
 		if err == io.EOF {
+			if len(b) > 0 {
+				t.putLine(b)
+			}
 			break
 		} else if err != nil {
 			return err
