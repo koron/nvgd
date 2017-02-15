@@ -76,7 +76,7 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	if p == nil {
 		return fmt.Errorf("not found protocol for %q", u.Scheme)
 	}
-	r, err := p.Open(u)
+	raw, err := p.Open(u)
 	if err != nil {
 		return fmt.Errorf("failed to open %s; %s", path, err)
 	}
@@ -87,14 +87,14 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	qp, refresh := s.splitRefresh(qp)
 	qp, download := s.splitDownload(qp)
 	qp, all := s.splitAll(qp)
-	r, err = s.applyFilters(qp, r)
+	r, err := s.applyFilters(qp, raw)
 	if err != nil {
 		if r != nil {
 			r.Close()
 		}
 		return fmt.Errorf("filter error: %s", err)
 	}
-	if !all {
+	if !all && !s.isSmall(raw) {
 		r, err = s.filters.apply(s, path, r)
 		if err != nil {
 			if r != nil {
@@ -120,6 +120,11 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 		s.errorLog.Printf("failed to copy body content: %s", err)
 	}
 	return nil
+}
+
+func (s *Server) isSmall(r io.Reader) bool {
+	_, ok := r.(protocol.Small)
+	return ok
 }
 
 func (s *Server) splitRefresh(q qparams) (qparams, int) {
