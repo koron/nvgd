@@ -47,9 +47,9 @@ func TestOnlyFilters(t *testing.T) {
 		t.Fatal("default_filters should have 2 items")
 	}
 	const (
-		k1 = "/file:///var/"
-		k2 = "/file:///tmp/"
-		k3 = "/file:///unknown/"
+		k1 = "file:///var/"
+		k2 = "file:///tmp/"
+		k3 = "file:///unknown/"
 	)
 	v1, _ := c.Filters[k1]
 	assert.Equals(t, v1, Filters{"tail"}, "for path %q", k1)

@@ -95,7 +95,7 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 		return fmt.Errorf("filter error: %s", err)
 	}
 	if !all {
-		r, err = s.filters.apply(path, r)
+		r, err = s.filters.apply(s, path, r)
 		if err != nil {
 			if r != nil {
 				r.Close()
