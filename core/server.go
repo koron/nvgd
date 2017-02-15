@@ -19,6 +19,7 @@ type Server struct {
 	httpd     *http.Server
 	accessLog *log.Logger
 	errorLog  *log.Logger
+	filters   *Filters
 }
 
 // New creates a server instance.
@@ -34,6 +35,7 @@ func New(c *config.Config) (*Server, error) {
 	s := &Server{
 		accessLog: alog,
 		errorLog:  elog,
+		filters:   &Filters{descs: c.Filters},
 	}
 	s.httpd = &http.Server{
 		Addr:    c.Addr,
@@ -84,12 +86,22 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	}
 	qp, refresh := s.splitRefresh(qp)
 	qp, download := s.splitDownload(qp)
+	qp, all := s.splitAll(qp)
 	r, err = s.applyFilters(qp, r)
 	if err != nil {
 		if r != nil {
 			r.Close()
 		}
 		return fmt.Errorf("filter error: %s", err)
+	}
+	if !all {
+		r, err = s.filters.apply(path, r)
+		if err != nil {
+			if r != nil {
+				r.Close()
+			}
+			return fmt.Errorf("default filters for %q causes problem: %s", path, err)
+		}
 	}
 	defer r.Close()
 	if refresh > 0 {
@@ -125,6 +137,14 @@ func (s *Server) splitRefresh(q qparams) (qparams, int) {
 func (s *Server) splitDownload(q qparams) (qparams, bool) {
 	downloads, others := q.split("download")
 	if len(downloads) == 0 {
+		return q, false
+	}
+	return others, true
+}
+
+func (s *Server) splitAll(q qparams) (qparams, bool) {
+	all, others := q.split("all")
+	if len(all) == 0 {
 		return q, false
 	}
 	return others, true
