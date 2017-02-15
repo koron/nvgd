@@ -19,6 +19,7 @@ type Server struct {
 	httpd     *http.Server
 	accessLog *log.Logger
 	errorLog  *log.Logger
+	filters   *Filters
 }
 
 // New creates a server instance.
@@ -34,6 +35,7 @@ func New(c *config.Config) (*Server, error) {
 	s := &Server{
 		accessLog: alog,
 		errorLog:  elog,
+		filters:   &Filters{descs: c.Filters},
 	}
 	s.httpd = &http.Server{
 		Addr:    c.Addr,
@@ -74,7 +76,7 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	if p == nil {
 		return fmt.Errorf("not found protocol for %q", u.Scheme)
 	}
-	r, err := p.Open(u)
+	raw, err := p.Open(u)
 	if err != nil {
 		return fmt.Errorf("failed to open %s; %s", path, err)
 	}
@@ -84,12 +86,22 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	}
 	qp, refresh := s.splitRefresh(qp)
 	qp, download := s.splitDownload(qp)
-	r, err = s.applyFilters(qp, r)
+	qp, all := s.splitAll(qp)
+	r, err := s.applyFilters(qp, raw)
 	if err != nil {
 		if r != nil {
 			r.Close()
 		}
 		return fmt.Errorf("filter error: %s", err)
+	}
+	if !all && !s.isSmall(raw) {
+		r, err = s.filters.apply(s, path, r)
+		if err != nil {
+			if r != nil {
+				r.Close()
+			}
+			return fmt.Errorf("default filters for %q causes problem: %s", path, err)
+		}
 	}
 	defer r.Close()
 	if refresh > 0 {
@@ -110,6 +122,11 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
+func (s *Server) isSmall(r io.Reader) bool {
+	_, ok := r.(protocol.Small)
+	return ok
+}
+
 func (s *Server) splitRefresh(q qparams) (qparams, int) {
 	refreshes, others := q.split("refresh")
 	if len(refreshes) == 0 {
@@ -125,6 +142,14 @@ func (s *Server) splitRefresh(q qparams) (qparams, int) {
 func (s *Server) splitDownload(q qparams) (qparams, bool) {
 	downloads, others := q.split("download")
 	if len(downloads) == 0 {
+		return q, false
+	}
+	return others, true
+}
+
+func (s *Server) splitAll(q qparams) (qparams, bool) {
+	all, others := q.split("all")
+	if len(all) == 0 {
 		return q, false
 	}
 	return others, true

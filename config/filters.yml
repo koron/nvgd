@@ -1,0 +1,6 @@
+default_filters:
+  "file:///var/":
+    - "tail"
+  "file:///tmp/":
+    - "head"
+    - "tail=limit:5"

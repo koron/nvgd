@@ -78,7 +78,7 @@ func (f *File) openDir(name string) (io.ReadCloser, error) {
 			return nil, err
 		}
 	}
-	return ioutil.NopCloser(buf), nil
+	return SmallReadCloser{buf}, nil
 }
 
 var (

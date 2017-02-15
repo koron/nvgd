@@ -13,6 +13,7 @@ Index:
     * [Command Protocol Handlers](#command-protocol-handlers)
     * [S3 Protocol Handlers](#config-s3-protocol-handlers)
     * [Config DB Protocol Handler](#config-db-protocol-handler)
+    * [Default Filters](#default-filters)
   * [Filters](#filters)
   * [Prefix Aliases](#prefix-aliases)
 
@@ -86,6 +87,10 @@ protocols:
   # DB protocol handler configuration (OPTIONAL, see below)
   db:
     ...
+
+# Default filters: pair of path prefix and filter description.
+defualt_filters:
+  ...
 ```
 
 ### Commnad Protocol Handlers
@@ -173,6 +178,41 @@ With above configuration, you will be able to access those databases with below 
   * `curl 'http://127.0.0.1:9280/db://db_pq/select%20email%20from%20users'`
   * `curl 'http://127.0.0.1:9280/db://db_mysql/select%20email%20from%20users'`
 
+### Default Filters
+
+Default filters provide a capability to apply implicit filters depending on
+path prefixes. See [Filters](#filters) for detail of filters.
+
+To apply `tail` filter for under `/file:///var/log/` path:
+
+```yaml
+default_filters:
+  "file:///var/log/":
+    - "tail"
+```
+
+If you want to show last 100 lines, change like this:
+
+```yaml
+default_filters:
+  "file:///var/log/":
+    - "tail=limit:100"
+```
+
+You can specify different filters for paths.
+
+```yaml
+default_filters:
+  "file:///var/log/":
+    - "tail"
+  "file:///tmp/":
+    - "head"
+```
+
+Default filters can be ignored separately by [all (pseudo) filter](#all-pseudo-filter).
+
+Defualt filters are ignored for directories source of file protocols.
+
 
 ## Filters
 
@@ -188,6 +228,8 @@ Nvgd supports these filters:
   * [HTML Table filter](#html-table-filter)
   * [Text Table filter](#text-table-filter)
   * [Refresh filter](#refresh-filter)
+  * [Download filter](#download-filter)
+  * [All (pseudo) filter](#all-pseudo-filter)
 
 ### Filter Spec
 
@@ -349,6 +391,31 @@ Example: Open below URL using WEB browser, it refresh in each 5 seconds
 automatically.
 
     http://127.0.0.1:9280/file:///var/log/messages?tail&refresh=5
+
+### Download filter
+
+Add "Content-Disposition: attachment" header to the response.  It make the
+browser to download the resource instead of showing in it.
+
+  * filter\_name: `download`
+  * options: (none)
+
+Example: download the file "messages" and would be saved as file.
+
+    http://127.0.0.1:9280/file:///var/log/messages?download
+
+
+### All (pseudo) filter
+
+Ignore [default filters](#default-filters)
+
+  * filter\_name: `all`
+  * options: (none)
+
+Example: if specified some default filters for `file:///var/`, this ignore
+those.
+
+    http://127.0.0.1:9280/file:///var/log/messages?all
 
 
 ## Prefix Aliases

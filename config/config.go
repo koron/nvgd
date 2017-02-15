@@ -21,6 +21,8 @@ type Config struct {
 	AccessLogPath string `yaml:"access_log"`
 
 	Protocols customConfig `yaml:"protocols"`
+
+	Filters FiltersMap `yaml:"default_filters"`
 }
 
 type customConfig map[string]interface{}
@@ -90,6 +92,7 @@ var root = &Config{
 	AccessLogPath: defaultAccessLog,
 	ErrorLogPath:  defaultErrorLog,
 	Protocols:     customConfig{},
+	Filters:       FiltersMap{},
 }
 
 // LoadConfig loads a configuration from a file.
