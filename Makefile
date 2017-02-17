@@ -35,4 +35,7 @@ report: misspell cyclo-report lint
 deps:
 	go get -v -u -d -t ./...
 
-.PHONY: test test-full lint cyclo report deps
+tags:
+	gotags -R . > tags
+
+.PHONY: test test-full lint cyclo report deps tags
