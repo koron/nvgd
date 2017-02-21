@@ -85,6 +85,9 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	if err != nil {
 		return fmt.Errorf("failed to parse query string: %s", err)
 	}
+	if parsed, ok := rsrc.Strings(protocol.ParsedKeys); ok {
+		qp = qp.deleteKeys(parsed)
+	}
 	qp, refresh := s.splitRefresh(qp)
 	qp, download := s.splitDownload(qp)
 	qp, all := s.splitAll(qp)

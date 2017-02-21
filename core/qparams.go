@@ -20,6 +20,23 @@ func (qp qparams) split(n string) (matched qparams, others qparams) {
 	return matched, others
 }
 
+func (qp qparams) deleteKeys(keys []string) qparams {
+	if len(keys) == 0 {
+		return qp
+	}
+	table := map[string]struct{}{}
+	for _, k := range keys {
+		table[k] = struct{}{}
+	}
+	var dist qparams
+	for _, item := range qp {
+		if _, ok := table[item.name]; !ok {
+			dist = append(dist, item)
+		}
+	}
+	return dist
+}
+
 func (qp qparams) String() string {
 	b := &bytes.Buffer{}
 	b.WriteString("[")

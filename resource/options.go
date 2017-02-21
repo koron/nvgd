@@ -11,12 +11,22 @@ func (opts Options) clone() Options {
 	return dist
 }
 
-// Bool get boolean
+// Bool get value as bool.
 func (opts Options) Bool(key string) (value bool, ok bool) {
 	raw, ok := opts[key]
 	if !ok {
 		return false, false
 	}
 	v, ok := raw.(bool)
+	return v, ok
+}
+
+// Strings get value as []string.
+func (opts Options) Strings(key string) (value []string, ok bool) {
+	raw, ok := opts[key]
+	if !ok {
+		return nil, false
+	}
+	v, ok := raw.([]string)
 	return v, ok
 }
