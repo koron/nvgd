@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/koron/nvgd/config"
+	"github.com/koron/nvgd/resource"
 )
 
 type command struct {
@@ -22,7 +23,7 @@ func init() {
 	config.RegisterProtocol("command", &commandHandler.preDefined)
 }
 
-func (c *command) Open(u *url.URL) (io.ReadCloser, error) {
+func (c *command) Open(u *url.URL) (*resource.Resource, error) {
 	var (
 		name = u.Host
 	)
@@ -30,7 +31,11 @@ func (c *command) Open(u *url.URL) (io.ReadCloser, error) {
 	if !ok {
 		return nil, fmt.Errorf("unknown command: %s", name)
 	}
-	return c.run(cmd)
+	rc, err := c.run(cmd)
+	if err != nil {
+		return nil, err
+	}
+	return resource.New(rc), nil
 }
 
 func (c *command) run(s string) (io.ReadCloser, error) {

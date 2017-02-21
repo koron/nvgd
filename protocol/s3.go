@@ -16,6 +16,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/ltsv"
+	"github.com/koron/nvgd/resource"
 )
 
 var s3config = S3Config{
@@ -43,7 +44,7 @@ type S3ObjHandler struct {
 }
 
 // Open opens a S3 URL.
-func (ph *S3ObjHandler) Open(u *url.URL) (io.ReadCloser, error) {
+func (ph *S3ObjHandler) Open(u *url.URL) (*resource.Resource, error) {
 	var (
 		bucket = u.Host
 		key    = u.Path
@@ -54,7 +55,7 @@ func (ph *S3ObjHandler) Open(u *url.URL) (io.ReadCloser, error) {
 	return ph.getObject(svc, bucket, key)
 }
 
-func (ph *S3ObjHandler) getObject(svc *s3.S3, bucket, key string) (io.ReadCloser, error) {
+func (ph *S3ObjHandler) getObject(svc *s3.S3, bucket, key string) (*resource.Resource, error) {
 	out, err := svc.GetObject(&s3.GetObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
@@ -62,7 +63,7 @@ func (ph *S3ObjHandler) getObject(svc *s3.S3, bucket, key string) (io.ReadCloser
 	if err != nil {
 		return nil, err
 	}
-	return out.Body, nil
+	return resource.New(out.Body), nil
 }
 
 // S3ListHandler is AWS S3 list protocol handler
@@ -71,7 +72,7 @@ type S3ListHandler struct {
 }
 
 // Open opens a S3 URL.
-func (ph *S3ListHandler) Open(u *url.URL) (io.ReadCloser, error) {
+func (ph *S3ListHandler) Open(u *url.URL) (*resource.Resource, error) {
 	var (
 		bucket = u.Host
 		key    = u.Path
@@ -82,7 +83,11 @@ func (ph *S3ListHandler) Open(u *url.URL) (io.ReadCloser, error) {
 	if len(key) > 0 {
 		key = key[1:]
 	}
-	return ph.listObjects(svc, bucket, key)
+	rc, err := ph.listObjects(svc, bucket, key)
+	if err != nil {
+		return nil, err
+	}
+	return resource.New(rc), nil
 }
 
 func (ph *S3ListHandler) listObjects(svc *s3.S3, bucket, prefix string) (io.ReadCloser, error) {

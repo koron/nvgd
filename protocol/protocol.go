@@ -2,13 +2,14 @@ package protocol
 
 import (
 	"fmt"
-	"io"
 	"net/url"
+
+	"github.com/koron/nvgd/resource"
 )
 
 // Protocol is abstraction of methods to get source stream.
 type Protocol interface {
-	Open(u *url.URL) (io.ReadCloser, error)
+	Open(u *url.URL) (*resource.Resource, error)
 }
 
 var protocols = map[string]Protocol{}
