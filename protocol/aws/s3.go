@@ -85,8 +85,8 @@ func (ph *S3ListHandler) Open(u *url.URL) (*resource.Resource, error) {
 		bucket = u.Host
 		prefix = u.Path
 	)
-	conf := ph.Config.bucketConfig(bucket).awsConfig()
-	sess := session.New(conf)
+	conf := ph.Config.bucketConfig(bucket)
+	sess := session.New(conf.awsConfig())
 	svc := s3.New(sess)
 	if len(prefix) > 0 {
 		prefix = prefix[1:]
@@ -95,7 +95,7 @@ func (ph *S3ListHandler) Open(u *url.URL) (*resource.Resource, error) {
 		Bucket:    aws.String(bucket),
 		Prefix:    aws.String(prefix),
 		Delimiter: aws.String("/"),
-		//MaxKeys:   aws.Int64(10),
+		MaxKeys:   conf.maxKeys(),
 	}
 	// Setup continuation token of the request if available.
 	if s := u.Query().Get(S3Token); len(s) > 0 {
@@ -214,6 +214,9 @@ type S3BucketConfig struct {
 
 	// SessionToken is AWS session token.
 	SessionToken string `yaml:"session_token"`
+
+	// MaxKeys used for S3 object listing.
+	MaxKeys int64 `yaml:"max_keys"`
 }
 
 func (bc *S3BucketConfig) region() string {
@@ -229,4 +232,11 @@ func (bc *S3BucketConfig) creds() *credentials.Credentials {
 
 func (bc *S3BucketConfig) awsConfig() *aws.Config {
 	return aws.NewConfig().WithRegion(bc.region()).WithCredentials(bc.creds())
+}
+
+func (bc *S3BucketConfig) maxKeys() *int64 {
+	if bc.MaxKeys <= 0 || bc.MaxKeys >= 1000 {
+		return nil
+	}
+	return aws.Int64(bc.MaxKeys)
 }

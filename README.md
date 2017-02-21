@@ -140,6 +140,10 @@ s3:
     # Session token to connect (OPTIONAL, default is empty: not used)
     session_token: xxxxxxx
 
+    # MaxKeys for S3 object listing. valid between 1 to 1000.
+    # (OPTIONAL, default is 1000)
+    max_keys: 10
+
   # bucket specific configurations (OPTIONAL)
   buckets:
 
