@@ -22,6 +22,16 @@ func (opts Options) Bool(key string) (value bool, ok bool) {
 }
 
 // Strings get value as []string.
+func (opts Options) String(key string) (value string, ok bool) {
+	raw, ok := opts[key]
+	if !ok {
+		return "", false
+	}
+	v, ok := raw.(string)
+	return v, ok
+}
+
+// Strings get value as []string.
 func (opts Options) Strings(key string) (value []string, ok bool) {
 	raw, ok := opts[key]
 	if !ok {

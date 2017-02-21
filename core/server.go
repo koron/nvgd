@@ -70,6 +70,7 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	path := req.URL.Path[1:]
 	path = defaultAliases.apply(path)
 	u, err := url.Parse(path)
+	u.RawQuery = req.URL.RawQuery
 	if err != nil {
 		return fmt.Errorf("failed to parse %q as URL: %s", path, err)
 	}

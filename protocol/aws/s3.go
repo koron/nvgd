@@ -91,12 +91,17 @@ func (ph *S3ListHandler) Open(u *url.URL) (*resource.Resource, error) {
 	if len(prefix) > 0 {
 		prefix = prefix[1:]
 	}
-	// TODO: use continuation token if available.
-	out, err := svc.ListObjectsV2(&s3.ListObjectsV2Input{
+	in := &s3.ListObjectsV2Input{
 		Bucket:    aws.String(bucket),
 		Prefix:    aws.String(prefix),
 		Delimiter: aws.String("/"),
-	})
+		//MaxKeys:   aws.Int64(10),
+	}
+	// Setup continuation token of the request if available.
+	if s := u.Query().Get(S3Token); len(s) > 0 {
+		in.ContinuationToken = aws.String(s)
+	}
+	out, err := svc.ListObjectsV2(in)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +111,14 @@ func (ph *S3ListHandler) Open(u *url.URL) (*resource.Resource, error) {
 	}
 	rs := resource.New(rc)
 	rs.Put(protocol.ParsedKeys, []string{S3Token})
-	// TODO: embed continuation token to rs if available.
+	// Embed next continuation token to rs if available.
+	if out.NextContinuationToken != nil && *out.NextContinuationToken != "" {
+		t := url.QueryEscape(*out.NextContinuationToken)
+		link := fmt.Sprintf("/s3list://%s/%s?%s=%s&indexhtml",
+			bucket, prefix, S3Token, t)
+		// FIXME: "next_link" should be const.
+		rs.Put("next_link", link)
+	}
 	return rs, nil
 }
 
