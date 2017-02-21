@@ -7,6 +7,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/koron/nvgd/resource"
 )
 
 // Cut represents cut filter.
@@ -197,13 +199,13 @@ func newCutRangeEnd(n int) cutSelector {
 	}
 }
 
-func newCut(r io.ReadCloser, p Params) (io.ReadCloser, error) {
+func newCut(r *resource.Resource, p Params) (*resource.Resource, error) {
 	delim := []byte(p.String("delim", "\t"))
 	selectors, err := toCutSelector(p.String("list", ""))
 	if err != nil {
 		return nil, err
 	}
-	return NewCut(r, delim, selectors), nil
+	return r.Wrap(NewCut(r, delim, selectors)), nil
 }
 
 func init() {

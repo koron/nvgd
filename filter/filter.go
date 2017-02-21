@@ -2,12 +2,13 @@ package filter
 
 import (
 	"fmt"
-	"io"
 	"strconv"
+
+	"github.com/koron/nvgd/resource"
 )
 
 // Factory is filter factory.
-type Factory func(io.ReadCloser, Params) (io.ReadCloser, error)
+type Factory func(*resource.Resource, Params) (*resource.Resource, error)
 
 var filters = map[string]Factory{}
 

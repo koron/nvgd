@@ -1,22 +1,21 @@
 package tail
 
 import (
-	"io"
-
 	"github.com/koron/nvgd/filter"
+	"github.com/koron/nvgd/resource"
 )
 
 const rtailBufsize = 4096
 
-func newTail(r io.ReadCloser, p filter.Params) (io.ReadCloser, error) {
+func newTail(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
 	limit := p.Int("limit", 10)
 	if limit <= 0 {
 		limit = 10
 	}
-	if r2, ok := r.(readSeekCloser); ok {
-		return NewRTail(r2, limit, rtailBufsize), nil
+	if r2, ok := r.ReadSeekCloser(); ok {
+		return r.Wrap(NewRTail(r2, limit, rtailBufsize)), nil
 	}
-	return NewTail(r, limit), nil
+	return r.Wrap(NewTail(r, limit)), nil
 }
 
 func init() {

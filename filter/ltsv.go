@@ -5,6 +5,8 @@ import (
 	"io"
 	"regexp"
 	"strings"
+
+	"github.com/koron/nvgd/resource"
 )
 
 type ltsvValue map[string][]string
@@ -119,14 +121,14 @@ func (l *LTSV) filter(v ltsvValue) ltsvValue {
 	return r
 }
 
-func newLTSV(r io.ReadCloser, p Params) (io.ReadCloser, error) {
+func newLTSV(r *resource.Resource, p Params) (*resource.Resource, error) {
 	label, re, err := parseGrep(p)
 	if err != nil {
 		return nil, err
 	}
 	match := p.Bool("match", true)
 	cut := parseCut(p)
-	return NewLTSV(r, label, re, match, cut), nil
+	return r.Wrap(NewLTSV(r, label, re, match, cut)), nil
 }
 
 func parseGrep(p Params) (label string, pattern *regexp.Regexp, err error) {

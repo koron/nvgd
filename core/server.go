@@ -12,6 +12,7 @@ import (
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/protocol"
+	"github.com/koron/nvgd/resource"
 )
 
 // Server represents NVGD server.
@@ -76,7 +77,7 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	if p == nil {
 		return fmt.Errorf("not found protocol for %q", u.Scheme)
 	}
-	raw, err := p.Open(u)
+	rsrc, err := p.Open(u)
 	if err != nil {
 		return fmt.Errorf("failed to open %s; %s", path, err)
 	}
@@ -87,14 +88,14 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	qp, refresh := s.splitRefresh(qp)
 	qp, download := s.splitDownload(qp)
 	qp, all := s.splitAll(qp)
-	r, err := s.applyFilters(qp, raw)
+	r, err := s.applyFilters(qp, rsrc)
 	if err != nil {
 		if r != nil {
 			r.Close()
 		}
 		return fmt.Errorf("filter error: %s", err)
 	}
-	if !all && !s.isSmall(raw) {
+	if !all && !s.isSmall(rsrc) {
 		r, err = s.filters.apply(s, path, r)
 		if err != nil {
 			if r != nil {
@@ -155,7 +156,7 @@ func (s *Server) splitAll(q qparams) (qparams, bool) {
 	return others, true
 }
 
-func (s *Server) applyFilters(qp qparams, r io.ReadCloser) (io.ReadCloser, error) {
+func (s *Server) applyFilters(qp qparams, r *resource.Resource) (*resource.Resource, error) {
 	for _, item := range qp {
 		r2, err := s.applyFilter(item.name, item.value, r)
 		if err != nil {
@@ -166,7 +167,7 @@ func (s *Server) applyFilters(qp qparams, r io.ReadCloser) (io.ReadCloser, error
 	return r, nil
 }
 
-func (s *Server) applyFilter(name, params string, r io.ReadCloser) (io.ReadCloser, error) {
+func (s *Server) applyFilter(name, params string, r *resource.Resource) (*resource.Resource, error) {
 	f := filter.Find(name)
 	if f == nil {
 		return nil, fmt.Errorf("not found filter: %s", name)
