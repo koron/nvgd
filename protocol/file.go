@@ -83,7 +83,7 @@ func (f *File) openDir(name string) (*resource.Resource, error) {
 			return nil, err
 		}
 	}
-	return resource.New(SmallReadCloser{buf}), nil
+	return resource.New(ioutil.NopCloser(buf)).Put(Small, true), nil
 }
 
 var (

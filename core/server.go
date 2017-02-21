@@ -123,9 +123,9 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
-func (s *Server) isSmall(r io.Reader) bool {
-	_, ok := r.(protocol.Small)
-	return ok
+func (s *Server) isSmall(r *resource.Resource) bool {
+	v, ok := r.Bool(protocol.Small)
+	return ok && v
 }
 
 func (s *Server) splitRefresh(q qparams) (qparams, int) {
