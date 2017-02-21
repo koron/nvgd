@@ -4,13 +4,15 @@ import (
 	"bufio"
 	"bytes"
 	"io"
+
+	"github.com/koron/nvgd/resource"
 )
 
 func init() {
 	MustRegister("head", newHead)
 }
 
-func newHead(r io.ReadCloser, p Params) (io.ReadCloser, error) {
+func newHead(r *resource.Resource, p Params) (*resource.Resource, error) {
 	start := p.Int("start", 0)
 	if start < 0 {
 		start = 0
@@ -19,7 +21,7 @@ func newHead(r io.ReadCloser, p Params) (io.ReadCloser, error) {
 	if limit <= 0 {
 		limit = 10
 	}
-	return NewHead(r, uint(start), uint(limit)), nil
+	return r.Wrap(NewHead(r, uint(start), uint(limit))), nil
 }
 
 // Head is "head" like filter.

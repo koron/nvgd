@@ -7,6 +7,7 @@ import (
 
 	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/ltsv"
+	"github.com/koron/nvgd/resource"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -55,7 +56,7 @@ type row struct {
 	Others string
 }
 
-func filterFunc(r io.ReadCloser, p filter.Params) (io.ReadCloser, error) {
+func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
 	// compose document.
 	d := &doc{}
 	lr := ltsv.NewReader(r)
@@ -86,7 +87,7 @@ func filterFunc(r io.ReadCloser, p filter.Params) (io.ReadCloser, error) {
 		t.Append(row.Values)
 	}
 	t.Render()
-	return ioutil.NopCloser(buf), nil
+	return r.Wrap(ioutil.NopCloser(buf)), nil
 }
 
 func init() {

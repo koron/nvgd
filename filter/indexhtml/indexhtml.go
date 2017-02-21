@@ -8,10 +8,14 @@ import (
 
 	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/ltsv"
+	"github.com/koron/nvgd/resource"
 )
 
 var tmpl = template.Must(template.New("indexhtml").Parse(`<!DOCTYPE! html>
 <meta charset="UTF-8">
+<div>
+  {{if .NextLink}}<a href="{{.NextLink}}">Next</a>{{end}}
+</div>
 <table border="1">
   <tr><th>Name</th><th>Type</th><th>Size</th><th>Modified At</th><th>Download</th></tr>
   {{range .Entries}}
@@ -26,7 +30,8 @@ var tmpl = template.Must(template.New("indexhtml").Parse(`<!DOCTYPE! html>
 </table>`))
 
 type doc struct {
-	Entries []entry
+	Entries  []entry
+	NextLink string
 }
 
 type entry struct {
@@ -38,7 +43,7 @@ type entry struct {
 	Download   string
 }
 
-func filterFunc(r io.ReadCloser, p filter.Params) (io.ReadCloser, error) {
+func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
 	// compose document.
 	d := &doc{}
 	lr := ltsv.NewReader(r)
@@ -64,12 +69,16 @@ func filterFunc(r io.ReadCloser, p filter.Params) (io.ReadCloser, error) {
 		}
 		d.Entries = append(d.Entries, e)
 	}
+	// FIXME: "next_link" should be const.
+	if link, ok := r.String("next_link"); ok {
+		d.NextLink = link
+	}
 	// execute template.
 	buf := new(bytes.Buffer)
 	if err := tmpl.Execute(buf, d); err != nil {
 		return nil, err
 	}
-	return ioutil.NopCloser(buf), nil
+	return r.Wrap(ioutil.NopCloser(buf)), nil
 }
 
 func init() {

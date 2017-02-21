@@ -11,6 +11,8 @@ import (
 	"hash"
 	"io"
 	"strings"
+
+	"github.com/koron/nvgd/resource"
 )
 
 // Hash represents hash filter.
@@ -100,7 +102,7 @@ func hashEncBin(w io.Writer, b []byte) error {
 	return err
 }
 
-func newHash(r io.ReadCloser, p Params) (io.ReadCloser, error) {
+func newHash(r *resource.Resource, p Params) (*resource.Resource, error) {
 	h, err := toHash(p.String("algorithm", "md5"))
 	if err != nil {
 		return nil, err
@@ -109,7 +111,7 @@ func newHash(r io.ReadCloser, p Params) (io.ReadCloser, error) {
 	if err != nil {
 		return nil, err
 	}
-	return NewHash(r, h, enc), nil
+	return r.Wrap(NewHash(r, h, enc)), nil
 }
 
 func init() {

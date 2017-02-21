@@ -1,17 +1,17 @@
 package core
 
 import (
-	"io"
 	"strings"
 
 	"github.com/koron/nvgd/config"
+	"github.com/koron/nvgd/resource"
 )
 
 type Filters struct {
 	descs config.FiltersMap
 }
 
-func (f *Filters) apply(s *Server, path string, r io.ReadCloser) (io.ReadCloser, error) {
+func (f *Filters) apply(s *Server, path string, r *resource.Resource) (*resource.Resource, error) {
 	filters, found := f.getRaw(path)
 	if !found {
 		return r, nil

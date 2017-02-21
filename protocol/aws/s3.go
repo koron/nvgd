@@ -1,4 +1,4 @@
-package protocol
+package aws
 
 import (
 	"bytes"
@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/url"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -16,7 +17,15 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/ltsv"
+	"github.com/koron/nvgd/protocol"
+	"github.com/koron/nvgd/resource"
 )
+
+const (
+	S3Token = "s3token"
+)
+
+var rxLastComponent = regexp.MustCompile(`[^/]+/?$`)
 
 var s3config = S3Config{
 	Default: S3BucketConfig{},
@@ -32,8 +41,8 @@ var s3ListHandler = &S3ListHandler{
 }
 
 func init() {
-	MustRegister("s3obj", s3ObjHandler)
-	MustRegister("s3list", s3ListHandler)
+	protocol.MustRegister("s3obj", s3ObjHandler)
+	protocol.MustRegister("s3list", s3ListHandler)
 	config.RegisterProtocol("s3", &s3config)
 }
 
@@ -43,7 +52,7 @@ type S3ObjHandler struct {
 }
 
 // Open opens a S3 URL.
-func (ph *S3ObjHandler) Open(u *url.URL) (io.ReadCloser, error) {
+func (ph *S3ObjHandler) Open(u *url.URL) (*resource.Resource, error) {
 	var (
 		bucket = u.Host
 		key    = u.Path
@@ -54,7 +63,7 @@ func (ph *S3ObjHandler) Open(u *url.URL) (io.ReadCloser, error) {
 	return ph.getObject(svc, bucket, key)
 }
 
-func (ph *S3ObjHandler) getObject(svc *s3.S3, bucket, key string) (io.ReadCloser, error) {
+func (ph *S3ObjHandler) getObject(svc *s3.S3, bucket, key string) (*resource.Resource, error) {
 	out, err := svc.GetObject(&s3.GetObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
@@ -62,7 +71,7 @@ func (ph *S3ObjHandler) getObject(svc *s3.S3, bucket, key string) (io.ReadCloser
 	if err != nil {
 		return nil, err
 	}
-	return out.Body, nil
+	return resource.New(out.Body), nil
 }
 
 // S3ListHandler is AWS S3 list protocol handler
@@ -71,29 +80,49 @@ type S3ListHandler struct {
 }
 
 // Open opens a S3 URL.
-func (ph *S3ListHandler) Open(u *url.URL) (io.ReadCloser, error) {
+func (ph *S3ListHandler) Open(u *url.URL) (*resource.Resource, error) {
 	var (
 		bucket = u.Host
-		key    = u.Path
+		prefix = u.Path
 	)
-	conf := ph.Config.bucketConfig(bucket).awsConfig()
-	sess := session.New(conf)
+	conf := ph.Config.bucketConfig(bucket)
+	sess := session.New(conf.awsConfig())
 	svc := s3.New(sess)
-	if len(key) > 0 {
-		key = key[1:]
+	if len(prefix) > 0 {
+		prefix = prefix[1:]
 	}
-	return ph.listObjects(svc, bucket, key)
-}
-
-func (ph *S3ListHandler) listObjects(svc *s3.S3, bucket, prefix string) (io.ReadCloser, error) {
-	out, err := svc.ListObjectsV2(&s3.ListObjectsV2Input{
+	in := &s3.ListObjectsV2Input{
 		Bucket:    aws.String(bucket),
 		Prefix:    aws.String(prefix),
 		Delimiter: aws.String("/"),
-	})
+		MaxKeys:   conf.maxKeys(),
+	}
+	// Setup continuation token of the request if available.
+	if s := u.Query().Get(S3Token); len(s) > 0 {
+		in.ContinuationToken = aws.String(s)
+	}
+	out, err := svc.ListObjectsV2(in)
 	if err != nil {
 		return nil, err
 	}
+	rc, err := ph.writeAsLTSV(out, bucket, prefix)
+	if err != nil {
+		return nil, err
+	}
+	rs := resource.New(rc)
+	rs.Put(protocol.ParsedKeys, []string{S3Token})
+	// Embed next continuation token to rs if available.
+	if out.NextContinuationToken != nil && *out.NextContinuationToken != "" {
+		t := url.QueryEscape(*out.NextContinuationToken)
+		link := fmt.Sprintf("/s3list://%s/%s?%s=%s&indexhtml",
+			bucket, prefix, S3Token, t)
+		// FIXME: "next_link" should be const.
+		rs.Put("next_link", link)
+	}
+	return rs, nil
+}
+
+func (ph *S3ListHandler) writeAsLTSV(out *s3.ListObjectsV2Output, bucket, prefix string) (io.ReadCloser, error) {
 	var (
 		buf = &bytes.Buffer{}
 		w   = ltsv.NewWriter(buf, "name", "type", "size", "modified_at", "link", "download")
@@ -185,6 +214,9 @@ type S3BucketConfig struct {
 
 	// SessionToken is AWS session token.
 	SessionToken string `yaml:"session_token"`
+
+	// MaxKeys used for S3 object listing.
+	MaxKeys int64 `yaml:"max_keys"`
 }
 
 func (bc *S3BucketConfig) region() string {
@@ -200,4 +232,11 @@ func (bc *S3BucketConfig) creds() *credentials.Credentials {
 
 func (bc *S3BucketConfig) awsConfig() *aws.Config {
 	return aws.NewConfig().WithRegion(bc.region()).WithCredentials(bc.creds())
+}
+
+func (bc *S3BucketConfig) maxKeys() *int64 {
+	if bc.MaxKeys <= 0 || bc.MaxKeys >= 1000 {
+		return nil
+	}
+	return aws.Int64(bc.MaxKeys)
 }

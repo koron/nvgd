@@ -8,6 +8,7 @@ import (
 
 	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/ltsv"
+	"github.com/koron/nvgd/resource"
 )
 
 type doc struct {
@@ -72,7 +73,7 @@ var tmpl = template.Must(template.New("htmltable").Parse(`<!DOCTYPE html>
   {{end}}
 </table>`))
 
-func filterFunc(r io.ReadCloser, p filter.Params) (io.ReadCloser, error) {
+func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
 	// compose document.
 	d := &doc{}
 	lr := ltsv.NewReader(r)
@@ -100,7 +101,7 @@ func filterFunc(r io.ReadCloser, p filter.Params) (io.ReadCloser, error) {
 	if err := tmpl.Execute(buf, d); err != nil {
 		return nil, err
 	}
-	return ioutil.NopCloser(buf), nil
+	return r.Wrap(ioutil.NopCloser(buf)), nil
 }
 
 func init() {

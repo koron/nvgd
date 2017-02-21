@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/koron/nvgd/ltsv"
+	"github.com/koron/nvgd/resource"
 	"github.com/pierrec/lz4"
 )
 
@@ -28,7 +29,7 @@ func init() {
 }
 
 // Open opens a URL as file.
-func (f *File) Open(u *url.URL) (io.ReadCloser, error) {
+func (f *File) Open(u *url.URL) (*resource.Resource, error) {
 	// TODO: consider relative path.
 	name := u.Path
 	fi, err := os.Lstat(name)
@@ -38,10 +39,14 @@ func (f *File) Open(u *url.URL) (io.ReadCloser, error) {
 	if fi.IsDir() {
 		return f.openDir(name)
 	}
-	return f.openFile(name)
+	rc, err := f.openFile(name)
+	if err != nil {
+		return nil, err
+	}
+	return resource.New(rc), nil
 }
 
-func (f *File) openDir(name string) (io.ReadCloser, error) {
+func (f *File) openDir(name string) (*resource.Resource, error) {
 	list, err := ioutil.ReadDir(name)
 	if err != nil {
 		log.Printf("ReadDir failed: %s", name)
@@ -78,7 +83,7 @@ func (f *File) openDir(name string) (io.ReadCloser, error) {
 			return nil, err
 		}
 	}
-	return SmallReadCloser{buf}, nil
+	return resource.New(ioutil.NopCloser(buf)).Put(Small, true), nil
 }
 
 var (

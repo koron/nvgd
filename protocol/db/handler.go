@@ -15,6 +15,7 @@ import (
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/ltsv"
 	"github.com/koron/nvgd/protocol"
+	"github.com/koron/nvgd/resource"
 )
 
 // NullReplacement replaces null value in LTSV.
@@ -54,7 +55,7 @@ func init() {
 }
 
 // Open creates a database handler.
-func (h *Handler) Open(u *url.URL) (io.ReadCloser, error) {
+func (h *Handler) Open(u *url.URL) (*resource.Resource, error) {
 	var (
 		name  = u.Host
 		query = u.Path
@@ -69,7 +70,11 @@ func (h *Handler) Open(u *url.URL) (io.ReadCloser, error) {
 	if err := h.checkSanity(query); err != nil {
 		return nil, err
 	}
-	return h.execQuery(c, query)
+	rc, err := h.execQuery(c, query)
+	if err != nil {
+		return nil, err
+	}
+	return resource.New(rc), nil
 }
 
 var reBadQuery = regexp.MustCompile(`(?i:^\s*(?:insert|update|delete|create|drop|alter|truncate|prepare|execute))`)

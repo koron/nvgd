@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"io"
 	"regexp"
+
+	"github.com/koron/nvgd/resource"
 )
 
 // Grep represents grep like filter.
@@ -41,7 +43,7 @@ func (g *Grep) readNext(buf *bytes.Buffer) error {
 	}
 }
 
-func newGrep(r io.ReadCloser, p Params) (io.ReadCloser, error) {
+func newGrep(r *resource.Resource, p Params) (*resource.Resource, error) {
 	re, err := regexp.Compile(p.String("re", ""))
 	if err != nil {
 		return nil, err
@@ -56,7 +58,7 @@ func newGrep(r io.ReadCloser, p Params) (io.ReadCloser, error) {
 	if field > 0 {
 		lf = lf.Chain(NewCutLF(delim, field-1))
 	}
-	return NewGrep(r, re, match, lf), nil
+	return r.Wrap(NewGrep(r, re, match, lf)), nil
 }
 
 func init() {
