@@ -57,6 +57,15 @@ Nvgd supports these `protocol`s:
         /db://db_pq/select id,email from users
         ```
 
+    * support multiple databases:
+
+        ```
+        /db://db_pq2/foo/select id,email from users
+        /db://db_pq2/bar/select id,email from users
+        ```
+
+        This searchs from `foo` and `bar` databases.
+
 See also:
 
   * [Filters](#filters)
@@ -181,6 +190,33 @@ With above configuration, you will be able to access those databases with below 
 
   * `curl 'http://127.0.0.1:9280/db://db_pq/select%20email%20from%20users'`
   * `curl 'http://127.0.0.1:9280/db://db_mysql/select%20email%20from%20users'`
+
+#### Mutiple Databases in an instance
+
+To make DB protocol handler connect with multiple databases in an instance,
+there are 3 steps to make it enable.
+
+1.  Add `multiple_database: true` property to DB configuration.
+2.  Add `{{.dbname}}` placeholder in value of `name`.
+3.  Access to URL `/db://db_pq/DBNAME/you query`.
+
+    DBNAME is used to expand `{{.dbname}}` in above.
+
+As a result, your configuration would be like this:
+
+```yml
+db:
+  db_pq:
+    driver: 'postgres'
+    name: 'postgres://pqgotest:password@localhost/{{.dbname}}?sslmode=verify-full'
+    multiple_database: true
+
+  # sample of connecting to MySQL
+  db_mysql:
+    driver: 'mysql'
+    name:   'user:password@/{{.dbname}}'
+    multiple_database: true
+```
 
 ### Default Filters
 
