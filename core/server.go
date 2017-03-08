@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"path"
 	"strconv"
 	"strings"
 
@@ -67,12 +68,12 @@ func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 }
 
 func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
-	path := req.URL.Path[1:]
-	path = defaultAliases.apply(path)
-	u, err := url.Parse(path)
+	upath := req.URL.Path[1:]
+	upath = defaultAliases.apply(upath)
+	u, err := url.Parse(upath)
 	u.RawQuery = req.URL.RawQuery
 	if err != nil {
-		return fmt.Errorf("failed to parse %q as URL: %s", path, err)
+		return fmt.Errorf("failed to parse %q as URL: %s", upath, err)
 	}
 	p := protocol.Find(u.Scheme)
 	if p == nil {
@@ -80,7 +81,7 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	}
 	rsrc, err := p.Open(u)
 	if err != nil {
-		return fmt.Errorf("failed to open %s; %s", path, err)
+		return fmt.Errorf("failed to open %s; %s", upath, err)
 	}
 	qp, err := qparamsParse(req.URL.RawQuery)
 	if err != nil {
@@ -100,12 +101,12 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 		return fmt.Errorf("filter error: %s", err)
 	}
 	if !all && !s.isSmall(rsrc) {
-		r, err = s.filters.apply(s, path, r)
+		r, err = s.filters.apply(s, upath, r)
 		if err != nil {
 			if r != nil {
 				r.Close()
 			}
-			return fmt.Errorf("default filters for %q causes problem: %s", path, err)
+			return fmt.Errorf("default filters for %q causes problem: %s", upath, err)
 		}
 	}
 	defer r.Close()
@@ -114,7 +115,12 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 		res.Header().Set("Refresh", v)
 	}
 	if download {
-		res.Header().Set("Content-Disposition", "attachment")
+		v := "attachment"
+		fn := path.Base(u.Path)
+		if fn != "" && fn != "." && fn != "/" {
+			v = fmt.Sprintf(`attachment; filename="%s"`, fn)
+		}
+		res.Header().Set("Content-Disposition", v)
 	}
 	if s.isHTML(qp) {
 		res.Header().Set("Content-Type", "text/html")
