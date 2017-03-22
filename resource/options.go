@@ -1,5 +1,9 @@
 package resource
 
+const (
+	ContentType = "Content-Type"
+)
+
 // Options holds option properties of Resource.
 type Options map[string]interface{}
 

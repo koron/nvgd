@@ -128,7 +128,10 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 		}
 		res.Header().Set("Content-Disposition", v)
 	}
-	if s.isHTML(qp) {
+	// Set "Content-Type" header if required.
+	if ct, ok := r.String(resource.ContentType); ok {
+		res.Header().Set("Content-Type", ct)
+	} else if s.isHTML(qp) {
 		res.Header().Set("Content-Type", "text/html")
 	}
 	res.WriteHeader(http.StatusOK)

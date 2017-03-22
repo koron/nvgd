@@ -19,6 +19,8 @@ import (
 	"github.com/koron/nvgd/resource"
 )
 
+const assetPrefix = "assets/"
+
 // NullReplacement replaces null value in LTSV.
 var NullReplacement = "(null)"
 
@@ -77,8 +79,8 @@ func (h *Handler) Open(u *url.URL) (*resource.Resource, error) {
 	if err != nil {
 		return nil, err
 	}
-	if strings.HasPrefix(query, "/") {
-		query = query[1:]
+	if query == "" || strings.HasPrefix(query, assetPrefix) {
+		return h.openAsset(query)
 	}
 	if err := h.checkSanity(query); err != nil {
 		return nil, err
@@ -88,6 +90,21 @@ func (h *Handler) Open(u *url.URL) (*resource.Resource, error) {
 		return nil, err
 	}
 	return resource.New(rc), nil
+}
+
+func (h *Handler) openAsset(s string) (*resource.Resource, error) {
+	if s == "" {
+		s = "index.html"
+	}
+	if strings.HasPrefix(s, assetPrefix) {
+		s = s[len(assetPrefix):]
+	}
+	f, err := Assets.Open(s)
+	if err != nil {
+		return nil, err
+	}
+	rs := resource.New(f).GuessContentType(s)
+	return rs, nil
 }
 
 func (h *Handler) splitDbnameAndQuery(s string) (dbname, query string, err error) {
@@ -159,7 +176,7 @@ func (h *Handler) expandName(driver, name, dbname string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	p := map[string]string {
+	p := map[string]string{
 		"dbname": dbname,
 	}
 	b := &bytes.Buffer{}

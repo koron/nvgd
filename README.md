@@ -66,6 +66,12 @@ Nvgd supports these `protocol`s:
 
         This searchs from `foo` and `bar` databases.
 
+    * show query form for `db_pq`:
+
+        ```
+        /db://db_pq/
+        ```
+
   * `config` - current nvgd's configuration
 
       `/config://` or `/config/` (alias)

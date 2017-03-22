@@ -1,0 +1,11 @@
+.container {
+  display: flex;
+}
+
+.container #query {
+  flex: 1 1 auto;
+}
+
+.container > *:not(:first-child) {
+  margin-left: 0.5em;
+}
