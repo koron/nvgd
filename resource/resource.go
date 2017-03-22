@@ -21,8 +21,8 @@ func (r *Resource) Raw() io.ReadCloser {
 	return r.ReadCloser
 }
 
-// Wrap creates new Resource with a io.ReadCloser which inherits propertes from
-// current Resource.
+// Wrap creates new Resource with a io.ReadCloser which inherits properties
+// from current Resource.
 func (r *Resource) Wrap(rc io.ReadCloser) *Resource {
 	// TODO: copy other properties of r.
 	return &Resource{

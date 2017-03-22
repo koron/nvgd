@@ -74,6 +74,12 @@ Nvgd supports these `protocol`s:
 
       `/help://` or `/help/` (alias)
 
+      It would be better that combining with `markdown` filter.
+
+      ```
+      /help/?markdown
+      ```
+
 See also:
 
   * [Filters](#filters)
@@ -275,6 +281,7 @@ Nvgd supports these filters:
   * [Index HTML filter](#index-html-filter)
   * [HTML Table filter](#html-table-filter)
   * [Text Table filter](#text-table-filter)
+  * [Markdown filter](#markdown-filter)
   * [Refresh filter](#refresh-filter)
   * [Download filter](#download-filter)
   * [All (pseudo) filter](#all-pseudo-filter)
@@ -427,6 +434,18 @@ Above query generate this table.
     +-----+-----------------------+
 
 This filter should be the last of filters.
+
+### Markdown filter
+
+Convert markdown text to HTML.
+
+  * filter\_name: `markdown`
+  * options: (none)
+
+Example: show help in HTML.
+
+    http://127.0.0.1:9280/help://?markdown
+    http://127.0.0.1:9280/help/?markdown
 
 ### Refresh filter
 
