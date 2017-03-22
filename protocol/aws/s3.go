@@ -165,7 +165,7 @@ type S3Config struct {
 	Default S3BucketConfig `yaml:"default,omitempty"`
 
 	// Buckets
-	Buckets map[string]S3BucketConfig `yaml:"buckets"`
+	Buckets map[string]S3BucketConfig `yaml:"buckets",omitempty`
 
 	loc *time.Location
 }
@@ -210,10 +210,10 @@ type S3BucketConfig struct {
 	SecretAccessKey string `yaml:"secret_access_key"`
 
 	// SessionToken is AWS session token.
-	SessionToken string `yaml:"session_token"`
+	SessionToken string `yaml:"session_token",omitempty`
 
 	// MaxKeys used for S3 object listing.
-	MaxKeys int64 `yaml:"max_keys"`
+	MaxKeys int64 `yaml:"max_keys",omitempty`
 }
 
 func (bc *S3BucketConfig) region() string {

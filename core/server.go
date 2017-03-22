@@ -13,6 +13,7 @@ import (
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/protocol"
+	"github.com/koron/nvgd/protocol/configp"
 	"github.com/koron/nvgd/resource"
 )
 
@@ -34,6 +35,8 @@ func New(c *config.Config) (*Server, error) {
 	if err != nil {
 		return nil, err
 	}
+	// FIXME: should not be global.
+	configp.Config = *c
 	s := &Server{
 		accessLog: alog,
 		errorLog:  elog,
@@ -82,6 +85,9 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	rsrc, err := p.Open(u)
 	if err != nil {
 		return fmt.Errorf("failed to open %s; %s", upath, err)
+	}
+	if rsrc == nil {
+		return fmt.Errorf("nil resource for %s", upath)
 	}
 	qp, err := qparamsParse(req.URL.RawQuery)
 	if err != nil {

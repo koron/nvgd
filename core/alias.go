@@ -12,6 +12,7 @@ type aliases []alias
 var defaultAliases = aliases{
 	{"files/", "file:///"},
 	{"commands/", "command://"},
+	{"config/", "config://"},
 }
 
 func (a aliases) apply(path string) string {

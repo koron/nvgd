@@ -66,6 +66,10 @@ Nvgd supports these `protocol`s:
 
         This searchs from `foo` and `bar` databases.
 
+  * `config` - current nvgd's configuration
+
+      `/config://` or `/config/` (alias)
+
 See also:
 
   * [Filters](#filters)
@@ -464,7 +468,8 @@ nvgd supports prefix aliases to keep compatiblities with [koron/night][night].
 Currently these aliases are registered.
 
 * `files/` -> `file:///`
-* `commands/` -> `command:///`
+* `commands/` -> `command://`
+* `config/` -> `config://`
 
 For example this URL:
 
