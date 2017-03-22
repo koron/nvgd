@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 
+	"github.com/koron/nvgd/common_const"
 	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/ltsv"
 	"github.com/koron/nvgd/resource"
@@ -14,6 +15,7 @@ import (
 var tmpl = template.Must(template.New("indexhtml").Parse(`<!DOCTYPE! html>
 <meta charset="UTF-8">
 <div>
+  {{if .UpLink}}<a href="{{.UpLink}}">Up</a>{{end}}
   {{if .NextLink}}<a href="{{.NextLink}}">Next</a>{{end}}
 </div>
 <table border="1">
@@ -31,6 +33,7 @@ var tmpl = template.Must(template.New("indexhtml").Parse(`<!DOCTYPE! html>
 
 type doc struct {
 	Entries  []entry
+	UpLink   string
 	NextLink string
 }
 
@@ -69,8 +72,10 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 		}
 		d.Entries = append(d.Entries, e)
 	}
-	// FIXME: "next_link" should be const.
-	if link, ok := r.String("next_link"); ok {
+	if link, ok := r.String(common_const.UpLink); ok {
+		d.UpLink = link
+	}
+	if link, ok := r.String(common_const.NextLink); ok {
 		d.NextLink = link
 	}
 	// execute template.

@@ -15,6 +15,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/koron/nvgd/common_const"
 	"github.com/koron/nvgd/ltsv"
 	"github.com/koron/nvgd/resource"
 	"github.com/pierrec/lz4"
@@ -57,15 +58,6 @@ func (f *File) openDir(name string) (*resource.Resource, error) {
 		w   = ltsv.NewWriter(buf, "name", "type", "size", "modified_at", "link", "download")
 	)
 	path := strings.TrimRight(name, "/")
-	// add updir
-	if path != "" {
-		up := strings.TrimRight(rxLastComponent.ReplaceAllString(path, ""), "/")
-		link := fmt.Sprintf("/file://%s/?indexhtml", up)
-		err := w.Write("..", "updir", "", "", link, "")
-		if err != nil {
-			return nil, err
-		}
-	}
 	for _, fi := range list {
 		n := fi.Name()
 		var t, link, download string
@@ -83,7 +75,15 @@ func (f *File) openDir(name string) (*resource.Resource, error) {
 			return nil, err
 		}
 	}
-	return resource.New(ioutil.NopCloser(buf)).Put(Small, true), nil
+	rs := resource.New(ioutil.NopCloser(buf))
+	rs.Put(Small, true)
+	// add updir
+	if path != "" {
+		up := strings.TrimRight(rxLastComponent.ReplaceAllString(path, ""), "/")
+		link := fmt.Sprintf("/file://%s/?indexhtml", up)
+		rs.Put(common_const.UpLink, link)
+	}
+	return rs, nil
 }
 
 var (
