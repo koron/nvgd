@@ -15,6 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/koron/nvgd/common_const"
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/ltsv"
 	"github.com/koron/nvgd/protocol"
@@ -105,37 +106,33 @@ func (ph *S3ListHandler) Open(u *url.URL) (*resource.Resource, error) {
 	if err != nil {
 		return nil, err
 	}
-	rc, err := ph.writeAsLTSV(out, bucket, prefix)
+	rc, err := ph.writeAsLTSV(out, bucket)
 	if err != nil {
 		return nil, err
 	}
 	rs := resource.New(rc)
 	rs.Put(protocol.ParsedKeys, []string{S3Token})
+	// Add uplink if available.
+	if prefix != "" {
+		up := rxLastComponent.ReplaceAllString(prefix, "")
+		link := fmt.Sprintf("/s3list://%s/%s?indexhtml", bucket, up)
+		rs.Put(common_const.UpLink, link)
+	}
 	// Embed next continuation token to rs if available.
 	if out.NextContinuationToken != nil && *out.NextContinuationToken != "" {
 		t := url.QueryEscape(*out.NextContinuationToken)
 		link := fmt.Sprintf("/s3list://%s/%s?%s=%s&indexhtml",
 			bucket, prefix, S3Token, t)
-		// FIXME: "next_link" should be const.
-		rs.Put("next_link", link)
+		rs.Put(common_const.NextLink, link)
 	}
 	return rs, nil
 }
 
-func (ph *S3ListHandler) writeAsLTSV(out *s3.ListObjectsV2Output, bucket, prefix string) (io.ReadCloser, error) {
+func (ph *S3ListHandler) writeAsLTSV(out *s3.ListObjectsV2Output, bucket string) (io.ReadCloser, error) {
 	var (
 		buf = &bytes.Buffer{}
 		w   = ltsv.NewWriter(buf, "name", "type", "size", "modified_at", "link", "download")
 	)
-	// add uplink
-	if prefix != "" {
-		up := rxLastComponent.ReplaceAllString(prefix, "")
-		link := fmt.Sprintf("/s3list://%s/%s?indexhtml", bucket, up)
-		err := w.Write("..", "uplink", "", "", link, "")
-		if err != nil {
-			return nil, err
-		}
-	}
 	// add prefixes
 	for _, item := range out.CommonPrefixes {
 		link := fmt.Sprintf("/s3list://%s/%s?indexhtml", bucket, *item.Prefix)
