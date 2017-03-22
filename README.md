@@ -70,6 +70,10 @@ Nvgd supports these `protocol`s:
 
       `/config://` or `/config/` (alias)
 
+  * `help` - show help (README.md) of nvgd.
+
+      `/help://` or `/help/` (alias)
+
 See also:
 
   * [Filters](#filters)
@@ -470,6 +474,7 @@ Currently these aliases are registered.
 * `files/` -> `file:///`
 * `commands/` -> `command://`
 * `config/` -> `config://`
+* `help/` -> `help://`
 
 For example this URL:
 
