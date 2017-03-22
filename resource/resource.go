@@ -1,6 +1,10 @@
 package resource
 
-import "io"
+import (
+	"io"
+	"path"
+	"strings"
+)
 
 // Resource packs ReadCloser and its meta info.
 type Resource struct {
@@ -39,5 +43,22 @@ func (r *Resource) ReadSeekCloser() (ReadSeekCloser, bool) {
 
 func (r *Resource) Put(name string, value interface{}) *Resource {
 	r.Options[name] = value
+	return r
+}
+
+func (r *Resource) PutContentType(s string) *Resource {
+	if s == "" {
+		delete(r.Options, ContentType)
+	} else {
+		r.Options[ContentType] = s
+	}
+	return r
+}
+
+func (r *Resource) GuessContentType(s string) *Resource {
+	ex := strings.ToLower(path.Ext(s))
+	if ct, ok := Mime[ex]; ok {
+		r.PutContentType(ct)
+	}
 	return r
 }
