@@ -173,6 +173,9 @@ s3:
     # (OPTIONAL, default is 1000)
     max_keys: 10
 
+    # HTTP PROXY to access S3. (OPTIONAL, default is empty: direct access)
+    http_proxy: "http://your.proxy:port"
+
   # bucket specific configurations (OPTIONAL)
   buckets:
 
