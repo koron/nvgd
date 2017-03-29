@@ -74,10 +74,10 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	upath := req.URL.Path[1:]
 	upath = defaultAliases.apply(upath)
 	u, err := url.Parse(upath)
-	u.RawQuery = req.URL.RawQuery
 	if err != nil {
 		return fmt.Errorf("failed to parse %q as URL: %s", upath, err)
 	}
+	u.RawQuery = req.URL.RawQuery
 	p := protocol.Find(u.Scheme)
 	if p == nil {
 		return fmt.Errorf("not found protocol for %q", u.Scheme)
