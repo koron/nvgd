@@ -9,3 +9,15 @@
 .container > *:not(:first-child) {
   margin-left: 0.5em;
 }
+
+.vpanel {
+  display: flex;
+  flex-direction: column;
+}
+
+.vpanel > * {
+  padding: 1ex 1em;
+}
+.vpanel > *:not(:first-child) {
+  margin-top: 1ex;
+}
