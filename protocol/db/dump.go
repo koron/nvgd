@@ -1,7 +1,6 @@
 package db
 
 import (
-	"errors"
 	"net/url"
 
 	"github.com/koron/nvgd/protocol"
@@ -16,5 +15,18 @@ func init() {
 }
 
 func (dh *DumpHandler) Open(u *url.URL) (*resource.Resource, error) {
-	return nil, errors.New("DumpHandler: not implemented yet")
+	c, err := openDB(u)
+	if err != nil {
+		return nil, err
+	}
+	table := path(u)
+	rows, err := c.db.Query("SELECT * FROM " + table)
+	if err != nil {
+		return nil, err
+	}
+	rc, err := rows2ltsv(rows, -1)
+	if err != nil {
+		return nil, err
+	}
+	return resource.New(rc), nil
 }
