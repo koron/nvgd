@@ -13,9 +13,6 @@ import (
 
 const assetPrefix = "assets/"
 
-// NullReplacement replaces null value in LTSV.
-var NullReplacement = "(null)"
-
 // Handler is database protocol handler.
 type Handler struct {
 }

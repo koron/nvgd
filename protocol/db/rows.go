@@ -9,6 +9,10 @@ import (
 	"github.com/koron/nvgd/ltsv"
 )
 
+// NullReplacement replaces null value in LTSV.
+var NullReplacement = "(null)"
+
+
 func rows2ltsv(rows *sql.Rows, maxRows int) (io.ReadCloser, error) {
 	cols, err := rows.Columns()
 	if err != nil {
