@@ -46,13 +46,21 @@ func (r *Resource) Put(name string, value interface{}) *Resource {
 	return r
 }
 
-func (r *Resource) PutContentType(s string) *Resource {
-	if s == "" {
-		delete(r.Options, ContentType)
+func (r *Resource) PutString(name, value string) *Resource {
+	if value == "" {
+		delete(r.Options, name)
 	} else {
-		r.Options[ContentType] = s
+		r.Options[name] = value
 	}
 	return r
+}
+
+func (r *Resource) PutFilename(s string) *Resource {
+	return r.PutString(Filename, s).GuessContentType(s)
+}
+
+func (r *Resource) PutContentType(s string) *Resource {
+	return r.PutString(ContentType, s)
 }
 
 func (r *Resource) GuessContentType(s string) *Resource {

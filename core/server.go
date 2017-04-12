@@ -120,7 +120,11 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 		v := fmt.Sprintf("%d; URL=%s", refresh, req.URL.String())
 		res.Header().Set("Refresh", v)
 	}
-	if download {
+	// Set Content-Disposition header if required.
+	if fn, ok := r.String(resource.Filename); ok {
+		res.Header().Set("Content-Disposition",
+			fmt.Sprintf(`attachment; filename="%s"`, fn))
+	} else if download {
 		v := "attachment"
 		fn := path.Base(u.Path)
 		if fn != "" && fn != "." && fn != "/" {
