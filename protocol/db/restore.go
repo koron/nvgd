@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+	"io"
 	"net/url"
 
 	"github.com/koron/nvgd/protocol"
@@ -16,5 +17,9 @@ func init() {
 }
 
 func (rh *RestoreHandler) Open(u *url.URL) (*resource.Resource, error) {
-	return nil, errors.New("RestoreHandler: not implemented yet")
+	return nil, errors.New("RestoreHandler#Open: not implemented yet")
+}
+
+func (rh *RestoreHandler) Post(u *url.URL, r io.Reader) (*resource.Resource, error) {
+	return nil, errors.New("RestoreHandler#Post: not implemented yet")
 }

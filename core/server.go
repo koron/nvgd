@@ -70,6 +70,22 @@ func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func (s *Server) open(p protocol.Protocol, u *url.URL, req *http.Request) (*resource.Resource, error) {
+	if p2, ok := p.(protocol.Postable); ok && req.Method == http.MethodPost {
+		defer req.Body.Close()
+		rsrc, err := p2.Post(u, req.Body)
+		if err != nil {
+			return nil, err
+		}
+		return rsrc, nil
+	}
+	rsrc, err := p.Open(u)
+	if err != nil {
+		return nil, err
+	}
+	return rsrc, nil
+}
+
 func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	upath := req.URL.Path[1:]
 	upath = defaultAliases.apply(upath)
@@ -82,7 +98,7 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	if p == nil {
 		return fmt.Errorf("not found protocol for %q", u.Scheme)
 	}
-	rsrc, err := p.Open(u)
+	rsrc, err := s.open(p, u, req)
 	if err != nil {
 		return fmt.Errorf("failed to open %s; %s", upath, err)
 	}
