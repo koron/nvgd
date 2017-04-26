@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/koron/nvgd/common_const"
+	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/ltsv"
 	"github.com/koron/nvgd/resource"
 	"github.com/pierrec/lz4"
@@ -25,14 +26,46 @@ import (
 type File struct {
 }
 
+// FileConfig provides configuration for file protocol.
+type FileConfig struct {
+	// Locations is allowed paths to access.
+	Locations []string `yaml:"locations"`
+
+	// Forbiddens is fobidden paths to access. It overrides Locations.
+	Forbiddens []string `yaml:"forbiddens"`
+}
+
+func match(path string, paths []string, defaultValue bool) bool {
+	if len(paths) == 0 {
+		return defaultValue
+	}
+	for _, s := range paths {
+		if strings.HasPrefix(path, s) {
+			return true
+		}
+	}
+	return false
+}
+
+func (fc FileConfig) isAccessible(path string) bool {
+	return match(path, fc.Locations, true) &&
+		!match(path, fc.Forbiddens, false)
+}
+
+var fc FileConfig
+
 func init() {
 	MustRegister("file", &File{})
+	config.RegisterProtocol("file", &fc)
 }
 
 // Open opens a URL as file.
 func (f *File) Open(u *url.URL) (*resource.Resource, error) {
 	// TODO: consider relative path.
 	name := u.Path
+	if !fc.isAccessible(name) {
+		return nil, fmt.Errorf("forbidden: %s", name)
+	}
 	fi, err := os.Lstat(name)
 	if err != nil {
 		return nil, err

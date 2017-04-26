@@ -10,6 +10,7 @@ Index:
   * [How to use](#how-to-use)
   * [Acceptable path](#acceptable-path)
   * [Configuration file](#configuration-file)
+    * [File Protocol Handler](#file-protocol-handler)
     * [Command Protocol Handlers](#command-protocol-handlers)
     * [S3 Protocol Handlers](#config-s3-protocol-handlers)
     * [Config DB Protocol Handler](#config-db-protocol-handler)
@@ -105,6 +106,10 @@ addr: "0.0.0.0:8080"
 # Configuratio for protocols (OPTIONAL)
 protocols:
 
+  # File protocol handler's configuration.
+  file:
+    ...
+
   # Pre-defined command handlers.
   command:
     ...
@@ -121,6 +126,30 @@ protocols:
 defualt_filters:
   ...
 ```
+
+### File Protocol Handler
+
+Example:
+
+```yaml
+file:
+  locations:
+    - '/var/log/'
+    - '/etc/'
+
+  forbiddens:
+    - '/etc/ssh'
+    - '/etc/passwd'
+```
+
+This configuration has `locations` and `forbiddens` properties.  These props
+define accessible area of file system.
+
+When paths are given as `locations`, only those paths are permitted to access,
+others are forbidden.  Otherwise, all paths are accessible.
+
+When `forbiddens` are given, those paths can't be accessed even if it is under
+path in `locations`.
 
 ### Commnad Protocol Handlers
 
