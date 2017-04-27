@@ -1,10 +1,10 @@
 package db
 
 import (
+	"database/sql"
 	"errors"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/url"
 
 	"github.com/koron/nvgd/protocol"
@@ -28,8 +28,24 @@ func (rh *RestoreHandler) Post(u *url.URL, r io.Reader) (*resource.Resource, err
 	if err != nil {
 		return nil, err
 	}
-	for _, sh := range xf.Sheets {
-		log.Printf("Sheet: %q", sh.Name)
+	c, err := openDB(u)
+	if err != nil {
+		return nil, err
+	}
+	tx, err := c.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	for _, xs := range xf.Sheets {
+		err := rh.restoreSheet(tx, xs)
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+	}
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
 	}
 	return nil, errors.New("RestoreHandler#Post: not implemented yet")
 }
@@ -44,4 +60,9 @@ func (rh *RestoreHandler) openXLSX(r io.Reader) (*xlsx.File, error) {
 		return nil, err
 	}
 	return xf, nil
+}
+
+func (rh *RestoreHandler) restoreSheet(tx *sql.Tx, xs *xlsx.Sheet) error {
+	// TODO:
+	return nil
 }
