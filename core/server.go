@@ -70,8 +70,20 @@ func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func (s *Server) isPost(p protocol.Protocol, req *http.Request) (protocol.Postable, bool) {
+	if req.Method != http.MethodPost {
+		return nil, false
+	}
+	p2, ok := p.(protocol.Postable);
+	if !ok {
+		return nil, false
+	}
+	return p2, true
+
+}
+
 func (s *Server) open(p protocol.Protocol, u *url.URL, req *http.Request) (*resource.Resource, error) {
-	if p2, ok := p.(protocol.Postable); ok && req.Method == http.MethodPost {
+	if p2, ok := s.isPost(p, req); ok {
 		defer req.Body.Close()
 		rsrc, err := p2.Post(u, req.Body)
 		if err != nil {

@@ -72,6 +72,18 @@ Nvgd supports these `protocol`s:
         /db://db_pq/
         ```
 
+  * `db-dump` - dump tables to XLSX.
+
+      ```console
+      curl http://127.0.0.1:9280/db-dump://mysql -o dst.xlsx
+      ```
+
+  * `db-restore` - restore (clear all and import) tables from XLSX.
+
+      ```console
+      curl http://127.0.0.1:9280/db-restore://mysql --data-binary src.xlsx
+      ```
+
   * `config` - current nvgd's configuration
 
       `/config://` or `/config/` (alias)

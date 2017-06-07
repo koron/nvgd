@@ -119,3 +119,11 @@ func path(u *url.URL) string {
 	}
 	return u.Path
 }
+
+func parseAsTables(u *url.URL) []string {
+	p := path(u)
+	if p == "" {
+		return nil
+	}
+	return strings.Split(p, ",")
+}

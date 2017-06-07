@@ -1,12 +1,12 @@
 package db
 
 import (
-	"database/sql"
 	"errors"
 	"io"
 	"io/ioutil"
 	"net/url"
 
+	xlsx4db "github.com/koron/go-xlsx4db"
 	"github.com/koron/nvgd/protocol"
 	"github.com/koron/nvgd/resource"
 	"github.com/tealeg/xlsx"
@@ -32,22 +32,12 @@ func (rh *RestoreHandler) Post(u *url.URL, r io.Reader) (*resource.Resource, err
 	if err != nil {
 		return nil, err
 	}
-	tx, err := c.db.Begin()
+	tables := parseAsTables(u)
+	err = xlsx4db.Restore(c.db, xf, true, tables...)
 	if err != nil {
 		return nil, err
 	}
-	for _, xs := range xf.Sheets {
-		err := rh.restoreSheet(tx, xs)
-		if err != nil {
-			tx.Rollback()
-			return nil, err
-		}
-	}
-	err = tx.Commit()
-	if err != nil {
-		return nil, err
-	}
-	return nil, errors.New("RestoreHandler#Post: not implemented yet")
+	return resource.NewString("restored successfully"), nil
 }
 
 func (rh *RestoreHandler) openXLSX(r io.Reader) (*xlsx.File, error) {
@@ -60,9 +50,4 @@ func (rh *RestoreHandler) openXLSX(r io.Reader) (*xlsx.File, error) {
 		return nil, err
 	}
 	return xf, nil
-}
-
-func (rh *RestoreHandler) restoreSheet(tx *sql.Tx, xs *xlsx.Sheet) error {
-	// TODO:
-	return nil
 }
