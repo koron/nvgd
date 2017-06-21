@@ -1,6 +1,7 @@
 package core
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -70,19 +71,63 @@ func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func (s *Server) isPost(p protocol.Protocol, req *http.Request) (protocol.Postable, bool) {
+	if req.Method != http.MethodPost {
+		return nil, false
+	}
+	p2, ok := p.(protocol.Postable)
+	if !ok {
+		return nil, false
+	}
+	return p2, true
+
+}
+
+func (s *Server) open(p protocol.Protocol, u *url.URL, req *http.Request) (*resource.Resource, error) {
+	if p2, ok := s.isPost(p, req); ok {
+		defer req.Body.Close()
+		data := req.Body
+		err := req.ParseMultipartForm(32 * 1024 * 1024)
+		if err == nil {
+			fh, ok := req.MultipartForm.File["file00"]
+			if !ok || len(fh) < 1 {
+				return nil, errors.New("no files uploaded")
+			}
+			f, err := fh[0].Open()
+			if err != nil {
+				return nil, err
+			}
+			defer f.Close()
+			data = f
+		} else if err != http.ErrNotMultipart {
+			return nil, err
+		}
+		rsrc, err := p2.Post(u, data)
+		if err != nil {
+			return nil, err
+		}
+		return rsrc, nil
+	}
+	rsrc, err := p.Open(u)
+	if err != nil {
+		return nil, err
+	}
+	return rsrc, nil
+}
+
 func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	upath := req.URL.Path[1:]
 	upath = defaultAliases.apply(upath)
 	u, err := url.Parse(upath)
-	u.RawQuery = req.URL.RawQuery
 	if err != nil {
 		return fmt.Errorf("failed to parse %q as URL: %s", upath, err)
 	}
+	u.RawQuery = req.URL.RawQuery
 	p := protocol.Find(u.Scheme)
 	if p == nil {
 		return fmt.Errorf("not found protocol for %q", u.Scheme)
 	}
-	rsrc, err := p.Open(u)
+	rsrc, err := s.open(p, u, req)
 	if err != nil {
 		return fmt.Errorf("failed to open %s; %s", upath, err)
 	}
@@ -120,7 +165,11 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 		v := fmt.Sprintf("%d; URL=%s", refresh, req.URL.String())
 		res.Header().Set("Refresh", v)
 	}
-	if download {
+	// Set Content-Disposition header if required.
+	if fn, ok := r.String(resource.Filename); ok {
+		res.Header().Set("Content-Disposition",
+			fmt.Sprintf(`attachment; filename="%s"`, fn))
+	} else if download {
 		v := "attachment"
 		fn := path.Base(u.Path)
 		if fn != "" && fn != "." && fn != "/" {

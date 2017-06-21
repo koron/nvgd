@@ -2,6 +2,7 @@ package resource
 
 const (
 	ContentType = "Content-Type"
+	Filename    = "File-Name"
 )
 
 // Options holds option properties of Resource.

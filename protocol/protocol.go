@@ -2,6 +2,7 @@ package protocol
 
 import (
 	"fmt"
+	"io"
 	"net/url"
 
 	"github.com/koron/nvgd/resource"
@@ -10,6 +11,11 @@ import (
 // Protocol is abstraction of methods to get source stream.
 type Protocol interface {
 	Open(u *url.URL) (*resource.Resource, error)
+}
+
+type Postable interface {
+	Protocol
+	Post(u *url.URL, r io.Reader) (*resource.Resource, error)
 }
 
 var protocols = map[string]Protocol{}
