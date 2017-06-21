@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -214,6 +215,8 @@ type S3BucketConfig struct {
 
 	// MaxKeys used for S3 object listing.
 	MaxKeys int64 `yaml:"max_keys",omitempty`
+
+	HttpProxy string `yaml:"http_proxy",omitempty`
 }
 
 func (bc *S3BucketConfig) region() string {
@@ -228,7 +231,13 @@ func (bc *S3BucketConfig) creds() *credentials.Credentials {
 }
 
 func (bc *S3BucketConfig) awsConfig() *aws.Config {
-	return aws.NewConfig().WithRegion(bc.region()).WithCredentials(bc.creds())
+	conf := aws.NewConfig().
+		WithRegion(bc.region()).
+		WithCredentials(bc.creds())
+	if cl := bc.httpClient(); cl != nil {
+		conf = conf.WithHTTPClient(cl)
+	}
+	return conf
 }
 
 func (bc *S3BucketConfig) maxKeys() *int64 {
@@ -236,4 +245,11 @@ func (bc *S3BucketConfig) maxKeys() *int64 {
 		return nil
 	}
 	return aws.Int64(bc.MaxKeys)
+}
+
+func (bc *S3BucketConfig) httpClient() *http.Client {
+	if bc.HttpProxy == "" {
+		return nil
+	}
+	return NewProxyClient(bc.HttpProxy)
 }

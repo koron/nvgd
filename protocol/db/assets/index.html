@@ -3,9 +3,11 @@
 <link rel="stylesheet" type="text/css" href="./assets/query.css">
 <h1>Query</h1>
 <form class="container">
-  <input id="query" type="text" name="query"></input>
-  <button id="submit">Query</button>
-  <button id="submit_raw">Query (LTSV)</button>
-  <input type="reset" value="Reset"></input>
+  <textarea id="query" rows="12"></textarea>
+  <div class="vpanel">
+    <button id="submit">Query</button>
+    <button id="submit_raw">Query (LTSV)</button>
+    <input type="reset" value="Reset"></input>
+  </div>
 </form>
 <script src="./assets/query.js"></script>
