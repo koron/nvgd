@@ -1,6 +1,7 @@
 package core
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -74,7 +75,7 @@ func (s *Server) isPost(p protocol.Protocol, req *http.Request) (protocol.Postab
 	if req.Method != http.MethodPost {
 		return nil, false
 	}
-	p2, ok := p.(protocol.Postable);
+	p2, ok := p.(protocol.Postable)
 	if !ok {
 		return nil, false
 	}
@@ -85,7 +86,23 @@ func (s *Server) isPost(p protocol.Protocol, req *http.Request) (protocol.Postab
 func (s *Server) open(p protocol.Protocol, u *url.URL, req *http.Request) (*resource.Resource, error) {
 	if p2, ok := s.isPost(p, req); ok {
 		defer req.Body.Close()
-		rsrc, err := p2.Post(u, req.Body)
+		data := req.Body
+		err := req.ParseMultipartForm(32 * 1024 * 1024)
+		if err == nil {
+			fh, ok := req.MultipartForm.File["file00"]
+			if !ok || len(fh) < 1 {
+				return nil, errors.New("no files uploaded")
+			}
+			f, err := fh[0].Open()
+			if err != nil {
+				return nil, err
+			}
+			defer f.Close()
+			data = f
+		} else if err != http.ErrNotMultipart {
+			return nil, err
+		}
+		rsrc, err := p2.Post(u, data)
 		if err != nil {
 			return nil, err
 		}

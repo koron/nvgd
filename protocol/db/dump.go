@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/koron/go-xlsx4db"
@@ -21,6 +22,9 @@ func init() {
 }
 
 func (dh *DumpHandler) Open(u *url.URL) (*resource.Resource, error) {
+	if p := path(u); p == "" || strings.HasPrefix(p, assetPrefix) {
+		return dh.openAsset(p)
+	}
 	c, err := openDB(u)
 	if err != nil {
 		return nil, err
@@ -40,6 +44,21 @@ func (dh *DumpHandler) Open(u *url.URL) (*resource.Resource, error) {
 	t := time.Now().Format("20060102T150405MST")
 	rs.PutFilename(fmt.Sprintf("%s-%s.xlsx", n, t))
 	rs.Put(protocol.Small, true)
+	return rs, nil
+}
+
+func (dh *DumpHandler) openAsset(s string) (*resource.Resource, error) {
+	if s == "" {
+		s = "dump.html"
+	}
+	if strings.HasPrefix(s, assetPrefix) {
+		s = s[len(assetPrefix):]
+	}
+	f, err := Assets.Open(s)
+	if err != nil {
+		return nil, err
+	}
+	rs := resource.New(f).GuessContentType(s)
 	return rs, nil
 }
 

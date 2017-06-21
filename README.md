@@ -75,20 +75,29 @@ Nvgd supports these `protocol`s:
   * `db-dump` - dump tables to XLSX.
 
       ```console
-      curl http://127.0.0.1:9280/db-dump://mysql -o dst.xlsx
+      curl http://127.0.0.1:9280/db-dump://mysql/ -o dst.xlsx
       ```
+
+      Or access `http://127.0.0.1:9280/db-dump://mysql/` by web browser.
+      Then start to download a excel file.
 
   * `db-restore` - restore (clear all and import) tables from XLSX.
 
       ```console
-      curl http://127.0.0.1:9280/db-restore://mysql --data-binary src.xlsx
+      curl http://127.0.0.1:9280/db-restore://mysql/ --data-binary src.xlsx
       ```
+
+      Or access `http://127.0.0.1:9280/db-dump://mysql/` by web browser.
+      You can upload a excel file from the form.
 
   * `db-update` - update tables by XLSX (upsert)
 
       ```console
-      curl http://127.0.0.1:9280/db-update://mysql --data-binary src.xlsx
+      curl http://127.0.0.1:9280/db-update://mysql/ --data-binary src.xlsx
       ```
+
+      Or access `http://127.0.0.1:9280/db-dump://mysql/` by web browser.
+      You can upload a excel file from the form.
 
   * `config` - current nvgd's configuration
 
