@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -61,8 +62,19 @@ func init() {
 
 // Open opens a URL as file.
 func (f *File) Open(u *url.URL) (*resource.Resource, error) {
-	// TODO: consider relative path.
 	name := u.Path
+	m, err := filepath.Glob(name)
+	if err != nil {
+		return nil, err
+	}
+	if len(m) == 1 {
+		return f.openOne(name)
+	}
+	return f.openMulti(m)
+}
+
+func (f *File) openOne(name string) (*resource.Resource, error) {
+	// TODO: consider relative path.
 	if !fc.isAccessible(name) {
 		return nil, fmt.Errorf("forbidden: %s", name)
 	}
@@ -71,16 +83,21 @@ func (f *File) Open(u *url.URL) (*resource.Resource, error) {
 		return nil, err
 	}
 	if fi.IsDir() {
-		return f.openDir(name)
+		return fileOpenDir(name)
 	}
-	rc, err := f.openFile(name)
+	rc, err := fileOpen(name)
 	if err != nil {
 		return nil, err
 	}
 	return resource.New(rc), nil
 }
 
-func (f *File) openDir(name string) (*resource.Resource, error) {
+func (f *File) openMulti(names []string) (*resource.Resource, error) {
+	// TODO:
+	return nil, nil
+}
+
+func fileOpenDir(name string) (*resource.Resource, error) {
 	list, err := ioutil.ReadDir(name)
 	if err != nil {
 		log.Printf("ReadDir failed: %s", name)
@@ -125,7 +142,7 @@ var (
 	rxLz4 = regexp.MustCompile(`\.lz4$`)
 )
 
-func (f *File) openFile(name string) (io.ReadCloser, error) {
+func fileOpen(name string) (io.ReadCloser, error) {
 	r, err := os.Open(name)
 	if err != nil {
 		return nil, err

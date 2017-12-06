@@ -6,8 +6,7 @@ import (
 )
 
 func TestBzip2(t *testing.T) {
-	f := &File{}
-	r, err := f.openFile("testdata/file_test.bz2")
+	r, err := fileOpen("testdata/file_test.bz2")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -22,8 +21,7 @@ func TestBzip2(t *testing.T) {
 }
 
 func TestGzip(t *testing.T) {
-	f := &File{}
-	r, err := f.openFile("testdata/file_test.gz")
+	r, err := fileOpen("testdata/file_test.gz")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -38,8 +36,7 @@ func TestGzip(t *testing.T) {
 }
 
 func TestLZ4(t *testing.T) {
-	f := &File{}
-	r, err := f.openFile("testdata/file_test.lz4")
+	r, err := fileOpen("testdata/file_test.lz4")
 	if err != nil {
 		t.Fatal(err)
 	}
