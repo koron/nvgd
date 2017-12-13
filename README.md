@@ -46,6 +46,12 @@ Nvgd accepts path in these like format:
 Nvgd supports these `protocol`s:
 
   * `file` - `/file:///path/to/source`
+    * support [glob][globspec] like `*`
+
+        ```
+        /files:///var/log/access*.log
+        ```
+
   * `command` - result of pre-defined commands
   * `s3obj`
     * get object: `/s3obj://bucket-name/key/to/object`
@@ -574,3 +580,4 @@ works same as below URL:
   * [koron/night][night] previous impl in NodeJS.
 
 [night]:https://github.com/koron/night
+[globspec]:https://golang.org/pkg/path/filepath/#Match
