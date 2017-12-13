@@ -6,11 +6,11 @@ import (
 )
 
 func TestBzip2(t *testing.T) {
-	f := &File{}
-	r, err := f.openFile("testdata/file_test.bz2")
+	r, err := fileOpen("testdata/file_test.bz2")
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer r.Close()
 	b, err := ioutil.ReadAll(r)
 	if err != nil {
 		t.Fatal(err)
@@ -22,11 +22,11 @@ func TestBzip2(t *testing.T) {
 }
 
 func TestGzip(t *testing.T) {
-	f := &File{}
-	r, err := f.openFile("testdata/file_test.gz")
+	r, err := fileOpen("testdata/file_test.gz")
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer r.Close()
 	b, err := ioutil.ReadAll(r)
 	if err != nil {
 		t.Fatal(err)
@@ -38,11 +38,11 @@ func TestGzip(t *testing.T) {
 }
 
 func TestLZ4(t *testing.T) {
-	f := &File{}
-	r, err := f.openFile("testdata/file_test.lz4")
+	r, err := fileOpen("testdata/file_test.lz4")
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer r.Close()
 	b, err := ioutil.ReadAll(r)
 	if err != nil {
 		t.Fatal(err)
@@ -50,5 +50,26 @@ func TestLZ4(t *testing.T) {
 	s := (string)(b)
 	if s != "this is lz4 compressed" {
 		t.Errorf("content of \"testdata/file_test.lz4\" is unexpected: %q", s)
+	}
+}
+
+func TestMultiRC(t *testing.T) {
+	f := &File{}
+	r, err := f.openMulti([]string{
+		"testdata/file_test.bz2",
+		"testdata/file_test.gz",
+		"testdata/file_test.lz4",
+	}, "testdata/;file_test.*")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer r.Close()
+	b, err := ioutil.ReadAll(r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := string(b)
+	if s != `this is bz2 compressedthis is gzip compressedthis is lz4 compressed` {
+		t.Errorf("multi RC failed: %q", s)
 	}
 }

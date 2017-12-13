@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -61,8 +62,19 @@ func init() {
 
 // Open opens a URL as file.
 func (f *File) Open(u *url.URL) (*resource.Resource, error) {
-	// TODO: consider relative path.
 	name := u.Path
+	m, err := filepath.Glob(name)
+	if err != nil {
+		return nil, err
+	}
+	if len(m) == 1 {
+		return f.openOne(name)
+	}
+	return f.openMulti(m, name)
+}
+
+func (f *File) openOne(name string) (*resource.Resource, error) {
+	// TODO: consider relative path.
 	if !fc.isAccessible(name) {
 		return nil, fmt.Errorf("forbidden: %s", name)
 	}
@@ -71,16 +83,30 @@ func (f *File) Open(u *url.URL) (*resource.Resource, error) {
 		return nil, err
 	}
 	if fi.IsDir() {
-		return f.openDir(name)
+		return fileOpenDir(name)
 	}
-	rc, err := f.openFile(name)
+	rc, err := fileOpen(name)
 	if err != nil {
 		return nil, err
 	}
 	return resource.New(rc), nil
 }
 
-func (f *File) openDir(name string) (*resource.Resource, error) {
+func (f *File) openMulti(names []string, pattern string) (*resource.Resource, error) {
+	readers := make([]io.Reader, 0, len(names))
+	for _, n := range names {
+		if !fc.isAccessible(n) {
+			continue
+		}
+		readers = append(readers, newDelayFile(n))
+	}
+	if len(readers) == 0 {
+		return nil, fmt.Errorf("no matches: %s", pattern)
+	}
+	return resource.New(newMultiRC(readers...)), nil
+}
+
+func fileOpenDir(name string) (*resource.Resource, error) {
 	list, err := ioutil.ReadDir(name)
 	if err != nil {
 		log.Printf("ReadDir failed: %s", name)
@@ -125,7 +151,7 @@ var (
 	rxLz4 = regexp.MustCompile(`\.lz4$`)
 )
 
-func (f *File) openFile(name string) (io.ReadCloser, error) {
+func fileOpen(name string) (io.ReadCloser, error) {
 	r, err := os.Open(name)
 	if err != nil {
 		return nil, err
@@ -146,6 +172,15 @@ func (f *File) openFile(name string) (io.ReadCloser, error) {
 	return r, nil
 }
 
+func fileFailure(err error, readers []io.Reader) error {
+	for _, r := range readers {
+		if rc, ok := r.(io.ReadCloser); ok {
+			rc.Close()
+		}
+	}
+	return err
+}
+
 type wrapRC struct {
 	io.Reader
 	c io.Closer
@@ -157,4 +192,66 @@ func newWrapRC(r io.Reader, c io.Closer) io.ReadCloser {
 
 func (rc *wrapRC) Close() error {
 	return rc.c.Close()
+}
+
+type delayFile struct {
+	rc  io.ReadCloser
+	n   string
+	err error
+}
+
+func newDelayFile(name string) *delayFile {
+	return &delayFile{n: name}
+}
+
+func (d *delayFile) Read(b []byte) (int, error) {
+	if d.err != nil {
+		return 0, d.err
+	}
+	if d.rc == nil {
+		d.rc, d.err = fileOpen(d.n)
+		if d.err != nil {
+			return 0, d.err
+		}
+	}
+	return d.rc.Read(b)
+}
+
+func (d *delayFile) Close() error {
+	if d.err != nil {
+		return d.err
+	}
+	if d.rc == nil {
+		d.err = io.EOF
+		return nil
+	}
+	d.err = d.rc.Close()
+	d.rc = nil
+	return d.err
+}
+
+type multiRC struct {
+	io.Reader
+	rcs []io.ReadCloser
+}
+
+func newMultiRC(readers ...io.Reader) *multiRC {
+	rcs := make([]io.ReadCloser, 0, len(readers))
+	for _, r := range readers {
+		if rc, ok := r.(io.ReadCloser); ok {
+			rcs = append(rcs, rc)
+		}
+	}
+	return &multiRC{
+		Reader: io.MultiReader(readers...),
+		rcs:    rcs,
+	}
+}
+
+func (mrc *multiRC) Close() error {
+	for _, rc := range mrc.rcs {
+		rc.Close()
+	}
+	mrc.rcs = nil
+	return nil
 }
