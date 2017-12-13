@@ -50,7 +50,10 @@ func (b *Base) ReadLine() ([]byte, error) {
 	} else if err != bufio.ErrBufferFull {
 		return nil, err
 	}
-	bb := bytes.NewBuffer(d)
+	bb := bytes.Buffer{}
+	if _, err := bb.Write(d); err != nil {
+		return nil, err
+	}
 	for {
 		b2, err := b.Reader.ReadSlice('\n')
 		if len(b2) > 0 {
