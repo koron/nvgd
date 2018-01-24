@@ -46,10 +46,15 @@ func (b *Base) Read(buf []byte) (int, error) {
 func (b *Base) ReadLine() ([]byte, error) {
 	d, err := b.Reader.ReadSlice('\n')
 	if err == nil || err == io.EOF {
-		return d, err
-	} else if err != bufio.ErrBufferFull {
+		bb := make([]byte, len(d))
+		copy(bb, d)
+		return bb, err
+	}
+	if err != bufio.ErrBufferFull {
 		return nil, err
 	}
+
+	// for long line
 	bb := bytes.Buffer{}
 	if _, err := bb.Write(d); err != nil {
 		return nil, err
