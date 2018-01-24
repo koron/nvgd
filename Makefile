@@ -1,6 +1,9 @@
 GO_SUBPKGS = $(shell go list ./... | grep -v /vendor/ | sed -e "s!$$(go list)!.!")
 
-default: test
+default: build
+
+build:
+	go build -v -i .
 
 test:
 	go test $(GO_SUBPKGS)
