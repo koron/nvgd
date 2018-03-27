@@ -11,12 +11,14 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// Config hold configuration of nvgd.
 var Config config.Config
 
 func init() {
 	protocol.MustRegister("config", &ConfigP{})
 }
 
+// ConfigP provides config protocol.
 type ConfigP struct {
 }
 

@@ -13,6 +13,7 @@ type readSeekCloser interface {
 	io.Closer
 }
 
+// RTail implements reversed tail filter
 type RTail struct {
 	raw     readSeekCloser
 	limit   int
@@ -21,6 +22,7 @@ type RTail struct {
 	ft      bool
 }
 
+// NewRTail creates an instance of RTail.
 func NewRTail(r readSeekCloser, limit int, bufsize int) *RTail {
 	return &RTail{
 		raw:     r,
@@ -29,6 +31,7 @@ func NewRTail(r readSeekCloser, limit int, bufsize int) *RTail {
 	}
 }
 
+// Read reads filtered data.
 func (rt *RTail) Read(buf []byte) (int, error) {
 	if !rt.ft {
 		rt.ft = true
@@ -40,6 +43,7 @@ func (rt *RTail) Read(buf []byte) (int, error) {
 	return rt.raw.Read(buf)
 }
 
+// Close closes a filter.
 func (rt *RTail) Close() error {
 	if rt.closed {
 		return nil
@@ -77,7 +81,7 @@ func (rt *RTail) findTop() error {
 		if n != len(wbuf) {
 			return fmt.Errorf("tail requires %d bytes but got %d", len(wbuf), n)
 		}
-		for off := n - 1; off >= 0; off -= 1 {
+		for off := n - 1; off >= 0; off-- {
 			if wbuf[off] != '\n' || tail {
 				tail = false
 				continue

@@ -7,6 +7,7 @@ import (
 	"github.com/koron/nvgd/resource"
 )
 
+// Filters is set of filters.
 type Filters struct {
 	descs config.FiltersMap
 }

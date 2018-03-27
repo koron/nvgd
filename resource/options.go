@@ -1,8 +1,11 @@
 package resource
 
 const (
+	// ContentType is for header.
 	ContentType = "Content-Type"
-	Filename    = "File-Name"
+
+	// Filename is for header.
+	Filename = "File-Name"
 )
 
 // Options holds option properties of Resource.

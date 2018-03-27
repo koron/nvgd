@@ -49,11 +49,14 @@ func (r *Resource) ReadSeekCloser() (ReadSeekCloser, bool) {
 	return x, ok
 }
 
+// Put puts a pair of name and value as an option.
 func (r *Resource) Put(name string, value interface{}) *Resource {
 	r.Options[name] = value
 	return r
 }
 
+// PutString puts a string as an option. When value is empty string, it deletes
+// the option.
 func (r *Resource) PutString(name, value string) *Resource {
 	if value == "" {
 		delete(r.Options, name)
@@ -63,14 +66,17 @@ func (r *Resource) PutString(name, value string) *Resource {
 	return r
 }
 
+// PutFilename puts a filenaem option.
 func (r *Resource) PutFilename(s string) *Resource {
 	return r.PutString(Filename, s).GuessContentType(s)
 }
 
+// PutContentType puts a content-type option.
 func (r *Resource) PutContentType(s string) *Resource {
 	return r.PutString(ContentType, s)
 }
 
+// GuessContentType guess a content-type from argument string.
 func (r *Resource) GuessContentType(s string) *Resource {
 	ex := strings.ToLower(path.Ext(s))
 	if ct, ok := Mime[ex]; ok {

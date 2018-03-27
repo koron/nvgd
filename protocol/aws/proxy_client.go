@@ -2,9 +2,11 @@ package aws
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 )
 
 func newProxyFunc(proxy string) func(*http.Request) (*url.URL, error) {
@@ -26,10 +28,21 @@ func newProxyFunc(proxy string) func(*http.Request) (*url.URL, error) {
 	}
 }
 
+// NewProxyClient creates a proxied client for AWS.
 func NewProxyClient(proxy string) *http.Client {
-	t := *(http.DefaultTransport.(*http.Transport))
-	t.Proxy = newProxyFunc(proxy)
 	c := *http.DefaultClient
-	c.Transport = &t
+	c.Transport = &http.Transport{
+		Proxy: newProxyFunc(proxy),
+		// copy from "net/http".DefaultTransport
+		DialContext: (&net.Dialer{
+			Timeout:   30 * time.Second,
+			KeepAlive: 30 * time.Second,
+			DualStack: true,
+		}).DialContext,
+		MaxIdleConns:          100,
+		IdleConnTimeout:       90 * time.Second,
+		TLSHandshakeTimeout:   10 * time.Second,
+		ExpectContinueTimeout: 1 * time.Second,
+	}
 	return &c
 }
