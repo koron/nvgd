@@ -55,5 +55,14 @@ func (c *command) run(s string) (io.ReadCloser, error) {
 		stdout.Close()
 		return nil, err
 	}
-	return stdout, nil
+	return &cmdOut{stdout, cmd}, nil
+}
+
+type cmdOut struct {
+	io.ReadCloser
+	c *exec.Cmd
+}
+
+func (co *cmdOut) Close() error {
+	return co.c.Wait()
 }

@@ -136,6 +136,7 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	}
 	qp, err := qparamsParse(req.URL.RawQuery)
 	if err != nil {
+		rsrc.Close()
 		return fmt.Errorf("failed to parse query string: %s", err)
 	}
 	if parsed, ok := rsrc.Strings(protocol.ParsedKeys); ok {
