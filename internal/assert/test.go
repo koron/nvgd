@@ -6,6 +6,7 @@ import (
 	"testing"
 )
 
+// Equals asserts equality of two values.
 func Equals(t *testing.T, actual, expected interface{}, format string, a ...interface{}) {
 	if !reflect.DeepEqual(actual, expected) {
 		msg := fmt.Sprintf(format, a...)

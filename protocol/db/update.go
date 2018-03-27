@@ -39,7 +39,6 @@ func (uh *UpdateHandler) Open(u *url.URL) (*resource.Resource, error) {
 		"name": name,
 		"db":   p,
 	})
-	return nil, errors.New("UpdateHandler#Open: not implemented yet")
 }
 
 func (uh *UpdateHandler) openAsset(s string, p map[string]interface{}) (*resource.Resource, error) {

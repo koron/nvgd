@@ -71,7 +71,7 @@ Nvgd supports these `protocol`s:
         /db://db_pq2/bar/select id,email from users
         ```
 
-        This searchs from `foo` and `bar` databases.
+        This searches from `foo` and `bar` databases.
 
     * show query form for `db_pq`:
 
@@ -156,7 +156,7 @@ protocols:
     ...
 
 # Default filters: pair of path prefix and filter description.
-defualt_filters:
+default_filters:
   ...
 ```
 
@@ -336,7 +336,7 @@ default_filters:
 
 Default filters can be ignored separately by [all (pseudo) filter](#all-pseudo-filter).
 
-Defualt filters are ignored for directories source of file protocols.
+Default filters are ignored for directories source of file protocols.
 
 
 ## Filters
@@ -558,7 +558,7 @@ those.
 
 ## Prefix Aliases
 
-nvgd supports prefix aliases to keep compatiblities with [koron/night][night].
+nvgd supports prefix aliases to keep compatibilities with [koron/night][night].
 Currently these aliases are registered.
 
 * `files/` -> `file:///`

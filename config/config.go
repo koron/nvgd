@@ -20,9 +20,9 @@ type Config struct {
 	// AccessLogPath specify path of access log. default is "(discard)".
 	AccessLogPath string `yaml:"access_log"`
 
-	Protocols customConfig `yaml:"protocols",omitempty`
+	Protocols customConfig `yaml:"protocols,omitempty"`
 
-	Filters FiltersMap `yaml:"default_filters",omitempty`
+	Filters FiltersMap `yaml:"default_filters,omitempty"`
 }
 
 type customConfig map[string]interface{}

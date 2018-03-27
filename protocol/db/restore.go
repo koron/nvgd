@@ -39,7 +39,6 @@ func (rh *RestoreHandler) Open(u *url.URL) (*resource.Resource, error) {
 		"name": name,
 		"db":   p,
 	})
-	return nil, errors.New("RestoreHandler#Open: not implemented yet")
 }
 
 func (rh *RestoreHandler) openAsset(s string, p map[string]interface{}) (*resource.Resource, error) {
