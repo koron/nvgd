@@ -13,7 +13,7 @@ type Protocol interface {
 	Open(u *url.URL) (*resource.Resource, error)
 }
 
-// Postable is set of methods for POST acceptable source/protocl.
+// Postable is set of methods for POST acceptable source/protocol.
 type Postable interface {
 	Protocol
 	Post(u *url.URL, r io.Reader) (*resource.Resource, error)

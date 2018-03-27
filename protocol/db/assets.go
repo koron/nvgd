@@ -21,62 +21,62 @@ var _Assets6c0f5b9d340720d38a128145a10e4db1bbdb23f9 = ".container {\n  display: 
 
 // Assets returns go-assets FileSystem
 var Assets = assets.NewFileSystem(map[string][]string{}, map[string]*assets.File{
-	"update.css": &assets.File{
+	"update.css": {
 		Path:     "update.css",
 		FileMode: 0x1b6,
 		Mtime:    time.Unix(1498013769, 1498013769163692500),
 		Data:     []byte(_Assets008ca05abb21a6c52ec7712e1318522991975c13),
-	}, "restore.css": &assets.File{
+	}, "restore.css": {
 		Path:     "restore.css",
 		FileMode: 0x1b6,
 		Mtime:    time.Unix(1498013067, 1498013067896368300),
 		Data:     []byte(_Assetse63c31a38a562037297091840b1433d3b16cacb4),
-	}, "dump.js": &assets.File{
+	}, "dump.js": {
 		Path:     "dump.js",
 		FileMode: 0x1b6,
 		Mtime:    time.Unix(1498011449, 1498011449203356200),
 		Data:     []byte(_Assets19787aaa6d9704d88a58fc595d8fe37c352949ac),
-	}, "query.js": &assets.File{
+	}, "query.js": {
 		Path:     "query.js",
 		FileMode: 0x1b6,
 		Mtime:    time.Unix(1490755363, 1490755363383749100),
 		Data:     []byte(_Assetsd62688e30fe02ff0df109515268604d16d69f82e),
-	}, "restore.html": &assets.File{
+	}, "restore.html": {
 		Path:     "restore.html",
 		FileMode: 0x1b6,
 		Mtime:    time.Unix(1498014342, 1498014342775390800),
 		Data:     []byte(_Assetsb0590a31f1a55ffe1e02dc8e22bf87051f1402c4),
-	}, "update.html": &assets.File{
+	}, "update.html": {
 		Path:     "update.html",
 		FileMode: 0x1b6,
 		Mtime:    time.Unix(1498014342, 1498014342791930600),
 		Data:     []byte(_Assets8f58f95489d6e7a2ba3c4d4fb40efd576bb92995),
-	}, "update.js": &assets.File{
+	}, "update.js": {
 		Path:     "update.js",
 		FileMode: 0x1b6,
 		Mtime:    time.Unix(1498013773, 1498013773201457500),
 		Data:     []byte(_Assets3e678865eb64e5ce333408c3cf15af47d15d18fe),
-	}, "dump.css": &assets.File{
+	}, "dump.css": {
 		Path:     "dump.css",
 		FileMode: 0x1b6,
 		Mtime:    time.Unix(1498011466, 1498011466284450200),
 		Data:     []byte(_Assets7b28d06da7d2ff49b0679c2f4a7e2f4b81ab28d9),
-	}, "dump.html": &assets.File{
+	}, "dump.html": {
 		Path:     "dump.html",
 		FileMode: 0x1b6,
 		Mtime:    time.Unix(1498011357, 1498011357381579400),
 		Data:     []byte(_Assets7c8c0da38f3dc61f5f9279ef483848b78a4633e7),
-	}, "index.html": &assets.File{
+	}, "index.html": {
 		Path:     "index.html",
 		FileMode: 0x1b6,
 		Mtime:    time.Unix(1498015180, 1498015180303297300),
 		Data:     []byte(_Assetsf0a1e684333a9c2a21538b70ce7e4d8779474dac),
-	}, "query.css": &assets.File{
+	}, "query.css": {
 		Path:     "query.css",
 		FileMode: 0x1b6,
 		Mtime:    time.Unix(1498015180, 1498015180308802200),
 		Data:     []byte(_Assets6c0f5b9d340720d38a128145a10e4db1bbdb23f9),
-	}, "restore.js": &assets.File{
+	}, "restore.js": {
 		Path:     "restore.js",
 		FileMode: 0x1b6,
 		Mtime:    time.Unix(1498013089, 1498013089195290900),
