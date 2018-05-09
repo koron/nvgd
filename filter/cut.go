@@ -39,7 +39,7 @@ func NewCut(r io.ReadCloser, delim []byte, selectors []cutSelector) *Cut {
 
 func (f *Cut) readNext(buf *bytes.Buffer) error {
 	raw, err := f.ReadLine()
-	if err != nil {
+	if err != nil && (err != io.EOF || len(raw) == 0) {
 		return err
 	}
 	return f.write(buf, raw)
@@ -95,13 +95,13 @@ func toCutSelector(s string) ([]cutSelector, error) {
 	var sels []cutSelector
 	for _, item := range strings.Split(s, ",") {
 		var sel cutSelector
-		if m := rxCutOne.FindAllString(item, 0); m != nil {
-			n, err := toCutIndex(m[0])
+		if m := rxCutOne.FindString(item); m != "" {
+			n, err := toCutIndex(m)
 			if err != nil {
 				return nil, err
 			}
 			sel = newCutOne(n)
-		} else if m := rxCutRange.FindAllString(item, 0); m != nil {
+		} else if m := rxCutRange.FindStringSubmatch(item); m != nil {
 			s, err := toCutIndex(m[1])
 			if err != nil {
 				return nil, err
@@ -111,13 +111,13 @@ func toCutSelector(s string) ([]cutSelector, error) {
 				return nil, err
 			}
 			sel = newCutRange(s, e)
-		} else if m := rxCutRangeBegin.FindAllString(item, 0); m != nil {
+		} else if m := rxCutRangeBegin.FindStringSubmatch(item); m != nil {
 			n, err := toCutIndex(m[1])
 			if err != nil {
 				return nil, err
 			}
 			sel = newCutRangeBegin(n)
-		} else if m := rxCutRangeEnd.FindAllString(item, 0); m != nil {
+		} else if m := rxCutRangeEnd.FindStringSubmatch(item); m != nil {
 			n, err := toCutIndex(m[1])
 			if err != nil {
 				return nil, err
