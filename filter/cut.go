@@ -72,9 +72,9 @@ func (f *Cut) writeSome(w io.Writer, b []byte) error {
 
 func splitLF(b []byte) (body, lf []byte) {
 	l := len(b)
-	if b[l-1] == '\n' {
+	if l > 0 && b[l-1] == '\n' {
 		l--
-		if b[l-1] == '\r' {
+		if l > 0 && b[l-1] == '\r' {
 			l--
 		}
 	}
