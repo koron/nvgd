@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "github.com/koron/nvgd/filter/count"
 	_ "github.com/koron/nvgd/filter/htmltable"
 	_ "github.com/koron/nvgd/filter/indexhtml"
 	_ "github.com/koron/nvgd/filter/markdown"

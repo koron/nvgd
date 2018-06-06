@@ -30,7 +30,7 @@ func NewGrep(r io.ReadCloser, re *regexp.Regexp, match bool, lf LineFilter) *Gre
 func (g *Grep) readNext(buf *bytes.Buffer) error {
 	for {
 		raw, err := g.ReadLine()
-		if err != nil {
+		if err != nil && len(raw) == 0 {
 			return err
 		}
 		b := g.lf.Apply(raw)
