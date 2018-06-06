@@ -3,7 +3,6 @@ package filter
 import (
 	"bytes"
 	"io"
-	"log"
 	"regexp"
 
 	"github.com/koron/nvgd/resource"
