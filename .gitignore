@@ -1,6 +1,7 @@
 /nvgd
 /nvgd.exe
 /nvgd.exe~
-/tags
-/tmp/
+tags
+tmp/
 /nvgd.conf.yml
+dist/

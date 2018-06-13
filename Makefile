@@ -1,4 +1,8 @@
 GO_SUBPKGS = $(shell go list ./... | grep -v /vendor/ | sed -e "s!$$(go list)!.!")
+GOOS = $(shell go env GOOS)
+GOARCH = $(shell go env GOARCH)
+BINARCH_BASE = nvgd1.0.0.$(GOOS)_$(GOARCH)
+BINARCH_OUTDIR = dist
 
 default: build
 
@@ -37,6 +41,13 @@ report: misspell cyclo-report lint
 
 deps:
 	go get -v -u -d -t ./...
+
+binarch: build
+	rm -rf $(BINARCH_OUTDIR)/$(BINARCH_BASE)
+	mkdir -p $(BINARCH_OUTDIR)/$(BINARCH_BASE)
+	cp nvgd README.md $(BINARCH_OUTDIR)/$(BINARCH_BASE)
+	tar czfC $(BINARCH_OUTDIR)/$(BINARCH_BASE).tar.gz $(BINARCH_OUTDIR) $(BINARCH_BASE)
+.PHONY: bin_archive
 
 tags:
 	gotags -R . > tags
