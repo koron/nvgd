@@ -1,11 +1,13 @@
 package ringbuf
 
+// Buffer provides ring buffer.
 type Buffer struct {
 	d []interface{}
 	r int
 	n int
 }
 
+// New creates a ring buffer with specified capacity.
 func New(capacity int) *Buffer {
 	if capacity <= 0 {
 		panic("capacity must be large than 0")
@@ -15,15 +17,17 @@ func New(capacity int) *Buffer {
 	}
 }
 
+// Put puts a value.
 func (b *Buffer) Put(v interface{}) {
 	b.d[(b.r+b.n)%len(b.d)] = v
 	if b.n < len(b.d) {
-		b.n += 1
+		b.n++
 	} else {
 		b.incR()
 	}
 }
 
+// Get retrieves a value.
 func (b *Buffer) Get() (interface{}, bool) {
 	if b.n <= 0 {
 		return nil, false
@@ -31,20 +35,26 @@ func (b *Buffer) Get() (interface{}, bool) {
 	v := b.d[b.r]
 	b.d[b.r] = nil
 	b.incR()
-	b.n -= 1
+	b.n--
 	return v, true
 }
 
+// Clear remove all values.
 func (b *Buffer) Clear() {
 	for b.n > 0 {
 		b.d[b.r] = nil
 		b.incR()
-		b.n -= 1
+		b.n--
 	}
 }
 
+// Empty checks the buffer is empty or not.
+func (b *Buffer) Empty() bool {
+	return b.n == 0
+}
+
 func (b *Buffer) incR() int {
-	b.r += 1
+	b.r++
 	if b.r == len(b.d) {
 		b.r = 0
 	}
