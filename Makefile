@@ -50,6 +50,7 @@ binarch: build
 .PHONY: bin_archive
 
 tags:
-	gotags -R . > tags
+	gotags -f tags -R .
+.PHONY: tags
 
-.PHONY: test test-full lint cyclo report deps tags
+.PHONY: test test-full lint cyclo report deps

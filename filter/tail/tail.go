@@ -5,44 +5,48 @@ import (
 	"io"
 
 	"github.com/koron/nvgd/filter"
+	"github.com/koron/nvgd/internal/ringbuf"
 )
 
 // Tail is "tail" like filter.
 type Tail struct {
 	filter.Base
-	b    [][]byte
-	w, r int
+
+	rf bool
+	rb *ringbuf.Buffer
 }
 
 // NewTail creates an instance of tail filter.
 func NewTail(r io.ReadCloser, limit int) *Tail {
+	if limit <= 0 {
+		limit = 10
+	}
 	t := &Tail{
-		b: make([][]byte, limit),
-		w: -1,
+		rb: ringbuf.New(limit),
 	}
 	t.Base.Init(r, t.readNext)
 	return t
 }
 
 func (t *Tail) readNext(buf *bytes.Buffer) error {
-	if t.w < 0 {
+	if !t.rf {
+		t.rf = true
 		if err := t.readAll(); err != nil {
 			return err
 		}
 	}
-	if t.r == t.w && len(t.b) != 1 {
+	if t.rb.Empty() {
 		return io.EOF
 	}
 	for {
-		if b := t.b[t.r]; b != nil {
-			if _, err := buf.Write(b); err != nil {
-				return err
-			}
-		}
-		if t.r == t.w {
+		v, ok := t.rb.Get()
+		if !ok {
 			return io.EOF
 		}
-		t.r = t.addr(t.r + 1)
+		_, err := buf.Write(v.([]byte))
+		if err != nil {
+			return err
+		}
 	}
 }
 
@@ -51,28 +55,12 @@ func (t *Tail) readAll() error {
 		b, err := t.ReadLine()
 		if err == io.EOF {
 			if len(b) > 0 {
-				t.putLine(b)
+				t.rb.Put(b)
 			}
-			break
+			return nil
 		} else if err != nil {
 			return err
 		}
-		t.putLine(b)
+		t.rb.Put(b)
 	}
-	// setup read pointer
-	t.r = t.addr(t.w + 1)
-	return nil
-}
-
-func (t *Tail) putLine(b []byte) {
-	t.w = t.addr(t.w + 1)
-	t.b[t.w] = b
-}
-
-func (t *Tail) addr(n int) int {
-	l := len(t.b)
-	for n >= l {
-		n -= l
-	}
-	return n
 }
