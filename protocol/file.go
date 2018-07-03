@@ -126,7 +126,7 @@ func fileOpenDir(name string) (*resource.Resource, error) {
 		} else {
 			t = "file"
 			link = fmt.Sprintf("/file://%s/%s", path, n)
-			download = link + "?download"
+			download = link + "?all&download"
 		}
 		err := w.Write(n, t, strconv.FormatInt(fi.Size(), 10),
 			fi.ModTime().Format(time.RFC1123), link, download)
