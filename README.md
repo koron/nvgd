@@ -283,7 +283,7 @@ there are 3 steps to make it enable.
 
 1.  Add `multiple_database: true` property to DB configuration.
 2.  Add `{{.dbname}}` placeholder in value of `name`.
-3.  Access to URL `/db://db_pq/DBNAME/you query`.
+3.  Access to URL `/db://DBNAME@db_pq/you query`.
 
     DBNAME is used to expand `{{.dbname}}` in above.
 
