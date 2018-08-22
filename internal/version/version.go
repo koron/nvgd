@@ -1,4 +1,4 @@
 package version
 
 // Version describes module version
-const Version = "1.1.0-develop"
+const Version = "1.1.0"
