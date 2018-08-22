@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 
+	"github.com/koron/nvgd/common_const"
 	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/ltsv"
 	"github.com/koron/nvgd/resource"
@@ -15,6 +16,11 @@ type doc struct {
 	Headers []string
 	Index   map[string]int
 	Rows    []row
+
+	HasOptions bool
+
+	SQLQuery       *string
+	SQLTruncatedBy *int
 }
 
 func (d *doc) initHeader(props []ltsv.Property) {
@@ -56,6 +62,12 @@ type row struct {
 
 var tmpl = template.Must(template.New("htmltable").Parse(`<!DOCTYPE html>
 <meta charset="UTF-8">
+{{if .HasOptions}}
+<dl>
+{{if .SQLQuery}}<dt>Statement (SQL)</dt><dd><code>{{.SQLQuery}}</code></dd>{{end}}
+{{if .SQLTruncatedBy}}<dt><code>max_rows</code> applied (SQL)</dt><dd>only <code>{{.SQLTruncatedBy}}</code> rows are shown</dd>{{end}}
+</dl>
+{{end}}
 <table border="1">
   <tr>
 	{{range .Headers}}
@@ -95,6 +107,14 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 			first = false
 		}
 		d.addRow(s.Properties)
+	}
+	if v, ok := r.String(common_const.SQLQuery); ok {
+		d.SQLQuery = &v
+		d.HasOptions = true
+	}
+	if v, ok := r.Int(common_const.SQLTruncatedBy); ok {
+		d.SQLTruncatedBy = &v
+		d.HasOptions = true
 	}
 	// execute template.
 	buf := new(bytes.Buffer)
