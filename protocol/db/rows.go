@@ -12,10 +12,10 @@ import (
 // NullReplacement replaces null value in LTSV.
 var NullReplacement = "(null)"
 
-func rows2ltsv(rows *sql.Rows, maxRows int) (io.ReadCloser, error) {
+func rows2ltsv(rows *sql.Rows, maxRows int) (io.ReadCloser, bool, error) {
 	cols, err := rows.Columns()
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 	var (
 		buf = &bytes.Buffer{}
@@ -30,9 +30,10 @@ func rows2ltsv(rows *sql.Rows, maxRows int) (io.ReadCloser, error) {
 	strs := make([]string, n)
 
 	nrow := 0
+	truncated := false
 	for rows.Next() {
 		if err := rows.Scan(vals...); err != nil {
-			return nil, err
+			return nil, false, err
 		}
 		for i, v := range vals {
 			ns := v.(*sql.NullString)
@@ -45,8 +46,9 @@ func rows2ltsv(rows *sql.Rows, maxRows int) (io.ReadCloser, error) {
 		w.Write(strs...)
 		nrow++
 		if maxRows > 0 && nrow >= maxRows {
+			truncated = rows.Next()
 			break
 		}
 	}
-	return ioutil.NopCloser(buf), nil
+	return ioutil.NopCloser(buf), truncated, nil
 }

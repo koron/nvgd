@@ -48,3 +48,13 @@ func (opts Options) Strings(key string) (value []string, ok bool) {
 	v, ok := raw.([]string)
 	return v, ok
 }
+
+// Int get value as int.
+func (opts Options) Int(key string) (value int, ok bool) {
+	raw, ok := opts[key]
+	if !ok {
+		return 0, false
+	}
+	v, ok := raw.(int)
+	return v, ok
+}

@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/koron/nvgd/common_const"
 	"github.com/koron/nvgd/protocol"
 	"github.com/koron/nvgd/resource"
 )
@@ -34,11 +35,16 @@ func (h *Handler) Open(u *url.URL) (*resource.Resource, error) {
 	if err := h.checkSanity(query); err != nil {
 		return nil, err
 	}
-	rc, err := h.execQuery(c, query)
+	rc, truncated, err := h.execQuery(c, query)
 	if err != nil {
 		return nil, err
 	}
-	return resource.New(rc), nil
+	rs := resource.New(rc)
+	rs.Put(common_const.SQLQuery, query)
+	if truncated {
+		rs.Put(common_const.SQLTruncatedBy, c.maxRows)
+	}
+	return rs, nil
 }
 
 func (h *Handler) openAsset(s string) (*resource.Resource, error) {
@@ -67,15 +73,15 @@ func (h *Handler) checkSanity(q string) error {
 }
 
 // execQuery executes a query in a transaction which will be rollbacked.
-func (h *Handler) execQuery(c *conn, q string) (io.ReadCloser, error) {
+func (h *Handler) execQuery(c *conn, q string) (io.ReadCloser, bool, error) {
 	tx, err := c.db.Begin()
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 	defer tx.Rollback()
 	rows, err := tx.Query(q)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 	defer rows.Close()
 	return rows2ltsv(rows, c.maxRows)
