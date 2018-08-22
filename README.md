@@ -9,6 +9,7 @@ Index:
 
   * [How to use](#how-to-use)
   * [Acceptable path](#acceptable-path)
+    * [Protocols](#protocols)
   * [Configuration file](#configuration-file)
     * [File Protocol Handler](#file-protocol-handler)
     * [Command Protocol Handlers](#command-protocol-handlers)
@@ -42,6 +43,8 @@ Update:
 Nvgd accepts path in these like format:
 
     /{protocol}://{args/for/protocol}[?{filters}]
+
+### Protocols
 
 Nvgd supports these `protocol`s:
 
@@ -119,6 +122,10 @@ Nvgd supports these `protocol`s:
       ```
       /help/?markdown
       ```
+
+  * `version` - show nvgd's version
+
+      Path is `/version://` or `/version/` (alias)
 
 See also:
 

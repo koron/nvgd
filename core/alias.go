@@ -14,6 +14,7 @@ var defaultAliases = aliases{
 	{"commands/", "command://"},
 	{"config/", "config://"},
 	{"help/", "help://"},
+	{"version/", "version://"},
 }
 
 func (a aliases) apply(path string) string {
