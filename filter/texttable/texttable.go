@@ -15,6 +15,8 @@ type doc struct {
 	Headers []string
 	Index   map[string]int
 	Rows    []row
+
+	HasOthers bool
 }
 
 func (d *doc) initHeader(props []ltsv.Property) {
@@ -44,11 +46,20 @@ func (d *doc) addRow(props []ltsv.Property) {
 		}
 		r.Values[n] = p.Value
 	}
-	if len(r.Others) == 0 {
+	if r.Others == "" {
 		r.Others = "(none)"
+	} else {
+		d.HasOthers = true
 	}
 	r.Values[len(d.Headers)-1] = r.Others
 	d.Rows = append(d.Rows, r)
+}
+
+func (d *doc) truncateOthers() {
+	d.Headers = d.Headers[:len(d.Headers)-1]
+	for i, row := range d.Rows {
+		d.Rows[i].Values = row.Values[:len(row.Values)-1]
+	}
 }
 
 type row struct {
@@ -78,6 +89,9 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 			first = false
 		}
 		d.addRow(s.Properties)
+	}
+	if !d.HasOthers {
+		d.truncateOthers()
 	}
 	// execute template.
 	buf := new(bytes.Buffer)

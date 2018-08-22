@@ -17,6 +17,7 @@ type doc struct {
 	Index   map[string]int
 	Rows    []row
 
+	HasOthers  bool
 	HasOptions bool
 
 	SQLQuery       *string
@@ -49,8 +50,10 @@ func (d *doc) addRow(props []ltsv.Property) {
 		}
 		r.Values[n] = p.Value
 	}
-	if len(r.Others) == 0 {
+	if r.Others == "" {
 		r.Others = "(none)"
+	} else {
+		d.HasOthers = true
 	}
 	d.Rows = append(d.Rows, r)
 }
@@ -73,14 +76,18 @@ var tmpl = template.Must(template.New("htmltable").Parse(`<!DOCTYPE html>
 	{{range .Headers}}
     <th>{{.}}</th>
 	{{end}}
+	{{if .HasOthers}}
 	<th>(others)</th>
+	{{end}}
   </tr>
   {{range .Rows}}
   <tr>
 	{{range .Values}}
 	<td>{{.}}</td>
 	{{end}}
+	{{if $.HasOthers}}
 	<td>{{.Others}}</td>
+	{{end}}
   </tr>
   {{end}}
 </table>`))
