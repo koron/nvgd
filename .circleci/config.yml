@@ -10,7 +10,7 @@ jobs:
       - checkout
       - run: go get -v -t -d ./...
       - run: go test -v ./...
-      - run: go build -i
+      - run: go build -v
 
   build+module:
     docker:
@@ -33,11 +33,11 @@ jobs:
             - module-v1-{{ .Branch }}-
             - module-v1-
       - run: go test -v ./...
-      - run: go build -i
       - save_cache:
           key: module-v1-{{ .Branch }}-{{ checksum "go.sum" }}
           paths:
             - /go/pkg/mod/cache
+      - run: go build -v
 
 workflows:
   version: 2
