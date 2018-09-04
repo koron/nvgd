@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/koron/nvgd/common_const"
 	"github.com/koron/nvgd/protocol"
@@ -35,7 +36,9 @@ func (h *Handler) Open(u *url.URL) (*resource.Resource, error) {
 	if err := h.checkSanity(query); err != nil {
 		return nil, err
 	}
+	st := time.Now()
 	rc, truncated, err := h.execQuery(c, query)
+	dur := time.Since(st)
 	if err != nil {
 		return nil, err
 	}
@@ -44,6 +47,7 @@ func (h *Handler) Open(u *url.URL) (*resource.Resource, error) {
 	if truncated {
 		rs.Put(common_const.SQLTruncatedBy, c.maxRows)
 	}
+	rs.Put(common_const.SQLExecTime, dur)
 	return rs, nil
 }
 

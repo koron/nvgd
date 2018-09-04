@@ -15,4 +15,10 @@
     var s = g.encodeURIComponent(query.value);
     g.location.href += s;
   });
+
+  var q = g.sessionStorage.getItem('query');
+  if (q) {
+    query.value = q;
+    g.sessionStorage.removeItem('query');
+  }
 })(this);

@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"io"
 	"io/ioutil"
+	"time"
 
 	"github.com/koron/nvgd/common_const"
 	"github.com/koron/nvgd/filter"
@@ -22,6 +23,7 @@ type doc struct {
 
 	SQLQuery       *string
 	SQLTruncatedBy *int
+	SQLExecTime    *string
 }
 
 func (d *doc) initHeader(props []ltsv.Property) {
@@ -67,7 +69,8 @@ var tmpl = template.Must(template.New("htmltable").Parse(`<!DOCTYPE html>
 <meta charset="UTF-8">
 {{if .HasOptions}}
 <dl>
-{{if .SQLQuery}}<dt>Statement (SQL)</dt><dd><code>{{.SQLQuery}}</code></dd>{{end}}
+{{if .SQLQuery}}<dt>Statement (SQL)</dt><dd><code id="query">{{.SQLQuery}}</code><br><button id="edit">Edit</button></dd>{{end}}
+{{if .SQLExecTime}}<dt>Execution time</dt><dd><code>{{.SQLExecTime}}</code></dd>{{end}}
 {{if .SQLTruncatedBy}}<dt><code>max_rows</code> applied (SQL)</dt><dd>only <code>{{.SQLTruncatedBy}}</code> rows are shown</dd>{{end}}
 </dl>
 {{end}}
@@ -90,7 +93,22 @@ var tmpl = template.Must(template.New("htmltable").Parse(`<!DOCTYPE html>
 	{{end}}
   </tr>
   {{end}}
-</table>`))
+</table>
+<script>
+(function(g) {
+  'use strict'
+  var d = g.document;
+  var query = d.querySelector('#query');
+  var edit = d.querySelector('#edit');
+  edit.addEventListener('click', function(ev) {
+	ev.preventDefault();
+	g.sessionStorage.setItem('query', query.innerText);
+	var url = g.location.href;
+	g.location.href = url.slice(0, url.lastIndexOf('/')+1);
+  });
+})(this);
+</script>
+`))
 
 func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
 	// compose document.
@@ -122,6 +140,13 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 	if v, ok := r.Int(common_const.SQLTruncatedBy); ok {
 		d.SQLTruncatedBy = &v
 		d.HasOptions = true
+	}
+	if v, ok := r.Options[common_const.SQLExecTime]; ok {
+		if w, ok := v.(time.Duration); ok {
+			s := w.String()
+			d.SQLExecTime = &s
+			d.HasOptions = true
+		}
 	}
 	// execute template.
 	buf := new(bytes.Buffer)
