@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"io"
 	"io/ioutil"
+	"time"
 
 	"github.com/koron/nvgd/common_const"
 	"github.com/koron/nvgd/filter"
@@ -22,6 +23,7 @@ type doc struct {
 
 	SQLQuery       *string
 	SQLTruncatedBy *int
+	SQLExecTime    *string
 }
 
 func (d *doc) initHeader(props []ltsv.Property) {
@@ -68,6 +70,7 @@ var tmpl = template.Must(template.New("htmltable").Parse(`<!DOCTYPE html>
 {{if .HasOptions}}
 <dl>
 {{if .SQLQuery}}<dt>Statement (SQL)</dt><dd><code>{{.SQLQuery}}</code></dd>{{end}}
+{{if .SQLExecTime}}<dt>Execution time</dt><dd><code>{{.SQLExecTime}}</code></dd>{{end}}
 {{if .SQLTruncatedBy}}<dt><code>max_rows</code> applied (SQL)</dt><dd>only <code>{{.SQLTruncatedBy}}</code> rows are shown</dd>{{end}}
 </dl>
 {{end}}
@@ -122,6 +125,13 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 	if v, ok := r.Int(common_const.SQLTruncatedBy); ok {
 		d.SQLTruncatedBy = &v
 		d.HasOptions = true
+	}
+	if v, ok := r.Options[common_const.SQLExecTime]; ok {
+		if w, ok := v.(time.Duration); ok {
+			s := w.String()
+			d.SQLExecTime = &s
+			d.HasOptions = true
+		}
 	}
 	// execute template.
 	buf := new(bytes.Buffer)
