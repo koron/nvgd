@@ -7,7 +7,7 @@ BINARCH_OUTDIR = dist
 default: build
 
 build:
-	go build -v -i .
+	go build -v .
 
 test:
 	go test $(GO_SUBPKGS)
