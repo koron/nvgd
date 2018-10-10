@@ -4,6 +4,7 @@ require (
 	github.com/aws/aws-sdk-go v1.15.26
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-ini/ini v1.38.2 // indirect
+	github.com/go-redis/redis v6.14.1+incompatible // indirect
 	github.com/go-sql-driver/mysql v1.4.0
 	github.com/gopherjs/gopherjs v0.0.0-20180825215210-0210a2f0f73c // indirect
 	github.com/jessevdk/go-assets v0.0.0-20160921144138-4f4301a06e15
