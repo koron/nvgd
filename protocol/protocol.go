@@ -13,6 +13,14 @@ type Protocol interface {
 	Open(u *url.URL) (*resource.Resource, error)
 }
 
+// ProtocolFunc is Protocol wrapper for function.
+type ProtocolFunc func(*url.URL) (*resource.Resource, error)
+
+// Open opens URL as protocol.
+func (f ProtocolFunc) Open(u *url.URL) (*resource.Resource, error) {
+	return f(u)
+}
+
 // Postable is set of methods for POST acceptable source/protocol.
 type Postable interface {
 	Protocol
