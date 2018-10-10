@@ -187,7 +187,24 @@ func getZset(c *redis.Client, k string, args []string) (*resource.Resource, erro
 }
 
 func getHash(c *redis.Client, k string, args []string) (*resource.Resource, error) {
-	// TODO: HLEN
-	// TODO: HGET
-	return nil, nil
+	// HLEN
+	if len(args) == 0 {
+		n, err := c.HLen(k).Result()
+		if err != nil {
+			return nil, err
+		}
+		return resource.NewString(strconv.FormatInt(n, 10)), nil
+	}
+
+	// HGET
+	if len(args) == 0 {
+		member := args[0]
+		s, err := c.HGet(k, member).Result()
+		if err != nil {
+			return nil, err
+		}
+		return resource.NewString(s), nil
+	}
+
+	return nil, errors.New("too many arguments")
 }
