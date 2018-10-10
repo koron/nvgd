@@ -3,41 +3,53 @@ jobs:
 
   build:
     docker:
-      - image: circleci/golang:latest
+    - image: circleci/golang:latest
     working_directory: /go/src/github.com/koron/nvgd
     steps:
-      - run: go version && go env
-      - checkout
-      - run: go get -v -t -d ./...
-      - run: go test -v ./...
-      - run: go build -v
+    - run: go version && go env
+    - checkout
+    - run: go get -v -t -d ./...
+    - run: go test -v ./...
+    - run: go build -v
+    - run: |
+        mkdir -p /tmp/artifacts
+        cp nvgd /tmp/artifacts/
+    - store_artifacts:
+        path: /tmp/artifacts
+        destination: bin
 
   build+module:
     docker:
-      - image: circleci/golang:1.11
-        environment:
-          GO111MODULE: 'on'
+    - image: circleci/golang:latest
+      environment:
+        GO111MODULE: 'on'
     working_directory: /go/src/github.com/koron/nvgd
     steps:
-      - run: go version && go env
-      - checkout
-      - run:
-          name: install latest git
-          command: |
-            echo "deb http://ftp.debian.org/debian stretch-backports main" | sudo tee -a /etc/apt/sources.list
-            sudo apt-get update
-            sudo apt-get -t stretch-backports install -y git
-      - restore_cache:
-          keys:
-            - module-v1-{{ .Branch }}-{{ checksum "go.sum" }}
-            - module-v1-{{ .Branch }}-
-            - module-v1-
-      - run: go test -v ./...
-      - save_cache:
-          key: module-v1-{{ .Branch }}-{{ checksum "go.sum" }}
-          paths:
-            - /go/pkg/mod/cache
-      - run: go build -v
+    - run: go version && go env
+    - checkout
+    - run:
+        name: install latest git
+        command: |
+          echo "deb http://ftp.debian.org/debian stretch-backports main" | sudo tee -a /etc/apt/sources.list
+          sudo apt-get update
+          sudo apt-get -t stretch-backports install -y git
+    - restore_cache:
+        keys:
+          - module-v1-{{ .Branch }}-{{ checksum "go.sum" }}
+          - module-v1-{{ .Branch }}-
+          - module-v1-
+    - run: go test -v ./...
+    - save_cache:
+        key: module-v1-{{ .Branch }}-{{ checksum "go.sum" }}
+        paths:
+          - /go/pkg/mod/cache
+    - run: go build -v
+    - run: |
+        mkdir -p /tmp/artifacts
+        cp nvgd /tmp/artifacts/
+    - store_artifacts:
+        path: /tmp/artifacts
+        destination: bin
 
 workflows:
   version: 2
