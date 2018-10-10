@@ -32,7 +32,7 @@ func get(c *redis.Client, args []string) (*resource.Resource, error) {
 	}
 	h, ok := getHandlers[strings.ToLower(typ)]
 	if !ok {
-		return nil, fmt.Errorf("unsupported type: %d", typ)
+		return nil, fmt.Errorf("unsupported type: %s", typ)
 	}
 	return h(c, key, args[1:])
 }
