@@ -36,7 +36,7 @@ abcxyz
 
 ## URL spec
 
-    redis://{store_name}/{command}/[ARGUMENS]
+    redis://{store_name}/{command}/[ARGUMENTS]
 
 Where `store_name` should be replaced by one of names on
 `protocols/reids/stores` section in `nvgd.conf.yml`.
@@ -44,6 +44,7 @@ Where `store_name` should be replaced by one of names on
 Where `command` (case ignored):
 
 *   `get` - get value(s) with key.
+*   `keys` - list keys which match with ARGUMENTS as pattern.
 
 ## Get command
 
@@ -79,3 +80,22 @@ Behavior of get command will be changed by types for key. Supported types are:
 *   `hash`
     *   0 arguments: like `HLEN {key}`
     *   1 argument: like `HGET {key} {field}`
+
+## Keys command
+
+    redis://{store_name}/keys[/{PATTERN}]
+
+Equivalent with `KEYS` command of redis.
+<https://redis.io/commands/keys>
+
+When the pattern doesn't include any meta characters, nvgd will append `*` at
+last. It will help to implement type a head (incremental) search.
+
+Examples:
+
+* `redis://{store_name}/keys` - `KEYS *`
+* `redis://{store_name}/keys/a` - `KEYS a*`
+* `redis://{store_name}/keys/ab` - `KEYS ab*`
+* `redis://{store_name}/keys/*a` - `KEYS *a`, no `*` supplied at tail.
+* `redis://{store_name}/keys/*a*` - `KEYS *a*`
+* `redis://{store_name}/keys/%3fa` - `KEYS ?a`, `?` should be URL encodeded.

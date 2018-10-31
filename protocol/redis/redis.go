@@ -32,7 +32,8 @@ func open(u *url.URL) (*resource.Resource, error) {
 type handler func(*redis.Client, []string) (*resource.Resource, error)
 
 var handlers = map[string]handler{
-	"GET": get,
+	"GET":  get,
+	"KEYS": keys,
 }
 
 func parseCommand(u *url.URL) (cmd string, args []string, err error) {
