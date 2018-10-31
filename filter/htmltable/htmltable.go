@@ -67,6 +67,16 @@ type row struct {
 
 var tmpl = template.Must(template.New("htmltable").Parse(`<!DOCTYPE html>
 <meta charset="UTF-8">
+<style>
+td, th {
+  white-space: nowrap;
+  padding: 2px 10px;
+  text-align: left;
+}
+table {
+  border-collapse: collapse;
+}
+</style>
 {{if .HasOptions}}
 <dl>
 {{if .SQLQuery}}<dt>Statement (SQL)</dt><dd><code id="query">{{.SQLQuery}}</code><br><button id="edit">Edit</button></dd>{{end}}
