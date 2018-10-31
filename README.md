@@ -356,6 +356,7 @@ Nvgd supports these filters:
   * [Cut filter](#cut-filter)
   * [Hash filter](#hash-filter)
   * [LTSV filter](#ltsv-filter)
+  * [JSONArray filter](#jsonarray-filter)
   * [Index HTML filter](#index-html-filter)
   * [HTML Table filter](#html-table-filter)
   * [Text Table filter](#text-table-filter)
@@ -463,6 +464,13 @@ Output, match to value of specified label, and output selected labels.
     * `grep` - match parameter: `{label},{pattern}`
     * `match` - output when match or not match.  default is true.
     * `cut` - selected labels, combinable by comma `,`.
+
+### JSONArray filter
+
+Convert each line as a string of JSON array.
+
+  * filter\_name: `jsonarray`
+  * options: (none)
 
 ### Index HTML filter
 
