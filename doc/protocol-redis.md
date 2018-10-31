@@ -55,15 +55,15 @@ Behavior of get command will be changed by types for key. Supported types are:
 *   `string`
     *   0 arguments: like `GET {key}`
 
-        Example: `redis://127.0.0.1/get/foo`
+        Example: `redis://local/get/foo`
 
     *   1 argument: like `GETBIT {key} {offset}`
 
-        Example: `redis://127.0.0.1/get/foo/8`
+        Example: `redis://local/get/foo/8`
 
     *   2 arguments: like `GETRANGE {key} {start} {end}`
 
-        Example: `redis://127.0.0.1/get/foo/1/3`
+        Example: `redis://local/get/foo/1/3`
 
 *   `list`
     *   0 arguments: like `LLEN {key}`
