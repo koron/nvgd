@@ -46,6 +46,11 @@ Where `command` (case ignored):
 *   `get` - get value(s) with key.
 *   `keys` - list keys which match with ARGUMENTS as pattern.
 
+### URL for UI
+
+When you access `redis://{store_name}/`, it shows UI for keys form.
+You can search keys incrementally with this form.
+
 ## Get command
 
     redis://{store_name}/get/{key}[(/ARGUMENTS)*]

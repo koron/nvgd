@@ -1,7 +1,6 @@
 package redis
 
 import (
-	"errors"
 	"fmt"
 	"net/url"
 	"strings"
@@ -32,6 +31,7 @@ func open(u *url.URL) (*resource.Resource, error) {
 type handler func(*redis.Client, []string) (*resource.Resource, error)
 
 var handlers = map[string]handler{
+	"":     keysForm,
 	"GET":  get,
 	"KEYS": keys,
 }
@@ -43,7 +43,7 @@ func parseCommand(u *url.URL) (cmd string, args []string, err error) {
 	}
 	args = strings.SplitN(raw, "/", 10)
 	if len(args) == 0 {
-		return "", nil, errors.New("require one of commands: xxx, yyy, zzz")
+		return "", nil, nil
 	}
 	return args[0], args[1:], nil
 }
