@@ -39,6 +39,9 @@ misspell:
 
 report: misspell cyclo-report lint
 
+list-packages:
+	@echo $(GO_SUBPKGS)
+
 deps:
 	go get -v -u -d -t ./...
 
