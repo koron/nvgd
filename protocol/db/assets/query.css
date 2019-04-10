@@ -21,3 +21,12 @@
 .vpanel > *:not(:first-child) {
   margin-top: 1ex;
 }
+
+kbd {
+  font-size: .95em;
+  border: 1px solid #666;
+  border-radius: 3px;
+  background-color: #eee;
+  display: inline-block;
+  padding: 2px 6px;
+}
