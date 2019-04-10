@@ -21,6 +21,7 @@ import (
 // Server represents NVGD server.
 type Server struct {
 	httpd     *http.Server
+	fileSrv   http.Handler
 	accessLog *log.Logger
 	errorLog  *log.Logger
 	filters   *Filters
@@ -39,6 +40,7 @@ func New(c *config.Config) (*Server, error) {
 	// FIXME: should not be global.
 	configp.Config = *c
 	s := &Server{
+		fileSrv:   http.FileServer(Assets),
 		accessLog: alog,
 		errorLog:  elog,
 		filters:   &Filters{descs: c.Filters},
@@ -58,6 +60,10 @@ func (s *Server) Run() error {
 
 func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	s.accessLog.Printf("%s %s %s", req.Method, req.URL.Path, req.URL.RawQuery)
+	if req.URL.Path == "/favicon.ico" {
+		s.fileSrv.ServeHTTP(res, req)
+		return
+	}
 	if err := s.serve(res, req); err != nil {
 		// TODO: log an error.
 		if herr, ok := err.(httpError); ok {
