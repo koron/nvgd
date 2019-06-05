@@ -117,8 +117,12 @@ func fileOpenDir(name string) (*resource.Resource, error) {
 		w   = ltsv.NewWriter(buf, "name", "type", "size", "modified_at", "link", "download")
 	)
 	path := strings.TrimRight(name, "/")
-	for _, fi := range list {
-		n := fi.Name()
+	for _, fi0 := range list {
+		n := fi0.Name()
+		fi, err := os.Lstat(filepath.Join(path, n))
+		if err != nil {
+			return nil, err
+		}
 		var t, link, download string
 		if fi.IsDir() {
 			t = "dir"
@@ -128,7 +132,7 @@ func fileOpenDir(name string) (*resource.Resource, error) {
 			link = fmt.Sprintf("/file://%s/%s", path, n)
 			download = link + "?all&download"
 		}
-		err := w.Write(n, t, strconv.FormatInt(fi.Size(), 10),
+		err = w.Write(n, t, strconv.FormatInt(fi.Size(), 10),
 			fi.ModTime().Format(time.RFC1123), link, download)
 		if err != nil {
 			return nil, err
