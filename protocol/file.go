@@ -119,7 +119,7 @@ func fileOpenDir(name string) (*resource.Resource, error) {
 	path := strings.TrimRight(name, "/")
 	for _, fi0 := range list {
 		n := fi0.Name()
-		fi, err := os.Lstat(filepath.Join(path, n))
+		fi, err := os.Stat(filepath.Join(path, n))
 		if err != nil {
 			return nil, err
 		}
