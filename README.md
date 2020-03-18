@@ -2,8 +2,9 @@
 
 HTTP file server to help DevOps.
 
-[![Build Status](https://travis-ci.org/koron/nvgd.svg?branch=master)](https://travis-ci.org/koron/nvgd)
+[![Actions/Go](https://github.com/koron/nvgd/workflows/Go/badge.svg)](https://github.com/koron/nvgd/actions?query=workflow%3AGo)
 [![Go Report Card](https://goreportcard.com/badge/github.com/koron/nvgd)](https://goreportcard.com/report/github.com/koron/nvgd)
+[![Build Status](https://travis-ci.org/koron/nvgd.svg?branch=master)](https://travis-ci.org/koron/nvgd)
 
 Index:
 
