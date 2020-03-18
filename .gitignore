@@ -5,3 +5,4 @@ tags
 tmp/
 /nvgd.conf.yml
 dist/
+goxz/
