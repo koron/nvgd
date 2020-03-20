@@ -25,16 +25,20 @@ jobs:
       with:
         path: src/github.com/${{ github.repository }}
 
+    - name: Add $GOPATH/bin to $PATH
+      run: |
+        echo "::add-path::$(go env GOPATH)/bin"
+
     - name: Install tools
       run: |
-        mkdir -p ${{ env.GOPATH }}/bin/
+        mkdir -p $(go env GOPATH)/bin/
         go get github.com/Songmu/goxz/cmd/goxz
         go get github.com/tcnksm/ghr
 
     - name: Build release binaries
       run: |
         echo ${GITHUB_REF##*/}
-        ${{ env.GOPATH }}/bin/goxz -d goxz -pv ${GITHUB_REF##*/} -os windows,linux,darwin -arch=amd64
+        goxz -d goxz -pv ${GITHUB_REF##*/} -os windows,linux,darwin -arch=amd64
 
     - name: Create a release
       uses: actions/create-release@v1
@@ -43,9 +47,10 @@ jobs:
       with:
         tag_name: ${{ github.ref }}
         release_name: Release ${{ github.ref }}
+        prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') }}
 
     - name: Upload binaries to the release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        ${{ env.GOPATH }}/bin/ghr ${GITHUB_REF##*/} goxz
+        ghr ${GITHUB_REF##*/} goxz
