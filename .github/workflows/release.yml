@@ -1,7 +1,7 @@
 name: Release
 
 on:
-  create:
+  push:
     tags:
     - 'v*'
 
@@ -15,19 +15,15 @@ jobs:
 
     steps:
 
-    - name: Setup Go
-      uses: actions/setup-go@v1
+    - uses: actions/setup-go@v2
       with:
         go-version: 1.x
-
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v1
-      with:
-        path: src/github.com/${{ github.repository }}
 
     - name: Add $GOPATH/bin to $PATH
       run: |
         echo "::add-path::$(go env GOPATH)/bin"
+
+    - uses: actions/checkout@v2
 
     - name: Install tools
       run: |
@@ -54,3 +50,5 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         ghr ${GITHUB_REF##*/} goxz
+
+# based on: github.com/koron-go/_skeleton/.github/workflows/release.yml
