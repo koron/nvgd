@@ -612,12 +612,12 @@ works same as below URL:
 
 ### Custom prefix aliases
 
-You can add custom prefix alias with `alias` section in `nvgd.conf.yml`.
+You can add custom prefix aliases with `aliases` section in `nvgd.conf.yml`.
 
 For example with below settings...
 
 ```yaml
-alias:
+aliases:
   'dump/': 'db-dump://'
 ```
 
