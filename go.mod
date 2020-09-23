@@ -10,7 +10,7 @@ require (
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/golang/protobuf v1.3.1 // indirect
 	github.com/jessevdk/go-assets v0.0.0-20160921144138-4f4301a06e15
-	github.com/koron/go-xlsx4db v0.0.1
+	github.com/koron/go-xlsx4db v0.0.2
 	github.com/lib/pq v1.8.0
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/olekukonko/tablewriter v0.0.4
@@ -23,4 +23,4 @@ require (
 	gopkg.in/yaml.v2 v2.3.0
 )
 
-replace github.com/koron/go-xlsx4db => ../go-xlsx4db
+//replace github.com/koron/go-xlsx4db => ../go-xlsx4db
