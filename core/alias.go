@@ -25,3 +25,15 @@ func (a aliases) apply(path string) string {
 	}
 	return path
 }
+
+func (a aliases) mergeMap(m map[string]string) aliases {
+	dst := make(aliases, len(a), len(a)+len(m))
+	copy(dst[:len(a)], a)
+	if len(m) == 0 {
+		return dst
+	}
+	for from, to := range m {
+		dst = append(dst, alias{from: from, to: to})
+	}
+	return dst
+}

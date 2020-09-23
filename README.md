@@ -181,6 +181,10 @@ protocols:
 # Default filters: pair of path prefix and filter description.
 default_filters:
   ...
+
+# Custom prefix aliases, see later "Prefix Aliases" section.
+aliases:
+  ...
 ```
 
 ### File Protocol Handler
@@ -596,6 +600,7 @@ Currently these aliases are registered.
 * `commands/` -> `command://`
 * `config/` -> `config://`
 * `help/` -> `help://`
+* `version/` -> `version://`
 
 For example this URL:
 
@@ -604,6 +609,28 @@ For example this URL:
 works same as below URL:
 
     http://127.0.0.1:9280/file:///var/log/messages
+
+### Custom prefix aliases
+
+You can add custom prefix alias with `alias` section in `nvgd.conf.yml`.
+
+For example with below settings...
+
+```yaml
+alias:
+  'dump/': 'db-dump://'
+```
+
+You can dump a "mytable" table in "mydb" RDBMS with this URL:
+
+    http://127.0.0.1:9280/dump/mydb/mytable
+
+Instead of this:
+
+    http://127.0.0.1:9280/db-dump://mydb/mytable
+
+Custom prefix aliases can be used to avoid to containing `://` sub string in
+path.
 
 
 ## References

@@ -25,6 +25,8 @@ type Server struct {
 	accessLog *log.Logger
 	errorLog  *log.Logger
 	filters   *Filters
+
+	aliases aliases
 }
 
 // New creates a server instance.
@@ -44,6 +46,7 @@ func New(c *config.Config) (*Server, error) {
 		accessLog: alog,
 		errorLog:  elog,
 		filters:   &Filters{descs: c.Filters},
+		aliases:   defaultAliases.mergeMap(c.Aliases),
 	}
 	s.httpd = &http.Server{
 		Addr:    c.Addr,
@@ -123,7 +126,7 @@ func (s *Server) open(p protocol.Protocol, u *url.URL, req *http.Request) (*reso
 
 func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	upath := req.URL.Path[1:]
-	upath = defaultAliases.apply(upath)
+	upath = s.aliases.apply(upath)
 	u, err := url.Parse(upath)
 	if err != nil {
 		return fmt.Errorf("failed to parse %q as URL: %s", upath, err)
