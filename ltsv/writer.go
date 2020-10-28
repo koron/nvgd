@@ -34,3 +34,28 @@ func (w *Writer) Write(values ...string) error {
 	w.writer.WriteRune('\n')
 	return w.writer.Flush()
 }
+
+func Write(w io.StringWriter, props []Property) error {
+	for i, p := range props {
+		if i != 0 {
+			_, err := w.WriteString("\t")
+			if err != nil {
+				return err
+			}
+		}
+		_, err := w.WriteString(p.Label)
+		if err != nil {
+			return err
+		}
+		_, err = w.WriteString(":")
+		if err != nil {
+			return err
+		}
+		_, err = w.WriteString(p.Value)
+		if err != nil {
+			return err
+		}
+	}
+	_, err := w.WriteString("\n")
+	return err
+}

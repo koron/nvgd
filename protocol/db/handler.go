@@ -43,6 +43,7 @@ func (h *Handler) Open(u *url.URL) (*resource.Resource, error) {
 		return nil, err
 	}
 	rs := resource.New(rc)
+	rs.Put(common_const.LTSV, true)
 	rs.Put(common_const.SQLQuery, query)
 	if truncated {
 		rs.Put(common_const.SQLTruncatedBy, c.maxRows)

@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/koron/nvgd/common_const"
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/protocol"
@@ -126,7 +127,7 @@ func (s *Server) open(p protocol.Protocol, u *url.URL, req *http.Request) (*reso
 
 func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	upath := req.URL.Path[1:]
-	upath = s.aliases.apply(upath)
+	upath, appliedAlias := s.aliases.apply(upath)
 	u, err := url.Parse(upath)
 	if err != nil {
 		return fmt.Errorf("failed to parse %q as URL: %s", upath, err)
@@ -143,6 +144,14 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	if rsrc == nil {
 		return fmt.Errorf("nil resource for %s", upath)
 	}
+	if v, ok := rsrc.Bool(common_const.LTSV); v && ok && appliedAlias != nil {
+		rewritten, err := appliedAlias.rewriteLTSV(rsrc)
+		if err != nil {
+			return fmt.Errorf("rewrite alias failure: %w", err)
+		}
+		rsrc = rewritten
+	}
+
 	qp, err := qparamsParse(req.URL.RawQuery)
 	if err != nil {
 		rsrc.Close()

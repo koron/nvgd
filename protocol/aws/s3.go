@@ -112,6 +112,7 @@ func (ph *S3ListHandler) Open(u *url.URL) (*resource.Resource, error) {
 		return nil, err
 	}
 	rs := resource.New(rc)
+	rs.Put(common_const.LTSV, true)
 	rs.Put(protocol.ParsedKeys, []string{S3Token})
 	// Add uplink if available.
 	if prefix != "" {
