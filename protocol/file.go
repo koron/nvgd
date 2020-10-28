@@ -139,6 +139,7 @@ func fileOpenDir(name string) (*resource.Resource, error) {
 		}
 	}
 	rs := resource.New(ioutil.NopCloser(buf))
+	rs.Put(common_const.LTSV, true)
 	rs.Put(Small, true)
 	// add updir
 	if path != "" {
