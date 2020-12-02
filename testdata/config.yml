@@ -1,0 +1,18 @@
+access_log: '(stderr)'
+
+protocols:
+
+  db:
+    mysql:
+      driver: mysql
+      multiple_database: true
+      name: "mysql:abcd1234@tcp(127.0.0.1:3306)/mysql"
+
+    postgres:
+      driver: postgres
+      name: "postgres://postgres:abcd1234@127.0.0.1/postgres?sslmode=disable"
+
+  redis:
+    stores:
+      local:
+        url: redis://127.0.0.1:6379/0
