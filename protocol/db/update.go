@@ -3,6 +3,7 @@ package db
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"html/template"
 	"io"
 	"io/ioutil"
@@ -75,16 +76,16 @@ func (uh *UpdateHandler) openAsset(s string, p map[string]interface{}) (*resourc
 func (uh *UpdateHandler) Post(u *url.URL, r io.Reader) (*resource.Resource, error) {
 	xf, err := openXLSX(r)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("XLSX format error: %w", err)
 	}
 	c, err := openDB(u)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to open DB: %w", err)
 	}
 	tables := parseAsTables(u)
 	err = xlsx4db.Update(c.db, xf, tables...)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to restore: %w", err)
 	}
 	return resource.NewString("updated successfully"), nil
 }

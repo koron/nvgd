@@ -110,7 +110,9 @@ Nvgd supports these `protocol`s:
   * `db-restore` - restore (clear all and import) tables from XLSX.
 
       ```console
-      curl http://127.0.0.1:9280/db-restore://mysql/ --data-binary src.xlsx
+      curl http://127.0.0.1:9280/db-restore://mysql/ -X POST \
+        -H 'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' \
+        --data-binary @src.xlsx
       ```
 
       Or access `http://127.0.0.1:9280/db-dump://mysql/` by web browser.
@@ -119,7 +121,9 @@ Nvgd supports these `protocol`s:
   * `db-update` - update tables by XLSX (upsert)
 
       ```console
-      curl http://127.0.0.1:9280/db-update://mysql/ --data-binary src.xlsx
+      curl http://127.0.0.1:9280/db-update://mysql/ -X POST \
+        -H 'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' \
+        --data-binary @src.xlsx
       ```
 
       Or access `http://127.0.0.1:9280/db-dump://mysql/` by web browser.
@@ -303,7 +307,22 @@ With above configuration, you will be able to access those databases with below 
   * `curl 'http://127.0.0.1:9280/db://db_pq/select%20email%20from%20users'`
   * `curl 'http://127.0.0.1:9280/db://db_mysql/select%20email%20from%20users'`
 
-#### Mutiple Databases in an instance
+#### MySQL: TRADITIONAL mode
+
+To restore or update MySQL database with `db-restore` or `db-update` protocol,
+we recommend to use TRADITIONAL mode to make MySQL checks types strictly.  You
+should add `?sql_mode=TRADITIONAL` to connection URL to enabling it.
+
+Example:
+
+```yaml
+  db:
+    mysql1:
+      driver: mysql
+      name: "mysql:abcd1234@tcp(127.0.0.1:3306)/mysql?sql_mode=TRADITIONAL"
+```
+
+#### Multiple Databases in an instance
 
 To make DB protocol handler connect with multiple databases in an instance,
 there are 3 steps to make it enable.
@@ -431,7 +450,7 @@ Output the first N lines.
 
   * filter\_name: `head`
   * options
-    * `start` - start line number for output.  begging 0.  default is 0.
+    * `start` - start line number for output.  default is 0.
     * `limit` - line number for output.  default is 10.
 
 ### Tail filter
@@ -606,7 +625,7 @@ For example this URL:
 
     http://127.0.0.1:9280/files/var/log/messages
 
-works same as below URL:
+It works same as below URL:
 
     http://127.0.0.1:9280/file:///var/log/messages
 
@@ -635,7 +654,7 @@ path.
 
 ## References
 
-  * [koron/night][night] previous impl in NodeJS.
+  * [koron/night][night] previous implementation which written in NodeJS.
 
 [night]:https://github.com/koron/night
 [globspec]:https://golang.org/pkg/path/filepath/#Match

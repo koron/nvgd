@@ -1,0 +1,46 @@
+version: '3'
+
+# To connect PostgreSQL:
+#   $ docker-compose exec postgres psql -U postgres
+#
+# To connect MySQL:
+#   $ docker-compose exec mysql mysql -u mysql -p=abcd1234
+#
+# To connect Redis:
+#   $ docker-compose exec redis redis-cli
+
+services:
+  postgres:
+    image: postgres:13.1-alpine
+    ports:
+    - "5432:5432"
+    volumes:
+    - postgres_data:/var/lib/postgresql/data
+    environment:
+      LANG: "C.UTF-8"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "abcd1234"
+
+  mysql:
+    image: mysql:5.6.50
+    ports:
+    - "3306:3306"
+    volumes:
+    - mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "abcd1234"
+      MYSQL_DATABASE: "mysql"
+      MYSQL_USER: "mysql"
+      MYSQL_PASSWORD: "abcd1234"
+
+  redis:
+    image: redis:6.0.9-alpine3.12
+    ports:
+    - "6379:6379"
+    volumes:
+    - redis_data:/data
+
+volumes:
+  postgres_data:
+  mysql_data:
+  redis_data:
