@@ -1,5 +1,14 @@
 version: '3'
 
+# To connect PostgreSQL:
+#   $ docker-compose exec postgres psql -U postgres
+#
+# To connect MySQL:
+#   $ docker-compose exec mysql mysql -u mysql -p=abcd1234
+#
+# To connect Redis:
+#   $ docker-compose exec redis redis-cli
+
 services:
   postgres:
     image: postgres:13.1-alpine
