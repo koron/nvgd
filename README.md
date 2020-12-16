@@ -110,7 +110,9 @@ Nvgd supports these `protocol`s:
   * `db-restore` - restore (clear all and import) tables from XLSX.
 
       ```console
-      curl http://127.0.0.1:9280/db-restore://mysql/ --data-binary src.xlsx
+      curl http://127.0.0.1:9280/db-restore://mysql/ -X POST \
+        -H 'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' \
+        --data-binary @src.xlsx
       ```
 
       Or access `http://127.0.0.1:9280/db-dump://mysql/` by web browser.
@@ -119,7 +121,9 @@ Nvgd supports these `protocol`s:
   * `db-update` - update tables by XLSX (upsert)
 
       ```console
-      curl http://127.0.0.1:9280/db-update://mysql/ --data-binary src.xlsx
+      curl http://127.0.0.1:9280/db-update://mysql/ -X POST \
+        -H 'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' \
+        --data-binary @src.xlsx
       ```
 
       Or access `http://127.0.0.1:9280/db-dump://mysql/` by web browser.
