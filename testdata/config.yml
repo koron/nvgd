@@ -6,7 +6,7 @@ protocols:
     mysql:
       driver: mysql
       multiple_database: true
-      name: "mysql:abcd1234@tcp(127.0.0.1:3306)/mysql"
+      name: "mysql:abcd1234@tcp(127.0.0.1:3306)/mysql?sql_mode=TRADITIONAL"
 
     postgres:
       driver: postgres
