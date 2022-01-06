@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"log"
 	"net/http"
 	"net/url"
@@ -40,10 +41,14 @@ func New(c *config.Config) (*Server, error) {
 	if err != nil {
 		return nil, err
 	}
+	stripFS, err := fs.Sub(assetsFS, "assets")
+	if err != nil {
+		return nil, fmt.Errorf("failed to fs.Sub on core/assets: %w", err)
+	}
 	// FIXME: should not be global.
 	configp.Config = *c
 	s := &Server{
-		fileSrv:   http.FileServer(Assets),
+		fileSrv:   http.FileServer(http.FS(stripFS)),
 		accessLog: alog,
 		errorLog:  elog,
 		filters:   &Filters{descs: c.Filters},

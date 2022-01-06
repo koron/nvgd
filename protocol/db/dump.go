@@ -22,7 +22,7 @@ func init() {
 }
 
 func (dh *DumpHandler) Open(u *url.URL) (*resource.Resource, error) {
-	if p := path(u); p == "" || strings.HasPrefix(p, assetPrefix) {
+	if p := regulatePath(u); p == "" || strings.HasPrefix(p, assetPrefix) {
 		return dh.openAsset(p)
 	}
 	c, err := openDB(u)
@@ -54,7 +54,7 @@ func (dh *DumpHandler) openAsset(s string) (*resource.Resource, error) {
 	if strings.HasPrefix(s, assetPrefix) {
 		s = s[len(assetPrefix):]
 	}
-	f, err := Assets.Open(s)
+	f, err := assetsOpen(s)
 	if err != nil {
 		return nil, err
 	}

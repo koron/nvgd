@@ -113,7 +113,7 @@ func openDB(u *url.URL) (*conn, error) {
 	return c, nil
 }
 
-func path(u *url.URL) string {
+func regulatePath(u *url.URL) string {
 	if strings.HasPrefix(u.Path, "/") {
 		return u.Path[1:]
 	}
@@ -121,7 +121,7 @@ func path(u *url.URL) string {
 }
 
 func parseAsTables(u *url.URL) []string {
-	p := path(u)
+	p := regulatePath(u)
 	if p == "" {
 		return nil
 	}

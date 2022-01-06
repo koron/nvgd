@@ -25,7 +25,7 @@ func init() {
 
 // Open creates a database handler.
 func (h *Handler) Open(u *url.URL) (*resource.Resource, error) {
-	query := path(u)
+	query := regulatePath(u)
 	if query == "" || strings.HasPrefix(query, assetPrefix) {
 		return h.openAsset(query)
 	}
@@ -59,7 +59,7 @@ func (h *Handler) openAsset(s string) (*resource.Resource, error) {
 	if strings.HasPrefix(s, assetPrefix) {
 		s = s[len(assetPrefix):]
 	}
-	f, err := Assets.Open(s)
+	f, err := assetsOpen(s)
 	if err != nil {
 		return nil, err
 	}

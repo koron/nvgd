@@ -1,6 +1,6 @@
 module github.com/koron/nvgd
 
-go 1.13
+go 1.16
 
 require (
 	github.com/aws/aws-sdk-go v1.42.28
@@ -8,8 +8,6 @@ require (
 	github.com/frankban/quicktest v1.7.3 // indirect
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-sql-driver/mysql v1.6.0
-	github.com/golang/protobuf v1.3.1 // indirect
-	github.com/jessevdk/go-assets v0.0.0-20160921144138-4f4301a06e15
 	github.com/koron/go-xlsx4db v0.0.3
 	github.com/lib/pq v1.10.4
 	github.com/mattn/go-runewidth v0.0.13 // indirect

@@ -1,7 +1,5 @@
 package help
 
-//go:generate go-assets-builder -p help -o assets.go ../../README.md
-
 import (
 	"net/url"
 
@@ -16,10 +14,8 @@ func init() {
 type Help struct {
 }
 
+var Text string
+
 func (hp *Help) Open(u *url.URL) (*resource.Resource, error) {
-	f, err := Assets.Open("/README.md")
-	if err != nil {
-		return nil, err
-	}
-	return resource.New(f), nil
+	return resource.NewString(Text), nil
 }

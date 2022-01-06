@@ -46,7 +46,7 @@ func (uh *UpdateHandler) openAsset(s string, p map[string]interface{}) (*resourc
 	if s == "" {
 		s = "update.html"
 	}
-	f, err := Assets.Open(s)
+	f, err := assetsOpen(s)
 	if err != nil {
 		return nil, err
 	}
