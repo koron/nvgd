@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"flag"
 	"fmt"
 	"log"
@@ -10,6 +11,8 @@ import (
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/core"
 	"github.com/koron/nvgd/internal/version"
+	_ "github.com/koron/nvgd/plugins"
+	"github.com/koron/nvgd/protocol/help"
 )
 
 var (
@@ -17,6 +20,13 @@ var (
 	pprofAddr = flag.String("pprofaddr", "", "address for pprof server")
 	verFlag   = flag.Bool("version", false, "show version")
 )
+
+//go:embed README.md
+var readme string
+
+func init() {
+	help.Text = readme
+}
 
 func main() {
 	flag.Parse()

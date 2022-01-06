@@ -1,8 +1,7 @@
-package main
+// Package plugins load default protocols and filters for nvgd.
+package plugins
 
 import (
-	_ "embed"
-
 	_ "github.com/koron/nvgd/filter/count"
 	_ "github.com/koron/nvgd/filter/htmltable"
 	_ "github.com/koron/nvgd/filter/indexhtml"
@@ -13,14 +12,7 @@ import (
 	_ "github.com/koron/nvgd/protocol/aws"
 	_ "github.com/koron/nvgd/protocol/configp"
 	_ "github.com/koron/nvgd/protocol/db"
-	"github.com/koron/nvgd/protocol/help"
+	_ "github.com/koron/nvgd/protocol/help"
 	_ "github.com/koron/nvgd/protocol/redis"
 	_ "github.com/koron/nvgd/protocol/version"
 )
-
-//go:embed README.md
-var readme string
-
-func init() {
-	help.Text = readme
-}
