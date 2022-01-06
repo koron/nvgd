@@ -1,3 +1,4 @@
+// Package filter provides fundamentals for each filters.
 package filter
 
 import (

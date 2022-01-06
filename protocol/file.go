@@ -17,7 +17,7 @@ import (
 	"time"
 
 	"github.com/koron/nvgd/config"
-	"github.com/koron/nvgd/internal/common_const"
+	"github.com/koron/nvgd/internal/commonconst"
 	"github.com/koron/nvgd/internal/ltsv"
 	"github.com/koron/nvgd/resource"
 	"github.com/pierrec/lz4"
@@ -139,13 +139,13 @@ func fileOpenDir(name string) (*resource.Resource, error) {
 		}
 	}
 	rs := resource.New(ioutil.NopCloser(buf))
-	rs.Put(common_const.LTSV, true)
+	rs.Put(commonconst.LTSV, true)
 	rs.Put(Small, true)
 	// add updir
 	if path != "" {
 		up := strings.TrimRight(rxLastComponent.ReplaceAllString(path, ""), "/")
 		link := fmt.Sprintf("/file://%s/?indexhtml", up)
-		rs.Put(common_const.UpLink, link)
+		rs.Put(commonconst.UpLink, link)
 	}
 	return rs, nil
 }
@@ -175,15 +175,6 @@ func fileOpen(name string) (io.ReadCloser, error) {
 		return newWrapRC(lz4.NewReader(r), r), nil
 	}
 	return r, nil
-}
-
-func fileFailure(err error, readers []io.Reader) error {
-	for _, r := range readers {
-		if rc, ok := r.(io.ReadCloser); ok {
-			rc.Close()
-		}
-	}
-	return err
 }
 
 type wrapRC struct {

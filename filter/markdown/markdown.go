@@ -1,3 +1,4 @@
+// Package markdown provides markdown filter which render HTML from Markdown.
 package markdown
 
 import (

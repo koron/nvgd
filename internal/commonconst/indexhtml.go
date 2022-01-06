@@ -1,4 +1,4 @@
-package common_const
+package commonconst
 
 const (
 	// UpLink is a special tag for up link.

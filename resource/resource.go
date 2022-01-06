@@ -1,3 +1,5 @@
+// Package resource provides data transfer objects for NVGD's protocol and
+// filters.
 package resource
 
 import (

@@ -17,7 +17,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/koron/nvgd/config"
-	"github.com/koron/nvgd/internal/common_const"
+	"github.com/koron/nvgd/internal/commonconst"
 	"github.com/koron/nvgd/internal/ltsv"
 	"github.com/koron/nvgd/protocol"
 	"github.com/koron/nvgd/resource"
@@ -60,7 +60,10 @@ func (ph *S3ObjHandler) Open(u *url.URL) (*resource.Resource, error) {
 		key    = u.Path
 	)
 	conf := ph.Config.bucketConfig(bucket).awsConfig()
-	sess := session.New(conf)
+	sess, err := session.NewSession(conf)
+	if err != nil {
+		return nil, err
+	}
 	svc := s3.New(sess)
 	return ph.getObject(svc, bucket, key)
 }
@@ -88,7 +91,10 @@ func (ph *S3ListHandler) Open(u *url.URL) (*resource.Resource, error) {
 		prefix = u.Path
 	)
 	conf := ph.Config.bucketConfig(bucket)
-	sess := session.New(conf.awsConfig())
+	sess, err := session.NewSession(conf.awsConfig())
+	if err != nil {
+		return nil, err
+	}
 	svc := s3.New(sess)
 	if len(prefix) > 0 {
 		prefix = prefix[1:]
@@ -112,20 +118,20 @@ func (ph *S3ListHandler) Open(u *url.URL) (*resource.Resource, error) {
 		return nil, err
 	}
 	rs := resource.New(rc)
-	rs.Put(common_const.LTSV, true)
+	rs.Put(commonconst.LTSV, true)
 	rs.Put(protocol.ParsedKeys, []string{S3Token})
 	// Add uplink if available.
 	if prefix != "" {
 		up := rxLastComponent.ReplaceAllString(prefix, "")
 		link := fmt.Sprintf("/s3list://%s/%s?indexhtml", bucket, up)
-		rs.Put(common_const.UpLink, link)
+		rs.Put(commonconst.UpLink, link)
 	}
 	// Embed next continuation token to rs if available.
 	if out.NextContinuationToken != nil && *out.NextContinuationToken != "" {
 		t := url.QueryEscape(*out.NextContinuationToken)
 		link := fmt.Sprintf("/s3list://%s/%s?%s=%s&indexhtml",
 			bucket, prefix, S3Token, t)
-		rs.Put(common_const.NextLink, link)
+		rs.Put(commonconst.NextLink, link)
 	}
 	return rs, nil
 }
@@ -217,7 +223,8 @@ type S3BucketConfig struct {
 	// MaxKeys used for S3 object listing.
 	MaxKeys int64 `yaml:"max_keys,omitempty"`
 
-	HttpProxy string `yaml:"http_proxy,omitempty"`
+	// HTTPProxy used as HTTP proxy to access S3.
+	HTTPProxy string `yaml:"http_proxy,omitempty"`
 }
 
 func (bc *S3BucketConfig) region() string {
@@ -249,8 +256,8 @@ func (bc *S3BucketConfig) maxKeys() *int64 {
 }
 
 func (bc *S3BucketConfig) httpClient() *http.Client {
-	if bc.HttpProxy == "" {
+	if bc.HTTPProxy == "" {
 		return nil
 	}
-	return NewProxyClient(bc.HttpProxy)
+	return NewProxyClient(bc.HTTPProxy)
 }

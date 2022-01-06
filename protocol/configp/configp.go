@@ -1,3 +1,4 @@
+// Package configp provides config protocol for NGVD.
 package configp
 
 import (

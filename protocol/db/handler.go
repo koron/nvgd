@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/koron/nvgd/internal/common_const"
+	"github.com/koron/nvgd/internal/commonconst"
 	"github.com/koron/nvgd/protocol"
 	"github.com/koron/nvgd/resource"
 )
@@ -43,12 +43,12 @@ func (h *Handler) Open(u *url.URL) (*resource.Resource, error) {
 		return nil, err
 	}
 	rs := resource.New(rc)
-	rs.Put(common_const.LTSV, true)
-	rs.Put(common_const.SQLQuery, query)
+	rs.Put(commonconst.LTSV, true)
+	rs.Put(commonconst.SQLQuery, query)
 	if truncated {
-		rs.Put(common_const.SQLTruncatedBy, c.maxRows)
+		rs.Put(commonconst.SQLTruncatedBy, c.maxRows)
 	}
-	rs.Put(common_const.SQLExecTime, dur)
+	rs.Put(commonconst.SQLExecTime, dur)
 	return rs, nil
 }
 
@@ -56,9 +56,7 @@ func (h *Handler) openAsset(s string) (*resource.Resource, error) {
 	if s == "" {
 		s = "index.html"
 	}
-	if strings.HasPrefix(s, assetPrefix) {
-		s = s[len(assetPrefix):]
-	}
+	s = strings.TrimPrefix(s, assetPrefix)
 	f, err := assetsOpen(s)
 	if err != nil {
 		return nil, err

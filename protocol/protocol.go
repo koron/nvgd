@@ -1,3 +1,4 @@
+// Package protocol provides fundamentals for each protocols.
 package protocol
 
 import (

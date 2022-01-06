@@ -1,4 +1,5 @@
-package filter
+// Package texttable provides table formatter in plain text.
+package texttable
 
 import (
 	"bytes"

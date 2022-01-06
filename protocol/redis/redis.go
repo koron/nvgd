@@ -1,3 +1,4 @@
+// Package redis provides redis protocol for NVGD.
 package redis
 
 import (

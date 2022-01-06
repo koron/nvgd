@@ -1,3 +1,4 @@
+// Package indexhtml provides index HTML filter.
 package indexhtml
 
 import (
@@ -7,7 +8,7 @@ import (
 	"io/ioutil"
 
 	"github.com/koron/nvgd/filter"
-	"github.com/koron/nvgd/internal/common_const"
+	"github.com/koron/nvgd/internal/commonconst"
 	"github.com/koron/nvgd/internal/ltsv"
 	"github.com/koron/nvgd/resource"
 )
@@ -72,10 +73,10 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 		}
 		d.Entries = append(d.Entries, e)
 	}
-	if link, ok := r.String(common_const.UpLink); ok {
+	if link, ok := r.String(commonconst.UpLink); ok {
 		d.UpLink = link
 	}
-	if link, ok := r.String(common_const.NextLink); ok {
+	if link, ok := r.String(commonconst.NextLink); ok {
 		d.NextLink = link
 	}
 	// execute template.

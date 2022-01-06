@@ -1,3 +1,4 @@
+// Package help provides help protocol for NVGD.
 package help
 
 import (
