@@ -63,7 +63,7 @@ func (s *Server) Run() error {
 }
 
 func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	s.accessLog.Printf("%s %s %s", req.Method, req.URL.Path, req.URL.RawQuery)
+	s.accessLog.Printf("%s %s %s", req.Method, req.URL.EscapedPath(), req.URL.RawQuery)
 	if req.URL.Path == "/favicon.ico" {
 		s.fileSrv.ServeHTTP(res, req)
 		return
@@ -126,7 +126,7 @@ func (s *Server) open(p protocol.Protocol, u *url.URL, req *http.Request) (*reso
 }
 
 func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
-	upath := req.URL.Path[1:]
+	upath := req.URL.EscapedPath()[1:]
 	upath, appliedAlias := s.aliases.apply(upath)
 	u, err := url.Parse(upath)
 	if err != nil {
