@@ -2,7 +2,9 @@ package ltsv
 
 import (
 	"bufio"
+	"bytes"
 	"io"
+	"strings"
 )
 
 // Writer is LTSV writer.
@@ -28,11 +30,33 @@ func (w *Writer) Write(values ...string) error {
 		w.writer.WriteString(l)
 		w.writer.WriteRune(':')
 		if i < len(values) {
-			w.writer.WriteString(values[i])
+			w.writer.WriteString(escape(values[i]))
 		}
 	}
 	w.writer.WriteRune('\n')
 	return w.writer.Flush()
+}
+
+func escape(s string) string {
+	if !strings.ContainsAny(s, "\\\t\n\r") {
+		return s
+	}
+	bb := &bytes.Buffer{}
+	for _, r := range s {
+		switch r {
+		case '\\':
+			bb.WriteString(`\\`)
+		case '\t':
+			bb.WriteString(`\t`)
+		case '\n':
+			bb.WriteString(`\n`)
+		case '\r':
+			bb.WriteString(`\r`)
+		default:
+			bb.WriteRune(r)
+		}
+	}
+	return bb.String()
 }
 
 func Write(w io.StringWriter, props []Property) error {

@@ -1,3 +1,6 @@
 package core
 
-//go:generate go-assets-builder -p core -s=/assets -o assets.go assets
+import "embed"
+
+//go:embed assets
+var assetsFS embed.FS

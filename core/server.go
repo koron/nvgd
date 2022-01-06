@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"log"
 	"net/http"
 	"net/url"
@@ -40,10 +41,14 @@ func New(c *config.Config) (*Server, error) {
 	if err != nil {
 		return nil, err
 	}
+	stripFS, err := fs.Sub(assetsFS, "assets")
+	if err != nil {
+		return nil, fmt.Errorf("failed to fs.Sub on core/assets: %w", err)
+	}
 	// FIXME: should not be global.
 	configp.Config = *c
 	s := &Server{
-		fileSrv:   http.FileServer(Assets),
+		fileSrv:   http.FileServer(http.FS(stripFS)),
 		accessLog: alog,
 		errorLog:  elog,
 		filters:   &Filters{descs: c.Filters},
@@ -63,7 +68,7 @@ func (s *Server) Run() error {
 }
 
 func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	s.accessLog.Printf("%s %s %s", req.Method, req.URL.Path, req.URL.RawQuery)
+	s.accessLog.Printf("%s %s %s", req.Method, req.URL.EscapedPath(), req.URL.RawQuery)
 	if req.URL.Path == "/favicon.ico" {
 		s.fileSrv.ServeHTTP(res, req)
 		return
@@ -126,7 +131,7 @@ func (s *Server) open(p protocol.Protocol, u *url.URL, req *http.Request) (*reso
 }
 
 func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
-	upath := req.URL.Path[1:]
+	upath := req.URL.EscapedPath()[1:]
 	upath, appliedAlias := s.aliases.apply(upath)
 	u, err := url.Parse(upath)
 	if err != nil {

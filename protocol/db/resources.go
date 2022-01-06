@@ -1,3 +1,14 @@
 package db
 
-//go:generate go-assets-builder -p db -s=/assets/ -o assets.go assets
+import (
+	"embed"
+	"io/fs"
+	"path"
+)
+
+//go:embed assets
+var assetsFS embed.FS
+
+func assetsOpen(name string) (fs.File, error) {
+	return assetsFS.Open(path.Join("assets", name))
+}

@@ -76,10 +76,14 @@ td, th {
 table {
   border-collapse: collapse;
 }
+textarea#query {
+  width: 100%;
+  max-width: 100%;
+}
 </style>
 {{if .HasOptions}}
 <dl>
-{{if .SQLQuery}}<dt>Statement (SQL)</dt><dd><code id="query">{{.SQLQuery}}</code><br><button id="edit">Edit</button></dd>{{end}}
+{{if .SQLQuery}}<dt>Statement (SQL)</dt><dd><textarea id="query" readonly rows="12">{{.SQLQuery}}</textarea><br><button id="edit">Edit</button></dd>{{end}}
 {{if .SQLExecTime}}<dt>Execution time</dt><dd><code>{{.SQLExecTime}}</code></dd>{{end}}
 {{if .SQLTruncatedBy}}<dt><code>max_rows</code> applied (SQL)</dt><dd>only <code>{{.SQLTruncatedBy}}</code> rows are shown</dd>{{end}}
 </dl>
@@ -112,7 +116,7 @@ table {
   var edit = d.querySelector('#edit');
   edit.addEventListener('click', function(ev) {
 	ev.preventDefault();
-	g.sessionStorage.setItem('query', query.innerText);
+	g.sessionStorage.setItem('query', query.value);
 	var url = g.location.href;
 	g.location.href = url.slice(0, url.lastIndexOf('/')+1);
   });

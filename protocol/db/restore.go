@@ -46,7 +46,7 @@ func (rh *RestoreHandler) openAsset(s string, p map[string]interface{}) (*resour
 	if s == "" {
 		s = "restore.html"
 	}
-	f, err := Assets.Open(s)
+	f, err := assetsOpen(s)
 	if err != nil {
 		return nil, err
 	}

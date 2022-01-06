@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io/ioutil"
 	"net/url"
+	"regexp"
 
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/protocol"
@@ -22,11 +23,15 @@ func init() {
 type ConfigP struct {
 }
 
+var mx = regexp.MustCompile(`(secret_access_key): \S+`)
+
 func (cp *ConfigP) Open(u *url.URL) (*resource.Resource, error) {
 	b, err := yaml.Marshal(&Config)
 	if err != nil {
 		return nil, err
 	}
+	// FIXME: hide secrets by more generic way.
+	b = mx.ReplaceAll(b, []byte("$1: __SECRET__"))
 	rs := resource.New(ioutil.NopCloser(bytes.NewReader(b)))
 	return rs, nil
 }
