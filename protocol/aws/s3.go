@@ -18,7 +18,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/koron/nvgd/common_const"
 	"github.com/koron/nvgd/config"
-	"github.com/koron/nvgd/ltsv"
+	"github.com/koron/nvgd/internal/ltsv"
 	"github.com/koron/nvgd/protocol"
 	"github.com/koron/nvgd/resource"
 )

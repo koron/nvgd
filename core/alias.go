@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/koron/nvgd/common_const"
-	"github.com/koron/nvgd/ltsv"
+	"github.com/koron/nvgd/internal/ltsv"
 	"github.com/koron/nvgd/resource"
 )
 
