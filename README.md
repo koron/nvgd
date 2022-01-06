@@ -21,9 +21,9 @@ Index:
 
 ## How to use
 
-Install:
+Install or Update:
 
-    $ go get github.com/koron/nvgd
+    $ go install github.com/koron/nvgd@latest
 
 Run:
 
@@ -32,27 +32,6 @@ Run:
 Access:
 
     $ curl http://127.0.0.1:9280/file:///var/log/message/httpd.log?tail=limit:25
-
-Update:
-
-    $ go get -u github.com/koron/nvgd
-
-### Extra install
-
-GOPATH 外でビルドする場合は以下のようにする。
-アップデートする場合も同様。
-作成したバイナリは `$GOPATH/bin/nvgd` として保存される。
-
-```console
-$ GO111MODULE=on go get github.com/koron/nvgd
-```
-
-クロスコンパイルする場合は `GOOS` と `GOARCH` を指定する。
-以下の例はLinux/ARM64 (例: ラズパイ4等) 向け。
-
-```console
-$ GOOS=linux GOARCH=arm64 GO111MODULE=on go get github.com/koron/nvgd
-```
 
 ## Acceptable path
 
