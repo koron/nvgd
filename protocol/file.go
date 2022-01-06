@@ -16,8 +16,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/koron/nvgd/common_const"
 	"github.com/koron/nvgd/config"
+	"github.com/koron/nvgd/internal/common_const"
 	"github.com/koron/nvgd/internal/ltsv"
 	"github.com/koron/nvgd/resource"
 	"github.com/pierrec/lz4"

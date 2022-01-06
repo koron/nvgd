@@ -7,8 +7,8 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/koron/nvgd/common_const"
 	"github.com/koron/nvgd/filter"
+	"github.com/koron/nvgd/internal/common_const"
 	"github.com/koron/nvgd/internal/ltsv"
 	"github.com/koron/nvgd/resource"
 )

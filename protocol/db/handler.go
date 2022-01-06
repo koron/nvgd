@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/koron/nvgd/common_const"
+	"github.com/koron/nvgd/internal/common_const"
 	"github.com/koron/nvgd/protocol"
 	"github.com/koron/nvgd/resource"
 )
