@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v7"
 	"github.com/koron/nvgd/internal/httperror"
 	"github.com/koron/nvgd/resource"
 )

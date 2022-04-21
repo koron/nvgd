@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v7"
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/protocol"
 	"github.com/koron/nvgd/resource"
