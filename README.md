@@ -2,6 +2,7 @@
 
 HTTP file server to help DevOps.
 
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/koron/nvgd)](https://pkg.go.dev/github.com/koron/nvgd)
 [![Actions/Go](https://github.com/koron/nvgd/workflows/Go/badge.svg)](https://github.com/koron/nvgd/actions?query=workflow%3AGo)
 [![Go Report Card](https://goreportcard.com/badge/github.com/koron/nvgd)](https://goreportcard.com/report/github.com/koron/nvgd)
 
