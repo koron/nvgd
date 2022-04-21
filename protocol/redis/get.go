@@ -3,10 +3,12 @@ package redis
 import (
 	"errors"
 	"fmt"
+	"net/url"
 	"strconv"
 	"strings"
 
 	"github.com/go-redis/redis"
+	"github.com/koron/nvgd/internal/httperror"
 	"github.com/koron/nvgd/resource"
 )
 
@@ -18,13 +20,17 @@ var getHandlers = map[string]getHandler{
 	"set":    getSet,
 	"zset":   getZset,
 	"hash":   getHash,
+	"none":   getNone,
 }
 
 func get(c *redis.Client, args []string) (*resource.Resource, error) {
 	if len(args) < 1 {
 		return nil, errors.New("require a key at least")
 	}
-	key := args[0]
+	key, err := url.PathUnescape(args[0])
+	if err != nil {
+		return nil, fmt.Errorf("key contains invalid sequence: %s", err)
+	}
 
 	typ, err := c.Type(key).Result()
 	if err != nil {
@@ -32,7 +38,7 @@ func get(c *redis.Client, args []string) (*resource.Resource, error) {
 	}
 	h, ok := getHandlers[strings.ToLower(typ)]
 	if !ok {
-		return nil, fmt.Errorf("unsupported type: %s", typ)
+		return nil, fmt.Errorf("unsupported redis value type: %s", typ)
 	}
 	return h(c, key, args[1:])
 }
@@ -207,4 +213,8 @@ func getHash(c *redis.Client, k string, args []string) (*resource.Resource, erro
 	}
 
 	return nil, errors.New("too many arguments")
+}
+
+func getNone(c *redis.Client, k string, args []string) (*resource.Resource, error) {
+	return nil, httperror.Newf(404, "not found a key: %s", k)
 }
