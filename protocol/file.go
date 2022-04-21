@@ -20,7 +20,7 @@ import (
 	"github.com/koron/nvgd/internal/commonconst"
 	"github.com/koron/nvgd/internal/ltsv"
 	"github.com/koron/nvgd/resource"
-	"github.com/pierrec/lz4"
+	"github.com/pierrec/lz4/v4"
 )
 
 // File is file protocol handler.
