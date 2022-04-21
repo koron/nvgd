@@ -1,4 +1,4 @@
-package common_const
+package commonconst
 
 const (
 	// SQLQuery is a tag to show executed SQL statement.

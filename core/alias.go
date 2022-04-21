@@ -7,8 +7,8 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/koron/nvgd/common_const"
-	"github.com/koron/nvgd/ltsv"
+	"github.com/koron/nvgd/internal/commonconst"
+	"github.com/koron/nvgd/internal/ltsv"
 	"github.com/koron/nvgd/resource"
 )
 
@@ -48,7 +48,7 @@ func (a alias) rewriteLTSV(src *resource.Resource) (*resource.Resource, error) {
 	}
 	dst := resource.New(ioutil.NopCloser(buf))
 	dst.Options = src.Options
-	for _, k := range []string{common_const.UpLink, common_const.NextLink} {
+	for _, k := range []string{commonconst.UpLink, commonconst.NextLink} {
 		v, ok := dst.String(k)
 		if !ok || v == "" {
 			continue

@@ -12,9 +12,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/koron/nvgd/common_const"
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/filter"
+	"github.com/koron/nvgd/internal/commonconst"
 	"github.com/koron/nvgd/protocol"
 	"github.com/koron/nvgd/protocol/configp"
 	"github.com/koron/nvgd/resource"
@@ -149,7 +149,7 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	if rsrc == nil {
 		return fmt.Errorf("nil resource for %s", upath)
 	}
-	if v, ok := rsrc.Bool(common_const.LTSV); v && ok && appliedAlias != nil {
+	if v, ok := rsrc.Bool(commonconst.LTSV); v && ok && appliedAlias != nil {
 		rewritten, err := appliedAlias.rewriteLTSV(rsrc)
 		if err != nil {
 			return fmt.Errorf("rewrite alias failure: %w", err)

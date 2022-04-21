@@ -6,7 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/koron/nvgd/ltsv"
+	"github.com/koron/nvgd/internal/ltsv"
 )
 
 // NullReplacement replaces null value in LTSV.

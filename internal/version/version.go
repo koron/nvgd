@@ -1,3 +1,4 @@
+// Package version provides current version information.
 package version
 
 // Version describes module version

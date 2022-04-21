@@ -5,8 +5,6 @@ import (
 	"io"
 )
 
-const rbufSize = 4096
-
 type readSeekCloser interface {
 	io.Reader
 	io.Seeker

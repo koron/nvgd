@@ -1,3 +1,4 @@
+// Package tail provides tail filter.
 package tail
 
 import (

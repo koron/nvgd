@@ -19,7 +19,7 @@ func parseLTSV(s string) ltsvValue {
 			continue
 		}
 		k, v := kv[0], kv[1]
-		slot, _ := r[k]
+		slot := r[k]
 		r[k] = append(slot, v)
 	}
 	return r

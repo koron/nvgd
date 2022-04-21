@@ -1,3 +1,4 @@
+// Package config provides configuration object for NVGD.
 package config
 
 import (

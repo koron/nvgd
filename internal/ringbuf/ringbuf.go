@@ -1,3 +1,4 @@
+// Package ringbuf provides ring buffer.
 package ringbuf
 
 // Buffer provides ring buffer.

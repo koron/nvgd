@@ -19,7 +19,7 @@ func (opts Options) clone() Options {
 	return dist
 }
 
-// Bool get value as bool.
+// Bool gets a value as bool.
 func (opts Options) Bool(key string) (value bool, ok bool) {
 	raw, ok := opts[key]
 	if !ok {
@@ -29,7 +29,7 @@ func (opts Options) Bool(key string) (value bool, ok bool) {
 	return v, ok
 }
 
-// Strings get value as []string.
+// String gets a value as string.
 func (opts Options) String(key string) (value string, ok bool) {
 	raw, ok := opts[key]
 	if !ok {
@@ -39,7 +39,7 @@ func (opts Options) String(key string) (value string, ok bool) {
 	return v, ok
 }
 
-// Strings get value as []string.
+// Strings gets a value as []string.
 func (opts Options) Strings(key string) (value []string, ok bool) {
 	raw, ok := opts[key]
 	if !ok {
@@ -49,7 +49,7 @@ func (opts Options) Strings(key string) (value []string, ok bool) {
 	return v, ok
 }
 
-// Int get value as int.
+// Int gets a value as int.
 func (opts Options) Int(key string) (value int, ok bool) {
 	raw, ok := opts[key]
 	if !ok {

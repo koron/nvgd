@@ -1,4 +1,5 @@
-package filter
+// Package texttable provides table formatter in plain text.
+package texttable
 
 import (
 	"bytes"
@@ -6,7 +7,7 @@ import (
 	"io/ioutil"
 
 	"github.com/koron/nvgd/filter"
-	"github.com/koron/nvgd/ltsv"
+	"github.com/koron/nvgd/internal/ltsv"
 	"github.com/koron/nvgd/resource"
 	"github.com/olekukonko/tablewriter"
 )

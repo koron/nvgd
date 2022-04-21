@@ -1,3 +1,4 @@
+// Package core provides core logic for NVGD.
 package core
 
 import "github.com/koron/nvgd/config"

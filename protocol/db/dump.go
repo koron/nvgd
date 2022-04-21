@@ -51,9 +51,7 @@ func (dh *DumpHandler) openAsset(s string) (*resource.Resource, error) {
 	if s == "" {
 		s = "dump.html"
 	}
-	if strings.HasPrefix(s, assetPrefix) {
-		s = s[len(assetPrefix):]
-	}
+	s = strings.TrimPrefix(s, assetPrefix)
 	f, err := assetsOpen(s)
 	if err != nil {
 		return nil, err

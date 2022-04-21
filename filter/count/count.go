@@ -1,3 +1,4 @@
+// Package count provides count filter.
 package count
 
 import (

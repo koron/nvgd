@@ -1,3 +1,4 @@
+// Package version provides version protocol for NVGD.
 package version
 
 import (

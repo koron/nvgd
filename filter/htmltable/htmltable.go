@@ -1,4 +1,5 @@
-package filter
+// Package htmltable provides HTML table filter.
+package htmltable
 
 import (
 	"bytes"
@@ -7,9 +8,9 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/koron/nvgd/common_const"
 	"github.com/koron/nvgd/filter"
-	"github.com/koron/nvgd/ltsv"
+	"github.com/koron/nvgd/internal/commonconst"
+	"github.com/koron/nvgd/internal/ltsv"
 	"github.com/koron/nvgd/resource"
 )
 
@@ -147,15 +148,15 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 		}
 		d.addRow(s.Properties)
 	}
-	if v, ok := r.String(common_const.SQLQuery); ok {
+	if v, ok := r.String(commonconst.SQLQuery); ok {
 		d.SQLQuery = &v
 		d.HasOptions = true
 	}
-	if v, ok := r.Int(common_const.SQLTruncatedBy); ok {
+	if v, ok := r.Int(commonconst.SQLTruncatedBy); ok {
 		d.SQLTruncatedBy = &v
 		d.HasOptions = true
 	}
-	if v, ok := r.Options[common_const.SQLExecTime]; ok {
+	if v, ok := r.Options[commonconst.SQLExecTime]; ok {
 		if w, ok := v.(time.Duration); ok {
 			s := w.String()
 			d.SQLExecTime = &s

@@ -1,3 +1,4 @@
+// Package jsonarray provides JSON array filter.
 package jsonarray
 
 import (

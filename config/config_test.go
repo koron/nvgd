@@ -51,9 +51,9 @@ func TestOnlyFilters(t *testing.T) {
 		k2 = "file:///tmp/"
 		k3 = "file:///unknown/"
 	)
-	v1, _ := c.Filters[k1]
+	v1 := c.Filters[k1]
 	assert.Equals(t, v1, Filters{"tail"}, "for path %q", k1)
-	v2, _ := c.Filters[k2]
+	v2 := c.Filters[k2]
 	assert.Equals(t, v2, Filters{"head", "tail=limit:5"}, "for path %q", k2)
 	_, v3 := c.Filters[k3]
 	if v3 {
