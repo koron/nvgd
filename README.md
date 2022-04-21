@@ -109,6 +109,10 @@ Nvgd supports these `protocol`s:
       Or access `http://127.0.0.1:9280/db-dump://mysql/` by web browser.
       You can upload a excel file from the form.
 
+  * `redis` - access to redis.
+
+      [See the document for details](https://github.com/koron/nvgd/blob/master/doc/protocol-redis.md).
+
   * `config` - current nvgd's configuration
 
       `/config://` or `/config/` (alias)
