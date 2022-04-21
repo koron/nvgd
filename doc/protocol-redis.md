@@ -86,6 +86,15 @@ Behavior of get command will be changed by types for key. Supported types are:
     *   0 arguments: like `HLEN {key}`
     *   1 argument: like `HGET {key} {field}`
 
+When a `{key}` contains `/`, replace it by `%252f`.  It will be unescaped by
+URL encode twice, be converted to `%2f` at first decoding, then `/` at second
+decoding.
+
+Example:
+
+* `foo/bar` -> `foo%252fbar`
+* `prefix/123` -> `prefix%252f123`
+
 ## Keys command
 
     redis://{store_name}/keys[/{PATTERN}]
