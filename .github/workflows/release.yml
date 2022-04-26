@@ -24,8 +24,8 @@ jobs:
     - name: Install tools
       run: |
         mkdir -p $(go env GOPATH)/bin/
-        go get github.com/Songmu/goxz/cmd/goxz
-        go get github.com/tcnksm/ghr
+        go install github.com/Songmu/goxz/cmd/goxz@latest
+        go install github.com/tcnksm/ghr@latest
 
     - name: Build release binaries
       run: |
