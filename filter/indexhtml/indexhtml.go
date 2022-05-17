@@ -5,8 +5,8 @@ import (
 	"bytes"
 	"html/template"
 	"io"
-	"io/ioutil"
 
+	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/internal/commonconst"
 	"github.com/koron/nvgd/internal/ltsv"
@@ -15,6 +15,8 @@ import (
 
 var tmpl = template.Must(template.New("indexhtml").Parse(`<!DOCTYPE! html>
 <meta charset="UTF-8">
+{{range .Config.CustomCSSURLs}}{{if .}}<link rel="stylesheet" href="{{.}}" type="text/css" />
+{{end}}{{end}}
 <div>
   {{if .UpLink}}<a href="{{.UpLink}}">Up</a>{{end}}
   {{if .NextLink}}<a href="{{.NextLink}}">Next</a>{{end}}
@@ -36,6 +38,8 @@ type doc struct {
 	Entries  []entry
 	UpLink   string
 	NextLink string
+
+	Config *Config
 }
 
 type entry struct {
@@ -47,9 +51,17 @@ type entry struct {
 	Download   string
 }
 
+type Config struct {
+	CustomCSSURLs []string `yaml:"custom_css_urls,omitempty"`
+}
+
+var cfg Config
+
 func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
 	// compose document.
-	d := &doc{}
+	d := &doc{
+		Config: &cfg,
+	}
 	lr := ltsv.NewReader(r)
 	for {
 		s, err := lr.Read()
@@ -84,9 +96,10 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 	if err := tmpl.Execute(buf, d); err != nil {
 		return nil, err
 	}
-	return r.Wrap(ioutil.NopCloser(buf)), nil
+	return r.Wrap(io.NopCloser(buf)), nil
 }
 
 func init() {
 	filter.MustRegister("indexhtml", filterFunc)
+	config.RegisterFilter("indexhtml", &cfg)
 }
