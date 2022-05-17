@@ -16,6 +16,7 @@ Index:
     * [Command Protocol Handlers](#command-protocol-handlers)
     * [S3 Protocol Handlers](#config-s3-protocol-handlers)
     * [Config DB Protocol Handler](#config-db-protocol-handler)
+    * [Configure filters](#configure-filters)
     * [Default Filters](#default-filters)
   * [Filters](#filters)
   * [Prefix Aliases](#prefix-aliases)
@@ -147,7 +148,7 @@ current directory or given file with `-c` option is loaded at start.
 # Listen IP address and port (OPTIONAL, default is "127.0.0.1:9280")
 addr: "0.0.0.0:8080"
 
-# Configuratio for protocols (OPTIONAL)
+# Configuration for protocols (OPTIONAL)
 protocols:
 
   # File protocol handler's configuration.
@@ -164,6 +165,17 @@ protocols:
 
   # DB protocol handler configuration (OPTIONAL, see below)
   db:
+    ...
+
+# Configuration for each filters (OPTIONAL)
+
+  indexhtml:
+    ...
+
+  htmltable:
+    ...
+
+  markdown:
     ...
 
 # Default filters: pair of path prefix and filter description.
@@ -332,6 +344,29 @@ db:
     name:   'user:password@/{{.dbname}}'
     multiple_database: true
 ```
+
+### Configure filters
+
+Some filters can be configured by `filters` section.
+
+* `custom_css_urls`: Array of string. Specify external CSS's URL for each string.
+
+    Supported filters: htmltable, indexhtml, markdown
+
+    Example: markdown filter outputs two `link` elements to including external CSS.
+    indexhtml filters outputs a `link` elements for CSS.
+
+    ```yaml
+    filters:
+      markdown:
+        custom_css_urls:
+        - https://www.kaoriya.net/assets/css/contents.css
+        - https://www.kaoriya.net/assets/css/syntax.css
+
+      indexhtml:
+        custom_css_urls:
+        - https://www.kaoriya.net/assets/css/contents.css
+    ```
 
 ### Default Filters
 
@@ -502,6 +537,8 @@ Convert LTSV to Index HTML.
 
   * filter\_name: `indexhtml`
   * options: (none)
+  * configurations:
+    * `custom_css_urls`: list of URLs to link as CSS.
 
 Example: list objects in S3 bucket "foo" with Index HTML.
 
@@ -515,6 +552,8 @@ Convert LTSV to HTML table.
 
   * filter\_name: `htmltable`
   * options: (none)
+  * configurations:
+    * `custom_css_urls`: list of URLs to link as CSS.
 
 Example: query id and email column from users table on mine database.
 
@@ -550,6 +589,8 @@ Convert markdown text to HTML.
 
   * filter\_name: `markdown`
   * options: (none)
+  * configurations:
+    * `custom_css_urls`: list of URLs to link as CSS.
 
 Example: show help in HTML.
 
