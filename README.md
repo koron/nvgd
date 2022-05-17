@@ -557,7 +557,8 @@ This filter should be the last of filters.
 Convert LTSV to HTML table.
 
   * filter\_name: `htmltable`
-  * options: (none)
+  * options:
+    * `linefeed` - boolean: expand all `\n` as linefeed.
   * configurations:
     * `custom_css_urls`: list of URLs to link as CSS.
 
