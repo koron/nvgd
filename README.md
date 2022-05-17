@@ -148,6 +148,12 @@ current directory or given file with `-c` option is loaded at start.
 # Listen IP address and port (OPTIONAL, default is "127.0.0.1:9280")
 addr: "0.0.0.0:8080"
 
+# Destination (path or keyword) for error log, default is `(stderr)`
+error_log: (stderr)
+
+# Destination (path or keyword) for access log, default is `(discard)`
+access_log: (stdout)
+
 # Configuration for protocols (OPTIONAL)
 protocols:
 
@@ -551,7 +557,8 @@ This filter should be the last of filters.
 Convert LTSV to HTML table.
 
   * filter\_name: `htmltable`
-  * options: (none)
+  * options:
+    * `linefeed` - boolean: expand all `\n` as linefeed.
   * configurations:
     * `custom_css_urls`: list of URLs to link as CSS.
 
