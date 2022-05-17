@@ -76,8 +76,8 @@ func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	if err := s.serve(res, req); err != nil {
 		// TODO: log an error.
 		if herr, ok := err.(httpError); ok {
-			res.WriteHeader(herr.statusCode())
-			res.Write(([]byte)(herr.body()))
+			res.WriteHeader(herr.StatusCode())
+			res.Write(([]byte)(herr.Body()))
 			return
 		}
 		res.WriteHeader(http.StatusInternalServerError)
