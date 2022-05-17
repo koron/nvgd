@@ -7,9 +7,6 @@
   var raw = d.querySelector('#submit_raw');
 
   function encodeQuery(s) {
-    if (s.indexOf('%') !== -1) {
-      s = s.replace(/%/g, '%25');
-    }
     s = g.encodeURIComponent(s);
     return s
   }
