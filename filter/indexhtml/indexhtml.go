@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"html/template"
 	"io"
+	"path"
 
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/filter"
@@ -57,6 +58,13 @@ type Config struct {
 
 var cfg Config
 
+func pathPrefix(s string) string {
+	if s == "" {
+		return ""
+	}
+	return path.Join(config.Root().PathPrefix, s)
+}
+
 func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
 	// compose document.
 	d := &doc{
@@ -80,16 +88,16 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 			Type:       s.GetFirst("type"),
 			Size:       s.GetFirst("size"),
 			ModifiedAt: s.GetFirst("modified_at"),
-			Link:       s.GetFirst("link"),
-			Download:   s.GetFirst("download"),
+			Link:       pathPrefix(s.GetFirst("link")),
+			Download:   pathPrefix(s.GetFirst("download")),
 		}
 		d.Entries = append(d.Entries, e)
 	}
 	if link, ok := r.String(commonconst.UpLink); ok {
-		d.UpLink = link
+		d.UpLink = pathPrefix(link)
 	}
 	if link, ok := r.String(commonconst.NextLink); ok {
-		d.NextLink = link
+		d.NextLink = pathPrefix(link)
 	}
 	// execute template.
 	buf := new(bytes.Buffer)

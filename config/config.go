@@ -15,6 +15,8 @@ import (
 type Config struct {
 	Addr string `yaml:"addr"`
 
+	PathPrefix string `yaml:"path_prefix"`
+
 	// ErrorLogPath specify path of access log. default is "(stderr)".
 	ErrorLogPath string `yaml:"error_log"`
 
@@ -100,6 +102,10 @@ var root = &Config{
 	Protocols:      customConfig{},
 	Filters:        customConfig{},
 	DefaultFilters: FiltersMap{},
+}
+
+func Root() *Config {
+	return root
 }
 
 // LoadConfig loads a configuration from a file.
