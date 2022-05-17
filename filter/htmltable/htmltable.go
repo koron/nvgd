@@ -99,6 +99,11 @@ textarea#query {
   width: 100%;
   max-width: 100%;
 }
+#table-container {
+	width: 100%;
+	max-width: 100%;
+	overflow-x: auto;
+}
 </style>
 {{range .Config.CustomCSSURLs}}{{if .}}<link rel="stylesheet" href="{{.}}" type="text/css" />
 {{end}}{{end}}
@@ -109,6 +114,7 @@ textarea#query {
 {{if .SQLTruncatedBy}}<dt><code>max_rows</code> applied (SQL)</dt><dd>only <code>{{.SQLTruncatedBy}}</code> rows are shown</dd>{{end}}
 </dl>
 {{end}}
+<div id="table-container">
 <table border="1">
   <tr>
 	{{range .Headers}}
@@ -129,6 +135,7 @@ textarea#query {
   </tr>
   {{end}}
 </table>
+</div>
 <script>
 (function(g) {
   'use strict'
