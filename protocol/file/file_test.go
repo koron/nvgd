@@ -1,7 +1,7 @@
-package protocol
+package file
 
 import (
-	"io/ioutil"
+	"io"
 	"testing"
 )
 
@@ -11,7 +11,7 @@ func TestBzip2(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer r.Close()
-	b, err := ioutil.ReadAll(r)
+	b, err := io.ReadAll(r)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -27,7 +27,7 @@ func TestGzip(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer r.Close()
-	b, err := ioutil.ReadAll(r)
+	b, err := io.ReadAll(r)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -43,7 +43,7 @@ func TestLZ4(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer r.Close()
-	b, err := ioutil.ReadAll(r)
+	b, err := io.ReadAll(r)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -64,7 +64,7 @@ func TestMultiRC(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer r.Close()
-	b, err := ioutil.ReadAll(r)
+	b, err := io.ReadAll(r)
 	if err != nil {
 		t.Fatal(err)
 	}

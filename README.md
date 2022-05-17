@@ -148,6 +148,9 @@ current directory or given file with `-c` option is loaded at start.
 # Listen IP address and port (OPTIONAL, default is "127.0.0.1:9280")
 addr: "0.0.0.0:8080"
 
+# Path prefix for absolute links, use for sub-path multiple tenancy
+path_prefix: /tenant_name/
+
 # Destination (path or keyword) for error log, default is `(stderr)`
 error_log: (stderr)
 

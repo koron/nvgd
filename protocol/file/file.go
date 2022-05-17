@@ -1,4 +1,5 @@
-package protocol
+// Package file provides file protocol for NVGD.
+package file
 
 import (
 	"bytes"
@@ -6,7 +7,6 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/url"
 	"os"
@@ -19,6 +19,7 @@ import (
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/internal/commonconst"
 	"github.com/koron/nvgd/internal/ltsv"
+	"github.com/koron/nvgd/protocol"
 	"github.com/koron/nvgd/resource"
 	"github.com/pierrec/lz4/v4"
 )
@@ -56,7 +57,7 @@ func (fc FileConfig) isAccessible(path string) bool {
 var fc FileConfig
 
 func init() {
-	MustRegister("file", &File{})
+	protocol.MustRegister("file", &File{})
 	config.RegisterProtocol("file", &fc)
 }
 
@@ -107,7 +108,7 @@ func (f *File) openMulti(names []string, pattern string) (*resource.Resource, er
 }
 
 func fileOpenDir(name string) (*resource.Resource, error) {
-	list, err := ioutil.ReadDir(name)
+	list, err := os.ReadDir(name)
 	if err != nil {
 		log.Printf("ReadDir failed: %s", name)
 		return nil, err
@@ -138,9 +139,9 @@ func fileOpenDir(name string) (*resource.Resource, error) {
 			return nil, err
 		}
 	}
-	rs := resource.New(ioutil.NopCloser(buf))
+	rs := resource.New(io.NopCloser(buf))
 	rs.Put(commonconst.LTSV, true)
-	rs.Put(Small, true)
+	rs.Put(protocol.Small, true)
 	// add updir
 	if path != "" {
 		up := strings.TrimRight(rxLastComponent.ReplaceAllString(path, ""), "/")
@@ -154,6 +155,8 @@ var (
 	rxGz  = regexp.MustCompile(`\.gz$`)
 	rxBz2 = regexp.MustCompile(`\.bz2$`)
 	rxLz4 = regexp.MustCompile(`\.lz4$`)
+
+	rxLastComponent = regexp.MustCompile(`[^/]+/?$`)
 )
 
 func fileOpen(name string) (io.ReadCloser, error) {
