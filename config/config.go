@@ -23,7 +23,9 @@ type Config struct {
 
 	Protocols customConfig `yaml:"protocols,omitempty"`
 
-	Filters FiltersMap `yaml:"default_filters,omitempty"`
+	Filters customConfig `yaml:"filters,omitempty"`
+
+	DefaultFilters FiltersMap `yaml:"default_filters,omitempty"`
 
 	// Aliases provides custom aliases.
 	Aliases map[string]string `yaml:"aliases,omitempty"`
@@ -92,11 +94,12 @@ func (c *Config) openLogFile(v string) (io.Writer, error) {
 }
 
 var root = &Config{
-	Addr:          defaultAddr,
-	AccessLogPath: defaultAccessLog,
-	ErrorLogPath:  defaultErrorLog,
-	Protocols:     customConfig{},
-	Filters:       FiltersMap{},
+	Addr:           defaultAddr,
+	AccessLogPath:  defaultAccessLog,
+	ErrorLogPath:   defaultErrorLog,
+	Protocols:      customConfig{},
+	Filters:        customConfig{},
+	DefaultFilters: FiltersMap{},
 }
 
 // LoadConfig loads a configuration from a file.
@@ -125,4 +128,9 @@ func LoadConfig(filename string) (*Config, error) {
 // RegisterProtocol registers protocol configuration.
 func RegisterProtocol(name string, v interface{}) {
 	root.Protocols[name] = v
+}
+
+// RegisterFilter registers a filter configuration.
+func RegisterFilter(name string, v interface{}) {
+	root.Filters[name] = v
 }

@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"time"
 
+	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/internal/commonconst"
 	"github.com/koron/nvgd/internal/ltsv"
@@ -25,7 +26,15 @@ type doc struct {
 	SQLQuery       *string
 	SQLTruncatedBy *int
 	SQLExecTime    *string
+
+	Config *Config
 }
+
+type Config struct {
+	CustomCSSURLs []string `yaml:"custom_css_urls,omitempty"`
+}
+
+var cfg Config
 
 func (d *doc) initHeader(props []ltsv.Property) {
 	d.Headers = make([]string, 0, len(props))
@@ -82,6 +91,8 @@ textarea#query {
   max-width: 100%;
 }
 </style>
+{{range .Config.CustomCSSURLs}}{{if .}}<link rel="stylesheet" href="{{.}}" type="text/css" />
+{{end}}{{end}}
 {{if .HasOptions}}
 <dl>
 {{if .SQLQuery}}<dt>Statement (SQL)</dt><dd><textarea id="query" readonly rows="12">{{.SQLQuery}}</textarea><br><button id="edit">Edit</button></dd>{{end}}
@@ -127,7 +138,9 @@ textarea#query {
 
 func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
 	// compose document.
-	d := &doc{}
+	d := &doc{
+		Config: &cfg,
+	}
 	lr := ltsv.NewReader(r)
 	first := true
 	for {
@@ -173,4 +186,5 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 
 func init() {
 	filter.MustRegister("htmltable", filterFunc)
+	config.RegisterFilter("htmltable", &cfg)
 }

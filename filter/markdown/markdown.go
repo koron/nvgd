@@ -3,24 +3,49 @@ package markdown
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
+	"text/template"
 
+	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/resource"
 	"github.com/russross/blackfriday"
 )
 
-func init() {
-	filter.MustRegister("markdown", filterMarkdown)
+type Config struct {
+	CustomCSSURLs []string `yaml:"custom_css_urls,omitempty"`
 }
 
+var cfg Config
+
+func init() {
+	filter.MustRegister("markdown", filterMarkdown)
+	config.RegisterFilter("markdown", &cfg)
+}
+
+var tmpl = template.Must(template.New("markdown").Parse(`<!DOCTYPE! html>
+<meta charset="UTF-8">
+{{range .Config.CustomCSSURLs}}{{if .}}<link rel="stylesheet" href="{{.}}" type="text/css" />
+{{end}}{{end}}
+`))
+
 func filterMarkdown(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
-	// TODO:
-	b1, err := ioutil.ReadAll(r)
+	// convert a markdown to HTML as a response body.
+	raw, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}
-	b2 := blackfriday.MarkdownCommon(b1)
-	r2 := ioutil.NopCloser(bytes.NewReader(b2))
+	bodyBytes := blackfriday.MarkdownCommon(raw)
+	// generate header
+	d := struct {
+		Config *Config
+	}{
+		Config: &cfg,
+	}
+	head := new(bytes.Buffer)
+	if err := tmpl.Execute(head, d); err != nil {
+		return nil, err
+	}
+	r2 := io.NopCloser(io.MultiReader(head, bytes.NewReader(bodyBytes)))
 	return r.Wrap(r2), nil
 }

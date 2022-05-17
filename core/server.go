@@ -22,11 +22,11 @@ import (
 
 // Server represents NVGD server.
 type Server struct {
-	httpd     *http.Server
-	fileSrv   http.Handler
-	accessLog *log.Logger
-	errorLog  *log.Logger
-	filters   *Filters
+	httpd          *http.Server
+	fileSrv        http.Handler
+	accessLog      *log.Logger
+	errorLog       *log.Logger
+	defaultFilters *Filters
 
 	aliases aliases
 }
@@ -48,11 +48,11 @@ func New(c *config.Config) (*Server, error) {
 	// FIXME: should not be global.
 	configp.Config = *c
 	s := &Server{
-		fileSrv:   http.FileServer(http.FS(stripFS)),
-		accessLog: alog,
-		errorLog:  elog,
-		filters:   &Filters{descs: c.Filters},
-		aliases:   defaultAliases.mergeMap(c.Aliases),
+		fileSrv:        http.FileServer(http.FS(stripFS)),
+		accessLog:      alog,
+		errorLog:       elog,
+		defaultFilters: &Filters{descs: c.DefaultFilters},
+		aliases:        defaultAliases.mergeMap(c.Aliases),
 	}
 	s.httpd = &http.Server{
 		Addr:    c.Addr,
@@ -176,7 +176,7 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 		return fmt.Errorf("filter error: %s", err)
 	}
 	if !all && !s.isSmall(rsrc) {
-		r, err = s.filters.apply(s, upath, r)
+		r, err = s.defaultFilters.apply(s, upath, r)
 		if err != nil {
 			if r != nil {
 				r.Close()
