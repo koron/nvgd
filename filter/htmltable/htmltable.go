@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"io"
 	"io/ioutil"
+	"strings"
 	"time"
 
 	"github.com/koron/nvgd/config"
@@ -27,7 +28,8 @@ type doc struct {
 	SQLTruncatedBy *int
 	SQLExecTime    *string
 
-	Config *Config
+	Linefeed bool
+	Config   *Config
 }
 
 type Config struct {
@@ -46,9 +48,16 @@ func (d *doc) initHeader(props []ltsv.Property) {
 	}
 }
 
+func (d *doc) filterValue(v string) []string {
+	if d.Linefeed && strings.Contains(v, `\n`) {
+		return strings.Split(v, `\n`)
+	}
+	return []string{v}
+}
+
 func (d *doc) addRow(props []ltsv.Property) {
 	r := row{
-		Values: make([]string, len(d.Headers)),
+		Values: make([][]string, len(d.Headers)),
 		Others: "",
 	}
 	for _, p := range props {
@@ -60,7 +69,7 @@ func (d *doc) addRow(props []ltsv.Property) {
 			r.Others += p.Label + ":" + p.Value
 			continue
 		}
-		r.Values[n] = p.Value
+		r.Values[n] = d.filterValue(p.Value)
 	}
 	if r.Others == "" {
 		r.Others = "(none)"
@@ -71,7 +80,7 @@ func (d *doc) addRow(props []ltsv.Property) {
 }
 
 type row struct {
-	Values []string
+	Values [][]string
 	Others string
 }
 
@@ -112,7 +121,7 @@ textarea#query {
   {{range .Rows}}
   <tr>
 	{{range .Values}}
-	<td>{{.}}</td>
+	<td>{{range .}}{{.}}<br>{{end}}</td>
 	{{end}}
 	{{if $.HasOthers}}
 	<td>{{.Others}}</td>
@@ -139,7 +148,8 @@ textarea#query {
 func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
 	// compose document.
 	d := &doc{
-		Config: &cfg,
+		Linefeed: p.Bool(commonconst.Linefeed, false),
+		Config:   &cfg,
 	}
 	lr := ltsv.NewReader(r)
 	first := true
@@ -161,6 +171,8 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 		}
 		d.addRow(s.Properties)
 	}
+
+	// setup options
 	if v, ok := r.String(commonconst.SQLQuery); ok {
 		d.SQLQuery = &v
 		d.HasOptions = true
@@ -176,6 +188,7 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 			d.HasOptions = true
 		}
 	}
+
 	// execute template.
 	buf := new(bytes.Buffer)
 	if err := tmpl.Execute(buf, d); err != nil {
