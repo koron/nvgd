@@ -203,7 +203,7 @@ func getHash(c *redis.Client, k string, args []string) (*resource.Resource, erro
 	}
 
 	// HGET
-	if len(args) == 0 {
+	if len(args) == 1 {
 		member := args[0]
 		s, err := c.HGet(k, member).Result()
 		if err != nil {
