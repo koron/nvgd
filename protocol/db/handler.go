@@ -82,10 +82,31 @@ func (h *Handler) execQuery(c *conn, q string) (io.ReadCloser, bool, error) {
 		return nil, false, err
 	}
 	defer tx.Rollback()
+	// `maxRows` limitation will be bypassed when the query has some
+	// limitations: "COUNT()" or "LIMIT".
+	maxRows := c.maxRows
+	if hasLimit(q) {
+		maxRows = 0
+	}
+	// do query.
 	rows, err := tx.Query(q)
 	if err != nil {
 		return nil, false, err
 	}
 	defer rows.Close()
-	return rows2ltsv(rows, c.maxRows)
+	return rows2ltsv(rows, maxRows)
+}
+
+var rxSelectCount = regexp.MustCompile(`(?imsU:\bSELECT\b.*\bCOUNT\b.*\(.*\bFROM\b)`)
+var rxHasLimit = regexp.MustCompile(`(?imsU:\bLIMIT\b[ ].*\d+)`)
+
+// hasLimit checks a query has LIMIT clause or not.
+func hasLimit(q string) bool {
+	if rxSelectCount.MatchString(q) {
+		return true
+	}
+	if rxHasLimit.MatchString(q) {
+		return true
+	}
+	return false
 }
