@@ -31,3 +31,22 @@ func TestBadQuery(t *testing.T) {
 	f("SELECT * FROM USERS", false)
 	f("SELECT * FROM UPDATES", false)
 }
+
+func TestHasLimit(t *testing.T) {
+	for i, tc := range []struct {
+		query string
+		want  bool
+	}{
+		{``, false},
+		{`SELECT gid, COUNT(*) FROM user`, true}, // SELECT with COUNT
+		{`select gid, COUNT(*) from user`, true}, // case insensitive
+		{`SELECT * FROM user LIMIT 10000`, true}, // LIMIT with number
+		{`LIMIT 10000`, true},                    // only LIMIT with number
+		{`SELECT * FROM user LIMIT abc`, false},  // LIMIT without number
+	} {
+		got := hasLimit(tc.query)
+		if got != tc.want {
+			t.Errorf("unexpected hasLimit return: want=%t got=%t:#%d: %s", tc.want, got, i, tc.query)
+		}
+	}
+}
