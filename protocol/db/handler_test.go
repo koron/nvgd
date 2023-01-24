@@ -2,6 +2,8 @@ package db
 
 import (
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestBadQuery(t *testing.T) {
@@ -47,6 +49,28 @@ func TestHasLimit(t *testing.T) {
 		got := hasLimit(tc.query)
 		if got != tc.want {
 			t.Errorf("unexpected hasLimit return: want=%t got=%t:#%d: %s", tc.want, got, i, tc.query)
+		}
+	}
+}
+
+func TestSplitQuery(t *testing.T) {
+	for i, tc := range []struct {
+		in   string
+		want []string
+	}{
+		{"SELECT * FROM ACCOUNT", []string{"SELECT * FROM ACCOUNT"}},
+		{"SELECT * FROM ACCOUNT;", []string{"SELECT * FROM ACCOUNT"}},
+		{
+			"SET FOOBAR=123 ; \n SELECT * FROM ACCOUNT ;",
+			[]string{
+				"SET FOOBAR=123",
+				"SELECT * FROM ACCOUNT",
+			},
+		},
+	} {
+		got := splitQuery(tc.in)
+		if d := cmp.Diff(tc.want, got); d != "" {
+			t.Errorf("unexpected #%d: -want +got\n%s", i, d)
 		}
 	}
 }

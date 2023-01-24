@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"net/url"
 	"regexp"
@@ -82,6 +83,29 @@ func (h *Handler) execQuery(c *conn, q string) (io.ReadCloser, bool, error) {
 		return nil, false, err
 	}
 	defer tx.Rollback()
+
+	queries := splitQuery(q)
+	qlen := len(queries)
+	var preQueries []string
+	var mainQuery string
+	if qlen <= 0 {
+		return nil, false, fmt.Errorf("evaluated as empty query: %q", q)
+	}
+	if qlen == 1 {
+		mainQuery = queries[0]
+	} else {
+		preQueries = queries[:qlen-1]
+		mainQuery = queries[qlen]
+	}
+
+	// Execute pre-queries.
+	for _, query := range preQueries {
+		_, err := tx.Exec(query)
+		if err != nil {
+			return nil, false, fmt.Errorf("pre query %q failed: %w", query, err)
+		}
+	}
+
 	// `maxRows` limitation will be bypassed when the query has some
 	// limitations: "COUNT()" or "LIMIT".
 	maxRows := c.maxRows
@@ -89,9 +113,9 @@ func (h *Handler) execQuery(c *conn, q string) (io.ReadCloser, bool, error) {
 		maxRows = 0
 	}
 	// do query.
-	rows, err := tx.Query(q)
+	rows, err := tx.Query(mainQuery)
 	if err != nil {
-		return nil, false, err
+		return nil, false, fmt.Errorf("main query %q failed as: %w", mainQuery, err)
 	}
 	defer rows.Close()
 	return rows2ltsv(rows, maxRows)
@@ -109,4 +133,12 @@ func hasLimit(q string) bool {
 		return true
 	}
 	return false
+}
+
+var rxStripTail = regexp.MustCompile(`\s*;\s*$`)
+var rxQuerySplitter = regexp.MustCompile(`\s*;\s*\n\s*`)
+
+// splitQuery splits queries at ';' at end of line.
+func splitQuery(s string) []string {
+	return rxQuerySplitter.Split(rxStripTail.ReplaceAllString(s, ""), -1)
 }
