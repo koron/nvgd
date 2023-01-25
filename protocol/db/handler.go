@@ -95,7 +95,7 @@ func (h *Handler) execQuery(c *conn, q string) (io.ReadCloser, bool, error) {
 		mainQuery = queries[0]
 	} else {
 		preQueries = queries[:qlen-1]
-		mainQuery = queries[qlen]
+		mainQuery = queries[qlen-1]
 	}
 
 	// Execute pre-queries.
