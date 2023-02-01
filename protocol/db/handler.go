@@ -106,12 +106,8 @@ func (h *Handler) execQuery(c *conn, q string) (io.ReadCloser, bool, error) {
 		}
 	}
 
-	// `maxRows` limitation will be bypassed when the query has some
-	// limitations: "COUNT()" or "LIMIT".
-	maxRows := c.maxRows
-	if hasLimit(q) {
-		maxRows = 0
-	}
+	maxRows := determineMaxRows(q, c.maxRows)
+
 	// do query.
 	rows, err := tx.Query(mainQuery)
 	if err != nil {
@@ -119,6 +115,25 @@ func (h *Handler) execQuery(c *conn, q string) (io.ReadCloser, bool, error) {
 	}
 	defer rows.Close()
 	return rows2ltsv(rows, maxRows)
+}
+
+func determineMaxRows(q string, limit int) int {
+	// the limitation should be ignored for non-SELECT query.
+	if !hasSelect(q) {
+		return 0
+	}
+	// `maxRows` limitation will be bypassed when the query has some
+	// limitations: "COUNT()" or "LIMIT".
+	if hasLimit(q) {
+		return 0
+	}
+	return limit
+}
+
+var rxHasSelect = regexp.MustCompile(`(?imsU:\bSELECT\b)`)
+
+func hasSelect(q string) bool {
+	return rxHasSelect.MatchString(q)
 }
 
 var rxSelectCount = regexp.MustCompile(`(?imsU:\bSELECT\b.*\bCOUNT\b.*\(.*\bFROM\b)`)
