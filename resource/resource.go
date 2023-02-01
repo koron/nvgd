@@ -5,7 +5,6 @@ package resource
 import (
 	"bytes"
 	"io"
-	"io/ioutil"
 	"path"
 	"strings"
 )
@@ -27,7 +26,7 @@ func New(rc io.ReadCloser) *Resource {
 // NewString creates a Resource with string as content.
 func NewString(s string) *Resource {
 	b := bytes.NewReader([]byte(s))
-	return New(ioutil.NopCloser(b))
+	return New(io.NopCloser(b))
 }
 
 // Raw returns underlying io.ReadCloser in this resource.

@@ -2,13 +2,12 @@ package db
 
 import (
 	"io"
-	"io/ioutil"
 
 	"github.com/tealeg/xlsx"
 )
 
 func openXLSX(r io.Reader) (*xlsx.File, error) {
-	b, err := ioutil.ReadAll(r)
+	b, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}

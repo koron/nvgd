@@ -3,7 +3,7 @@ package db
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/url"
 	"strings"
 	"time"
@@ -39,7 +39,7 @@ func (dh *DumpHandler) Open(u *url.URL) (*resource.Resource, error) {
 	if err != nil {
 		return nil, err
 	}
-	rs := resource.New(ioutil.NopCloser(buf))
+	rs := resource.New(io.NopCloser(buf))
 	n, _ := extractNames(u)
 	t := time.Now().Format("20060102T150405MST")
 	rs.PutFilename(fmt.Sprintf("%s-%s.xlsx", n, t))

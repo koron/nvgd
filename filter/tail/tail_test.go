@@ -2,13 +2,13 @@ package tail
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"log"
 	"testing"
 )
 
 func checkTail(t *testing.T, src string, limit int, exp string) {
-	rb := ioutil.NopCloser(bytes.NewReader([]byte(src)))
+	rb := io.NopCloser(bytes.NewReader([]byte(src)))
 	rt := NewTail(rb, limit)
 	defer func() {
 		err := rt.Close()
@@ -16,7 +16,7 @@ func checkTail(t *testing.T, src string, limit int, exp string) {
 			t.Errorf("failed to close: %s", err)
 		}
 	}()
-	b, err := ioutil.ReadAll(rt)
+	b, err := io.ReadAll(rt)
 	if err != nil {
 		t.Errorf("failed to read: %s", err)
 	}

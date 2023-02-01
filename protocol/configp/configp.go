@@ -3,7 +3,7 @@ package configp
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/url"
 	"regexp"
 
@@ -33,6 +33,6 @@ func (cp *ConfigP) Open(u *url.URL) (*resource.Resource, error) {
 	}
 	// FIXME: hide secrets by more generic way.
 	b = mx.ReplaceAll(b, []byte("$1: __SECRET__"))
-	rs := resource.New(ioutil.NopCloser(bytes.NewReader(b)))
+	rs := resource.New(io.NopCloser(bytes.NewReader(b)))
 	return rs, nil
 }

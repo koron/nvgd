@@ -2,7 +2,7 @@ package filter
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"testing"
 )
 
@@ -14,7 +14,7 @@ func TestBaseReadLine(t *testing.T) {
 	buf[len(buf)-1] = '\n'
 
 	b := &Base{}
-	b.Init(ioutil.NopCloser(bytes.NewReader(buf)), nil)
+	b.Init(io.NopCloser(bytes.NewReader(buf)), nil)
 
 	d, err := b.ReadLine()
 	if err != nil {

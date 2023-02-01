@@ -4,7 +4,6 @@ package texttable
 import (
 	"bytes"
 	"io"
-	"io/ioutil"
 
 	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/internal/ltsv"
@@ -102,7 +101,7 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 		t.Append(row.Values)
 	}
 	t.Render()
-	return r.Wrap(ioutil.NopCloser(buf)), nil
+	return r.Wrap(io.NopCloser(buf)), nil
 }
 
 func init() {

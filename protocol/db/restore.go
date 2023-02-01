@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"io/ioutil"
 	"net/url"
 	"strings"
 
@@ -53,7 +52,7 @@ func (rh *RestoreHandler) openAsset(s string, p map[string]interface{}) (*resour
 	if strings.HasSuffix(s, ".html") {
 		// extract template.
 		defer f.Close()
-		b, err := ioutil.ReadAll(f)
+		b, err := io.ReadAll(f)
 		if err != nil {
 			return nil, err
 		}
@@ -66,7 +65,7 @@ func (rh *RestoreHandler) openAsset(s string, p map[string]interface{}) (*resour
 		if err != nil {
 			return nil, err
 		}
-		rs := resource.New(ioutil.NopCloser(bb)).GuessContentType(s)
+		rs := resource.New(io.NopCloser(bb)).GuessContentType(s)
 		return rs, nil
 	}
 	rs := resource.New(f).GuessContentType(s)

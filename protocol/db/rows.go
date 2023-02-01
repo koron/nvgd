@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"database/sql"
 	"io"
-	"io/ioutil"
 
 	"github.com/koron/nvgd/internal/ltsv"
 )
@@ -50,5 +49,5 @@ func rows2ltsv(rows *sql.Rows, maxRows int) (io.ReadCloser, bool, error) {
 			break
 		}
 	}
-	return ioutil.NopCloser(buf), truncated, nil
+	return io.NopCloser(buf), truncated, nil
 }

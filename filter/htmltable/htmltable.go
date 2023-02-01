@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"html/template"
 	"io"
-	"io/ioutil"
 	"strings"
 	"time"
 
@@ -201,7 +200,7 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 	if err := tmpl.Execute(buf, d); err != nil {
 		return nil, err
 	}
-	return r.Wrap(ioutil.NopCloser(buf)), nil
+	return r.Wrap(io.NopCloser(buf)), nil
 }
 
 func init() {

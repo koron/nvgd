@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"io"
-	"io/ioutil"
 	"strings"
 
 	"github.com/koron/nvgd/internal/commonconst"
@@ -46,7 +45,7 @@ func (a alias) rewriteLTSV(src *resource.Resource) (*resource.Resource, error) {
 			return nil, err
 		}
 	}
-	dst := resource.New(ioutil.NopCloser(buf))
+	dst := resource.New(io.NopCloser(buf))
 	dst.Options = src.Options
 	for _, k := range []string{commonconst.UpLink, commonconst.NextLink} {
 		v, ok := dst.String(k)

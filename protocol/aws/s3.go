@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -160,7 +159,7 @@ func (ph *S3ListHandler) writeAsLTSV(out *s3.ListObjectsV2Output, bucket string)
 			return nil, err
 		}
 	}
-	return ioutil.NopCloser(buf), nil
+	return io.NopCloser(buf), nil
 }
 
 // S3Config is configuration of S3 protocol handler.

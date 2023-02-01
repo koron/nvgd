@@ -3,7 +3,7 @@ package redis
 import (
 	"bytes"
 	"html/template"
-	"io/ioutil"
+	"io"
 	"strings"
 
 	"github.com/go-redis/redis/v7"
@@ -75,5 +75,5 @@ func keysForm(c *redis.Client, args []string) (*resource.Resource, error) {
 	if err != nil {
 		return nil, err
 	}
-	return resource.New(ioutil.NopCloser(buf)), nil
+	return resource.New(io.NopCloser(buf)), nil
 }

@@ -2,7 +2,7 @@ package filter
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"testing"
 )
 
@@ -14,7 +14,7 @@ func checkCut(t *testing.T, cutSrc, cutfmt, expected string) {
 		return
 	}
 
-	rb := ioutil.NopCloser(bytes.NewReader([]byte(cutSrc)))
+	rb := io.NopCloser(bytes.NewReader([]byte(cutSrc)))
 	cut := NewCut(rb, []byte("\t"), sels)
 	defer func() {
 		err := cut.Close()
@@ -23,7 +23,7 @@ func checkCut(t *testing.T, cutSrc, cutfmt, expected string) {
 		}
 	}()
 
-	b, err := ioutil.ReadAll(cut)
+	b, err := io.ReadAll(cut)
 	if err != nil {
 		t.Errorf("failed to read: %s", err)
 		return

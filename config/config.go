@@ -4,7 +4,6 @@ package config
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -81,7 +80,7 @@ func (c *Config) ErrorLog() (*log.Logger, error) {
 func (c *Config) openLogFile(v string) (io.Writer, error) {
 	switch v {
 	case "(discard)":
-		return ioutil.Discard, nil
+		return io.Discard, nil
 	case "(stderr)":
 		return os.Stderr, nil
 	case "(stdout)":
@@ -120,7 +119,7 @@ func LoadConfig(filename string) (*Config, error) {
 		}
 		return nil, err
 	}
-	b, err := ioutil.ReadAll(f)
+	b, err := io.ReadAll(f)
 	f.Close()
 	if err != nil {
 		return nil, err

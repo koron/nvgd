@@ -3,7 +3,6 @@ package tail
 import (
 	"bytes"
 	"io"
-	"io/ioutil"
 	"testing"
 )
 
@@ -26,7 +25,7 @@ func checkRTail(t *testing.T, src string, limit, bufsize int, exp string) {
 			t.Errorf("failed to close: %s", err)
 		}
 	}()
-	b, err := ioutil.ReadAll(rt)
+	b, err := io.ReadAll(rt)
 	if err != nil {
 		t.Errorf("failed to read: %s", err)
 	}
