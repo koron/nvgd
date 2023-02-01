@@ -15,23 +15,23 @@ jobs:
 
     steps:
 
-    - uses: actions/setup-go@v2
+    - uses: actions/setup-go@v3
       with:
         go-version: 1.x
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Install tools
       run: |
         mkdir -p $(go env GOPATH)/bin/
-        go install github.com/Songmu/goxz/cmd/goxz@latest
-        go install github.com/tcnksm/ghr@latest
+        go install github.com/Songmu/goxz/cmd/goxz@v0.9.1
+        go install github.com/tcnksm/ghr@v0.16.0
 
     - name: Build release binaries
       run: |
         echo ${GITHUB_REF##*/}
         goxz -d goxz -pv ${GITHUB_REF##*/} -os windows,linux,darwin -arch=amd64
-        goxz -d goxz -pv ${GITHUB_REF##*/} -os linux -arch=arm64
+        goxz -d goxz -pv ${GITHUB_REF##*/} -os linux,darwin -arch=arm64
 
     - name: Create a release
       uses: actions/create-release@v1
