@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"net/url"
 	"regexp"
@@ -49,6 +50,10 @@ func (h *Handler) Open(u *url.URL) (*resource.Resource, error) {
 		rs.Put(commonconst.SQLTruncatedBy, c.maxRows)
 	}
 	rs.Put(commonconst.SQLExecTime, dur)
+	// MySQL connection should be closed after queries.
+	if (c.driver == "mysql") {
+		c.Close()
+	}
 	return rs, nil
 }
 
@@ -82,19 +87,57 @@ func (h *Handler) execQuery(c *conn, q string) (io.ReadCloser, bool, error) {
 		return nil, false, err
 	}
 	defer tx.Rollback()
-	// `maxRows` limitation will be bypassed when the query has some
-	// limitations: "COUNT()" or "LIMIT".
-	maxRows := c.maxRows
-	if hasLimit(q) {
-		maxRows = 0
+
+	queries := splitQuery(q)
+	qlen := len(queries)
+	var preQueries []string
+	var mainQuery string
+	if qlen <= 0 {
+		return nil, false, fmt.Errorf("evaluated as empty query: %q", q)
 	}
+	if qlen == 1 {
+		mainQuery = queries[0]
+	} else {
+		preQueries = queries[:qlen-1]
+		mainQuery = queries[qlen-1]
+	}
+
+	// Execute pre-queries.
+	for _, query := range preQueries {
+		_, err := tx.Exec(query)
+		if err != nil {
+			return nil, false, fmt.Errorf("pre query %q failed: %w", query, err)
+		}
+	}
+
+	maxRows := determineMaxRows(q, c.maxRows)
+
 	// do query.
-	rows, err := tx.Query(q)
+	rows, err := tx.Query(mainQuery)
 	if err != nil {
-		return nil, false, err
+		return nil, false, fmt.Errorf("main query %q failed as: %w", mainQuery, err)
 	}
 	defer rows.Close()
 	return rows2ltsv(rows, maxRows)
+}
+
+func determineMaxRows(q string, limit int) int {
+	// the limitation should be ignored for non-SELECT query.
+	if !hasSelect(q) {
+		return 0
+	}
+	// `maxRows` limitation will be bypassed when the query has some
+	// limitations: "COUNT()" or "LIMIT".
+	if hasLimit(q) {
+		return 0
+	}
+	return limit
+}
+
+var rxHasSelect = regexp.MustCompile(`(?imsU:\bSELECT\b)`)
+
+func hasSelect(q string) bool {
+	return rxHasSelect.MatchString(q)
 }
 
 var rxSelectCount = regexp.MustCompile(`(?imsU:\bSELECT\b.*\bCOUNT\b.*\(.*\bFROM\b)`)
@@ -109,4 +152,12 @@ func hasLimit(q string) bool {
 		return true
 	}
 	return false
+}
+
+var rxStripTail = regexp.MustCompile(`\s*;\s*$`)
+var rxQuerySplitter = regexp.MustCompile(`\s*;\s*\n\s*`)
+
+// splitQuery splits queries at ';' at end of line.
+func splitQuery(s string) []string {
+	return rxQuerySplitter.Split(rxStripTail.ReplaceAllString(s, ""), -1)
 }
