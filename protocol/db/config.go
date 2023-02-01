@@ -6,7 +6,6 @@ import (
 	"html/template"
 	"net/url"
 	"strings"
-	"sync"
 
 	"github.com/koron/nvgd/config"
 )
@@ -30,11 +29,6 @@ type Param struct {
 type Config map[string]Param
 
 var dbconfig Config
-
-var (
-	connPool = map[string]*conn{}
-	connLock sync.Mutex
-)
 
 func init() {
 	config.RegisterProtocol("db", &dbconfig)
@@ -69,27 +63,15 @@ func (p *Param) expandName(dbname string) (string, error) {
 }
 
 func (p *Param) openDB(dbname string) (*conn, error) {
-	id := p.Name
+	// rewrite with real DB name for multiple database.
 	if p.MultipleDatabase {
-		id += "--" + dbname
-	} else {
-		dbname = ""
+		n, err := p.expandName(dbname)
+		if err != nil {
+			return nil, err
+		}
+		return connect(p.Driver, n, p.MaxRows)
 	}
-	connLock.Lock()
-	defer connLock.Unlock()
-	if c, ok := connPool[id]; ok {
-		return c, nil
-	}
-	n, err := p.expandName(dbname)
-	if err != nil {
-		return nil, err
-	}
-	c, err := connect(p.Driver, n, p.MaxRows)
-	if err != nil {
-		return nil, err
-	}
-	connPool[id] = c
-	return c, nil
+	return connect(p.Driver, p.Name, p.MaxRows)
 }
 
 func extractNames(u *url.URL) (name, dbname string) {

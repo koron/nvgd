@@ -50,6 +50,10 @@ func (h *Handler) Open(u *url.URL) (*resource.Resource, error) {
 		rs.Put(commonconst.SQLTruncatedBy, c.maxRows)
 	}
 	rs.Put(commonconst.SQLExecTime, dur)
+	// MySQL connection should be closed after queries.
+	if (c.driver == "mysql") {
+		c.Close()
+	}
 	return rs, nil
 }
 

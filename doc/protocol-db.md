@@ -17,3 +17,8 @@
 * 最後以外のクエリは `SET` でセッションパラメーターを変更するような用途を想定しています。
 * 1回に実行できるクエリ数に上限はありませんが、1つのトランザクション内で実行されるため変更したセッションパラメーターは、その実行限りのものです。
 * 構文チェックは簡易のモノであるため、コーナーケースについては保証できません。
+
+## Notations
+
+* `max_rows` is applied for `SELECT` queries without `COUNT` nor `LIMIT` clauses.
+* MySQL's connection is not pooled, to reset variables which changed in a "query" request.
