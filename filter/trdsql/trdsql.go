@@ -14,6 +14,8 @@ import (
 	"github.com/noborus/trdsql"
 )
 
+var execTimeout time.Duration = 30 * time.Second
+
 func trdsqlFilter(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
 	// process parameters
 	var (
@@ -78,7 +80,7 @@ func trdsqlFilter(r *resource.Resource, p filter.Params) (*resource.Resource, er
 
 	// execute a query
 	trd := trdsql.NewTRDSQL(importer, exporter)
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), execTimeout)
 	defer cancel()
 	err = trd.ExecContext(ctx, query)
 	if err != nil {
@@ -128,6 +130,7 @@ func parseOutFormat(s string, defaultFormat trdsql.Format) trdsql.Format {
 		return defaultFormat
 	}
 }
+
 func init() {
 	filter.MustRegister("trdsql", trdsqlFilter)
 }
