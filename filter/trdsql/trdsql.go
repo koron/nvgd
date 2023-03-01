@@ -116,10 +116,14 @@ func parseOutFormat(s string, defaultFormat trdsql.Format) trdsql.Format {
 		return trdsql.JSON
 	case "TBLN":
 		return trdsql.TBLN
-	case "TSV":
-		return trdsql.TSV
-	case "PSV":
-		return trdsql.PSV
+	case "RAW":
+		return trdsql.RAW
+	case "MD":
+		return trdsql.MD
+	case "AT":
+		return trdsql.AT
+	case "JSONL":
+		return trdsql.JSONL
 	default:
 		return defaultFormat
 	}
