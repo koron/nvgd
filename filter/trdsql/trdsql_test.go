@@ -92,3 +92,52 @@ id:4	name:qux	price:999
 `)
 	})
 }
+
+var tsv1 = `id	name	price
+1	foo	500
+2	bar	400
+3	baz	250
+4	qux	999
+`
+
+func TestTSVInput(t *testing.T) {
+	t.Run("none", func(t *testing.T) {
+		filtertest.Check(t, trdsqlFilter, filter.Params{
+			"q":    "SELECT * FROM t",
+			"ifmt": "TSV",
+		}, tsv1, `id,name,price
+1,foo,500
+2,bar,400
+3,baz,250
+4,qux,999
+`)
+	})
+
+	t.Run("output header", func(t *testing.T) {
+		filtertest.Check(t, trdsqlFilter, filter.Params{
+			"q":    "SELECT * FROM t",
+			"ifmt": "tsv",
+			"oh":   "true",
+		}, tsv1, `c1,c2,c3
+id,name,price
+1,foo,500
+2,bar,400
+3,baz,250
+4,qux,999
+`)
+	})
+
+	t.Run("input header", func(t *testing.T) {
+		filtertest.Check(t, trdsqlFilter, filter.Params{
+			"q":    "SELECT * FROM t",
+			"ifmt": "tsv",
+			"oh":   "true",
+			"ih":   "true",
+		}, tsv1, `id,name,price
+1,foo,500
+2,bar,400
+3,baz,250
+4,qux,999
+`)
+	})
+}
