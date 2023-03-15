@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/koron/nvgd/filter"
+	"github.com/koron/nvgd/internal/httperror"
 	"github.com/koron/nvgd/resource"
 	"github.com/noborus/trdsql"
 )
@@ -84,7 +85,7 @@ func trdsqlFilter(r *resource.Resource, p filter.Params) (*resource.Resource, er
 	defer cancel()
 	err = trd.ExecContext(ctx, query)
 	if err != nil {
-		return nil, fmt.Errorf("trdsql error: %w: %s", err, stderr.String())
+		return nil, httperror.Newf(400, "trdsql error: %s: %s", err, stderr.String())
 	}
 	return r.Wrap(io.NopCloser(stdout)), nil
 }

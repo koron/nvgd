@@ -69,13 +69,16 @@ func (s *Server) Run() error {
 
 func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	s.accessLog.Printf("%s %s %s", req.Method, req.URL.EscapedPath(), req.URL.RawQuery)
+	res.Header().Set("Access-Control-Allow-Origin", "*")
 	if req.URL.Path == "/favicon.ico" {
 		s.fileSrv.ServeHTTP(res, req)
 		return
 	}
 	if err := s.serve(res, req); err != nil {
 		// TODO: log an error.
-		if herr, ok := err.(httpError); ok {
+		var herr httpError
+		if errors.As(err, &herr) {
+			//if herr, ok := err.(httpError); ok {
 			res.WriteHeader(herr.StatusCode())
 			res.Write(([]byte)(herr.Body()))
 			return
@@ -173,7 +176,7 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 		if r != nil {
 			r.Close()
 		}
-		return fmt.Errorf("filter error: %s", err)
+		return fmt.Errorf("filter error: %w", err)
 	}
 	if !all && !s.isSmall(rsrc) {
 		r, err = s.defaultFilters.apply(s, upath, r)
