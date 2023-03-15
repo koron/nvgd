@@ -90,24 +90,24 @@
     s += "trdsql=";
     s += "q:"+encodeQuery(queryForm.value);
     if (optIhCheckbox.checked) {
-      s += ";ih:true"
+      s += "%3Bih:true"
     }
     if (optOhCheckbox.checked) {
-      s += ";oh:true"
+      s += "%3Boh:true"
     }
     if (optIfmtSelect.value != "CSV") {
-      s += ";ifmt:"+optIfmtSelect.value;
+      s += "%3Bifmt:"+optIfmtSelect.value;
     }
     if (optOfmtSelect.value != "CSV") {
-      s += ";ofmt:"+optOfmtSelect.value;
+      s += "%3Bofmt:"+optOfmtSelect.value;
     }
     if (optInullCheckbox.checked) {
-      s += ";inull:"+encodeQuery(optInullForm.value);
+      s += "%3Binull:"+encodeQuery(optInullForm.value);
     }
     if (optOnullCheckbox.checked) {
-      s += ";onull:"+encodeQuery(optOnullForm.value);
+      s += "%3Bonull:"+encodeQuery(optOnullForm.value);
     }
-    // TODO: support more options
+    // FIXME: support more options
     return s;
   }
 
