@@ -23,7 +23,7 @@ func init() {
 	config.RegisterFilter("markdown", &cfg)
 }
 
-var tmpl = template.Must(template.New("markdown").Parse(`<!DOCTYPE! html>
+var tmpl = template.Must(template.New("markdown").Parse(`<!DOCTYPE html>
 <meta charset="UTF-8">
 {{range .Config.CustomCSSURLs}}{{if .}}<link rel="stylesheet" href="{{.}}" type="text/css" />
 {{end}}{{end}}
