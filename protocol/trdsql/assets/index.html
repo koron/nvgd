@@ -14,7 +14,7 @@
 
   <div>
     <label>Source URL</label>
-    <input type="text" name="source_url" size="80" id="source_url">
+    <input type="text" size="80" id="source_url">
   </div>
 
   <h3>Options</h3>
@@ -24,7 +24,7 @@
         <input type="checkbox" id="opt_ih"><label for="opt_ih">Treat the first line as header (<code>ih</code>)</label>
       </div>
       <div>
-        <label>Input format (<code>ifmt</code>)</label>
+        <label for="opt_ifmt">Input format (<code>ifmt</code>)</label>
         <select id="opt_ifmt">
           <option>CSV</option>
           <option>LTSV</option>
@@ -36,7 +36,7 @@
       </div>
       <div>
         <input type="checkbox" id="opt_inull"><label for="opt_inull">Replacement text for NULL (<code>inull</code>)</label>
-        <input type="text" size="10" id="opt_inull_text">
+        <input type="text" size="10" id="opt_inull_text" readonly>
       </div>
     </div>
 
@@ -45,7 +45,7 @@
         <input type="checkbox" id="opt_oh"><label for="opt_oh">Output header at first line (<code>oh</code>)</label>
       </div>
       <div>
-        <label>Output format (<code>ofmt</code>)</label>
+        <label for="opt_ofmt">Output format (<code>ofmt</code>)</label>
         <select id="opt_ofmt">
           <option>CSV</option>
           <option>LTSV</option>
@@ -58,17 +58,20 @@
       </div>
       <div>
         <input type="checkbox" id="opt_onull"><label for="opt_onull">Output text for NULL (<code>onull</code>)</label>
-        <input type="text" size="10" id="opt_onull_text">
+        <input type="text" size="10" id="opt_onull_text" readonly>
       </div>
     </div>
   </section>
+  <div>
+    <button id="resetOptions">Reset to default</button>
+  </div>
 </section>
 
 <section>
   <h2>Output</h2>
   <section>
     <label>Composed URL</label>
-    <input type="text" name="composed_url" size="80" readonly id="composed_url">
+    <input type="text" size="80" readonly id="composed_url">
   </section>
   <section class="container">
     <textarea id="output" rows="25" readonly></textarea>

@@ -1,4 +1,4 @@
-(function(g) {
+((g) => {
   "use strict"
 
   var d = g.document;
@@ -17,6 +17,7 @@
   var optInullForm = d.querySelector("#opt_inull_text");
   var optOnullCheckbox = d.querySelector("#opt_onull");
   var optOnullForm = d.querySelector("#opt_onull_text");
+  var resetOptsButton = d.querySelector("#resetOptions");
 
   keepElementValue(queryForm, "query");
   queryForm.addEventListener("keydown", (ev) => {
@@ -41,22 +42,33 @@
   keepElementValue(optOnullCheckbox, "optOnull");
   keepElementValue(optOnullForm, "optOnullText");
 
+  bindCheckboxToReadonly(optInullCheckbox, optInullForm);
+  bindCheckboxToReadonly(optOnullCheckbox, optOnullForm);
+
+  resetOptsButton.addEventListener("click", () => {
+    optIhCheckbox.checked = false;
+    optOhCheckbox.checked = false;
+    optIfmtSelect.value = "CSV";
+    optOfmtSelect.value = "CSV";
+    optInullCheckbox.checked = false;
+    optInullForm.text = null;
+    optOnullCheckbox.checked = false;
+    optOnullForm.text = null;
+    // TODO: save to localStorage
+    // TODO: apply UI changes
+  });
+
   function keepElementValue(el, id) {
     el.addEventListener("input", () => {
       localStorage.setItem(id, getElementValue(el));
     });
-    (function() {
-      var v = localStorage.getItem(id);
-      if (v) {
-        setElementValue(el, v);
-      }
-    })();
+    setElementValue(el, localStorage.getItem(id));
   }
 
   function getElementValue(el) {
     switch (el.type) {
-      case 'checkbox':
-      case 'radio':
+      case "checkbox":
+      case "radio":
         return el.checked;
       default:
         return el.value;
@@ -64,15 +76,23 @@
   }
 
   function setElementValue(el, v) {
+    if (!v) {
+      return;
+    }
     switch (el.type) {
-      case 'checkbox':
-      case 'radio':
+      case "checkbox":
+      case "radio":
         el.checked = v == "true";
         break;
       default:
         el.value = v;
         break;
     }
+  }
+
+  function bindCheckboxToReadonly(cb, target) {
+    cb.addEventListener("change", () => target.readOnly = !cb.checked);
+    target.readOnly = !cb.checked;
   }
 
   function doQuery() {

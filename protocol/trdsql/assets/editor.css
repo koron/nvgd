@@ -24,6 +24,19 @@
   margin-top: 1ex;
 }
 
+input:read-only,
+textarea:read-only {
+  background-color: #eee;
+}
+
+label {
+  user-select: none;
+}
+
+button {
+  padding: 1ex 1em;
+}
+
 kbd {
   font-size: .95em;
   border: 1px solid #666;
