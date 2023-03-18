@@ -1,21 +1,22 @@
 <!DOCTYPE html>
 <meta charset="UTF-8">
 <link rel="stylesheet" type="text/css" href="./editor.css">
-<h1>Editor</h1>
+<h1>TRDSQL Query Editor</h1>
 
 <section>
   <h2>Query</h2>
+
+  <div>
+    <label>Source URL</label>
+    <input type="text" size="80" id="source_url">
+  </div>
+
   <section class="container">
     <textarea id="query" rows="8"></textarea>
     <div class="vpanel">
       <button id="submit">Query</button>
     </div>
   </section>
-
-  <div>
-    <label>Source URL</label>
-    <input type="text" size="80" id="source_url">
-  </div>
 
   <h3>Options</h3>
   <section class="container">

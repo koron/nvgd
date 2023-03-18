@@ -51,11 +51,22 @@
     optIfmtSelect.value = "CSV";
     optOfmtSelect.value = "CSV";
     optInullCheckbox.checked = false;
-    optInullForm.text = null;
+    optInullForm.value = "";
     optOnullCheckbox.checked = false;
-    optOnullForm.text = null;
-    // TODO: save to localStorage
-    // TODO: apply UI changes
+    optOnullForm.value = "";
+    // save to localStorage
+    localStorage.setItem("optIh", false);
+    localStorage.setItem("optOh", false);
+    localStorage.setItem("optIfmt", "CSV");
+    localStorage.setItem("optOfmt", "CSV");
+    localStorage.setItem("optInull", false);
+    localStorage.setItem("optInullText", "");
+    localStorage.setItem("optOnull", false);
+    localStorage.setItem("optOnullText", "");
+    // apply UI changes
+    optInullForm.readOnly = true;
+    optOnullForm.readOnly = true;
+    // FIXME: refactoring
   });
 
   function keepElementValue(el, id) {
