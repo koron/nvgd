@@ -658,6 +658,7 @@ Currently these aliases are registered.
 * `commands/` -> `command://`
 * `config/` -> `config://`
 * `help/` -> `help://`
+* `trdsql/` -> `trdsql:///`
 * `version/` -> `version://`
 
 For example this URL:

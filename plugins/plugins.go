@@ -16,5 +16,6 @@ import (
 	_ "github.com/koron/nvgd/protocol/file"
 	_ "github.com/koron/nvgd/protocol/help"
 	_ "github.com/koron/nvgd/protocol/redis"
+	_ "github.com/koron/nvgd/protocol/trdsql"
 	_ "github.com/koron/nvgd/protocol/version"
 )

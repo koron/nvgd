@@ -46,6 +46,9 @@
   bindCheckboxToReadonly(optOnullCheckbox, optOnullForm);
 
   resetOptsButton.addEventListener("click", () => {
+    if (!g.confirm("Do you want to reset options to default values?")) {
+      return;
+    }
     optIhCheckbox.checked = false;
     optOhCheckbox.checked = false;
     optIfmtSelect.value = "CSV";

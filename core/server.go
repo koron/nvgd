@@ -69,7 +69,8 @@ func (s *Server) Run() error {
 
 func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	s.accessLog.Printf("%s %s %s", req.Method, req.URL.EscapedPath(), req.URL.RawQuery)
-	res.Header().Set("Access-Control-Allow-Origin", "*")
+	// TODO: enable by option.
+	//res.Header().Set("Access-Control-Allow-Origin", "*")
 	if req.URL.Path == "/favicon.ico" {
 		s.fileSrv.ServeHTTP(res, req)
 		return
@@ -151,6 +152,10 @@ func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
 	}
 	if rsrc == nil {
 		return fmt.Errorf("nil resource for %s", upath)
+	}
+	if redirect, ok := rsrc.String(commonconst.Redirect); ok {
+		http.Redirect(res, req, "/"+redirect, http.StatusSeeOther)
+		return nil
 	}
 	if v, ok := rsrc.Bool(commonconst.LTSV); v && ok && appliedAlias != nil {
 		rewritten, err := appliedAlias.rewriteLTSV(rsrc)
