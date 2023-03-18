@@ -18,6 +18,7 @@
   var optOnullCheckbox = d.querySelector("#opt_onull");
   var optOnullForm = d.querySelector("#opt_onull_text");
   var resetOptsButton = d.querySelector("#resetOptions");
+  var copyUrlButton = d.querySelector("#copy_url");
 
   keepElementValue(queryForm, "query");
   queryForm.addEventListener("keydown", (ev) => {
@@ -70,6 +71,11 @@
     optInullForm.readOnly = true;
     optOnullForm.readOnly = true;
     // FIXME: refactoring
+  });
+
+  copyUrlButton.addEventListener("click", () => {
+    g.navigator.clipboard.writeText(composedForm.value)
+      .then(() => {}, () => g.alert("Copy failed"))
   });
 
   function keepElementValue(el, id) {
