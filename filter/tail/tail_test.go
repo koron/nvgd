@@ -3,7 +3,6 @@ package tail
 import (
 	"bytes"
 	"io"
-	"log"
 	"testing"
 )
 

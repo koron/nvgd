@@ -1,3 +1,4 @@
+// Package filtertest provides utilities to test filter.
 package filtertest
 
 import (
