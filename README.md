@@ -220,7 +220,7 @@ others are forbidden.  Otherwise, all paths are accessible.
 When `forbiddens` are given, those paths can't be accessed even if it is under
 path in `locations`.
 
-### Commnad Protocol Handlers
+### Command Protocol Handlers
 
 Configuration of pre-defined command protocol handler maps a key to
 corresponding command source.
