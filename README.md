@@ -112,7 +112,11 @@ Nvgd supports these `protocol`s:
 
   * `redis` - access to redis.
 
-      [See the document for details](doc/protocol-redis.md?markdown).
+      [See document for details](doc/protocol-redis.md).
+
+  * `trdsql` - TRDSQL query editor
+
+      [See docuemnt for detail](doc/filter-trdsql.md).
 
   * `config` - current nvgd's configuration
 
@@ -430,6 +434,7 @@ Nvgd supports these filters:
   * [Markdown filter](#markdown-filter)
   * [Refresh filter](#refresh-filter)
   * [Download filter](#download-filter)
+  * [TRDSQL filter](#trdsql-filter)
   * [All (pseudo) filter](#all-pseudo-filter)
 
 ### Filter Spec
@@ -635,6 +640,10 @@ Example: download the file "messages" and would be saved as file.
 
     http://127.0.0.1:9280/file:///var/log/messages?download
 
+### TRDSQL filter
+
+TRDSQL filter provides SQL on CSV.
+[See docuemnt for detail](doc/filter-trdsql.md).
 
 ### All (pseudo) filter
 

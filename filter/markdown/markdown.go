@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"io"
 	"text/template"
+	"regexp"
 
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/filter"
@@ -29,6 +30,8 @@ var tmpl = template.Must(template.New("markdown").Parse(`<!DOCTYPE html>
 {{end}}{{end}}
 `))
 
+var rxHrefLocalDoc = regexp.MustCompile(`(href="doc/[^."]*\.md)((?:\?[^"]+)?")`)
+
 func filterMarkdown(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
 	// convert a markdown to HTML as a response body.
 	raw, err := io.ReadAll(r)
@@ -48,6 +51,8 @@ func filterMarkdown(r *resource.Resource, p filter.Params) (*resource.Resource, 
 	bodyBytes := blackfriday.Run(raw,
 		blackfriday.WithExtensions(extensions),
 		blackfriday.WithRenderer(renderer))
+	// append "markdown" filter for links to local documents.
+	bodyBytes = rxHrefLocalDoc.ReplaceAll(bodyBytes, []byte("$1?markdown$2"))
 	// generate header
 	d := struct {
 		Config *Config
