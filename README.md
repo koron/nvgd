@@ -25,7 +25,7 @@ Index:
 
 Install or Update:
 
-    $ go install github.com/koron/nvgd@v1.12.0-alpha.1
+    $ go install github.com/koron/nvgd@latest
 
 Run:
 
