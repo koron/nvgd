@@ -1,8 +1,12 @@
 # "trdsql" filter
 
-[trdsql][trdsql] filter does ... filtering CSV/TSV (or so) by SQL.
+[trdsql][orginal] filter filters CSV (or so) by SQL.
 
-[trdsql]:https://github.com/noborus/trdsql
+[trdsql query editor is provided][editor].
+It will help to compose URL with trdsql filter.
+
+[editor]:/trdsql/
+[orginal]:https://github.com/noborus/trdsql
 
 ## Parameters
 
@@ -26,11 +30,6 @@ Name    | Type    | Requirements | Description
 `oh`    | Boolean | Option       | output append header line (default is `false`)
 `onowrap` | Boolean | Option     | output without line wrap (default is `false`)
 `onull` | String  | Option       | output, NULL replacement string (default is none)
-
-### for output
-
-Name   | Type    | Requirements | Description
--------|---------|--------------|-------------
 
 ### Input formats
 

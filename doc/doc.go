@@ -3,5 +3,6 @@ package doc
 
 import "embed"
 
+// FS provides markdown content in doc/ directory
 //go:embed *.md
-var content embed.FS
+var FS embed.FS

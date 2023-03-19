@@ -9,7 +9,7 @@ import (
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/resource"
-	"github.com/russross/blackfriday"
+	"github.com/russross/blackfriday/v2"
 )
 
 type Config struct {
@@ -35,7 +35,19 @@ func filterMarkdown(r *resource.Resource, p filter.Params) (*resource.Resource, 
 	if err != nil {
 		return nil, err
 	}
-	bodyBytes := blackfriday.MarkdownCommon(raw)
+	renderer := blackfriday.NewHTMLRenderer(blackfriday.HTMLRendererParameters{
+		Flags: blackfriday.CommonHTMLFlags |
+			blackfriday.NofollowLinks |
+			blackfriday.NoreferrerLinks |
+			blackfriday.NoopenerLinks |
+			blackfriday.HrefTargetBlank |
+			blackfriday.FootnoteReturnLinks,
+	})
+	extensions := blackfriday.CommonExtensions |
+		blackfriday.AutoHeadingIDs
+	bodyBytes := blackfriday.Run(raw,
+		blackfriday.WithExtensions(extensions),
+		blackfriday.WithRenderer(renderer))
 	// generate header
 	d := struct {
 		Config *Config
