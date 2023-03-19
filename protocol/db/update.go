@@ -29,8 +29,9 @@ func (uh *UpdateHandler) Open(u *url.URL) (*resource.Resource, error) {
 	}
 	s := u.Path
 	if s == "" {
-		// TODO: redirect
-		return nil, errors.New("UpdateHandler#Open: try to append '/' to URL")
+		// redirect to "/" appended URL.
+		u.Path = "/"
+		return resource.NewRedirect(u.String()), nil
 	}
 	if !strings.HasPrefix(s, "/") {
 		return nil, errors.New("UpdateHandler#Open: unknown resource")

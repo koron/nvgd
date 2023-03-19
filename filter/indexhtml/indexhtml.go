@@ -14,7 +14,7 @@ import (
 	"github.com/koron/nvgd/resource"
 )
 
-var tmpl = template.Must(template.New("indexhtml").Parse(`<!DOCTYPE! html>
+var tmpl = template.Must(template.New("indexhtml").Parse(`<!DOCTYPE html>
 <meta charset="UTF-8">
 {{range .Config.CustomCSSURLs}}{{if .}}<link rel="stylesheet" href="{{.}}" type="text/css" />
 {{end}}{{end}}

@@ -3,7 +3,6 @@ package tail
 import (
 	"bytes"
 	"io"
-	"log"
 	"testing"
 )
 
@@ -22,7 +21,6 @@ func checkTail(t *testing.T, src string, limit int, exp string) {
 	}
 	act := string(b)
 	if act != exp {
-		log.Print("HERE")
 		t.Errorf("tail returns unexpected\nactual:%q\nexpect:%q\nlimit:%d", act, exp, limit)
 	}
 }

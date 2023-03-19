@@ -5,11 +5,12 @@ import (
 	"bytes"
 	"io"
 	"text/template"
+	"regexp"
 
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/resource"
-	"github.com/russross/blackfriday"
+	"github.com/russross/blackfriday/v2"
 )
 
 type Config struct {
@@ -23,11 +24,13 @@ func init() {
 	config.RegisterFilter("markdown", &cfg)
 }
 
-var tmpl = template.Must(template.New("markdown").Parse(`<!DOCTYPE! html>
+var tmpl = template.Must(template.New("markdown").Parse(`<!DOCTYPE html>
 <meta charset="UTF-8">
 {{range .Config.CustomCSSURLs}}{{if .}}<link rel="stylesheet" href="{{.}}" type="text/css" />
 {{end}}{{end}}
 `))
+
+var rxHrefLocalDoc = regexp.MustCompile(`(href="doc/[^."]*\.md)((?:\?[^"]+)?")`)
 
 func filterMarkdown(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
 	// convert a markdown to HTML as a response body.
@@ -35,7 +38,21 @@ func filterMarkdown(r *resource.Resource, p filter.Params) (*resource.Resource, 
 	if err != nil {
 		return nil, err
 	}
-	bodyBytes := blackfriday.MarkdownCommon(raw)
+	renderer := blackfriday.NewHTMLRenderer(blackfriday.HTMLRendererParameters{
+		Flags: blackfriday.CommonHTMLFlags |
+			blackfriday.NofollowLinks |
+			blackfriday.NoreferrerLinks |
+			blackfriday.NoopenerLinks |
+			blackfriday.HrefTargetBlank |
+			blackfriday.FootnoteReturnLinks,
+	})
+	extensions := blackfriday.CommonExtensions |
+		blackfriday.AutoHeadingIDs
+	bodyBytes := blackfriday.Run(raw,
+		blackfriday.WithExtensions(extensions),
+		blackfriday.WithRenderer(renderer))
+	// append "markdown" filter for links to local documents.
+	bodyBytes = rxHrefLocalDoc.ReplaceAll(bodyBytes, []byte("$1?markdown$2"))
 	// generate header
 	d := struct {
 		Config *Config

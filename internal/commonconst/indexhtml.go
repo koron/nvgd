@@ -9,4 +9,7 @@ const (
 
 	// LTSV is a flag for content is LTSV or not.
 	LTSV = "ltsv"
+
+	// Redirect is a URL redirect to.
+	Redirect = "redirect"
 )

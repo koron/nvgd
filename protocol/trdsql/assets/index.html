@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="./editor.css">
+<h1>TRDSQL Query Editor</h1>
+
+<section>
+  <h2>Query</h2>
+
+  <div>
+    <label>Source URL</label>
+    <input type="text" size="80" id="source_url">
+  </div>
+
+  <section class="container">
+    <textarea id="query" rows="8"></textarea>
+    <div class="vpanel">
+      <button id="submit">Query</button>
+    </div>
+  </section>
+
+  <h3>Options</h3>
+  <section class="container">
+    <div class="flex-h">
+      <div>
+        <input type="checkbox" id="opt_ih"><label for="opt_ih">Treat the first line as header (<code>ih</code>)</label>
+      </div>
+      <div>
+        <label for="opt_ifmt">Input format (<code>ifmt</code>)</label>
+        <select id="opt_ifmt">
+          <option>CSV</option>
+          <option>LTSV</option>
+          <option>JSON</option>
+          <option>TBLN</option>
+          <option>TSV</option>
+          <option>PSV</option>
+        </select>
+      </div>
+      <div>
+        <input type="checkbox" id="opt_inull"><label for="opt_inull">Replacement text for NULL (<code>inull</code>)</label>
+        <input type="text" size="10" id="opt_inull_text" readonly>
+      </div>
+    </div>
+
+    <div class="flex-h">
+      <div>
+        <input type="checkbox" id="opt_oh"><label for="opt_oh">Output header at first line (<code>oh</code>)</label>
+      </div>
+      <div>
+        <label for="opt_ofmt">Output format (<code>ofmt</code>)</label>
+        <select id="opt_ofmt">
+          <option>CSV</option>
+          <option>LTSV</option>
+          <option>JSON</option>
+          <option>RAW</option>
+          <option>MD</option>
+          <option>AT</option>
+          <option>JSONL</option>
+        </select>
+      </div>
+      <div>
+        <input type="checkbox" id="opt_onull"><label for="opt_onull">Output text for NULL (<code>onull</code>)</label>
+        <input type="text" size="10" id="opt_onull_text" readonly>
+      </div>
+    </div>
+  </section>
+  <div>
+    <button id="resetOptions">Reset to default</button>
+  </div>
+</section>
+
+<section>
+  <h2>Output</h2>
+  <section>
+    <label>Composed URL</label>
+    <input type="text" size="80" readonly id="composed_url">
+    <button id="copy_url">Copy URL to clipboard</button>
+  </section>
+  <section class="container">
+    <textarea id="output" rows="25" readonly></textarea>
+  </section>
+</section>
+
+<script src="./editor.js"></script>

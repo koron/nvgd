@@ -7,6 +7,8 @@ import (
 	"io"
 	"path"
 	"strings"
+
+	"github.com/koron/nvgd/internal/commonconst"
 )
 
 // Resource packs ReadCloser and its meta info.
@@ -27,6 +29,14 @@ func New(rc io.ReadCloser) *Resource {
 func NewString(s string) *Resource {
 	b := bytes.NewReader([]byte(s))
 	return New(io.NopCloser(b))
+}
+
+// NewRedirect creates a Resource to redirect to another path.
+func NewRedirect(redirectPath string) *Resource {
+	r := NewString("redirect to: " + redirectPath)
+	r.Options[commonconst.Redirect] = redirectPath
+
+	return r
 }
 
 // Raw returns underlying io.ReadCloser in this resource.

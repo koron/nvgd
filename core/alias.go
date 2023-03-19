@@ -65,6 +65,7 @@ var defaultAliases = aliases{
 	{"commands/", "command://"},
 	{"config/", "config://"},
 	{"help/", "help://"},
+	{"trdsql/", "trdsql:/"},
 	{"version/", "version://"},
 }
 
