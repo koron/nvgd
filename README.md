@@ -112,7 +112,7 @@ Nvgd supports these `protocol`s:
 
   * `redis` - access to redis.
 
-      [See the document for details](https://github.com/koron/nvgd/blob/master/doc/protocol-redis.md).
+      [See the document for details](doc/protocol-redis.md?markdown).
 
   * `config` - current nvgd's configuration
 

@@ -27,15 +27,15 @@ func (hp *Help) Open(u *url.URL) (*resource.Resource, error) {
 }
 
 func Serve(u *url.URL) (*resource.Resource, error) {
-	if u.Path == "" {
+	if u.Path == "" || strings.HasSuffix(u.Path, "/doc/") {
 		u.Path = "/"
 		return resource.NewRedirect(u.String()), nil
 	}
 	if u.Path == "/" {
 		return resource.NewString(Text), nil
 	}
-	reqPath := strings.TrimPrefix(u.Path, "/")
-	f, err := doc.FS.Open(strings.TrimPrefix(reqPath, "/"))
+	reqPath := strings.TrimPrefix(u.Path, "/doc/")
+	f, err := doc.FS.Open(reqPath)
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
 			u.Path = "/"
