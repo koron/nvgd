@@ -198,6 +198,10 @@ default_filters:
 # Custom prefix aliases, see later "Prefix Aliases" section.
 aliases:
   ...
+
+# Enable "Cross-Origin Resource Sharing" (CORS).
+# This value is put with "Access-Control-Allow-Origin" header in responses.
+access_control_allow_origin: "*"
 ```
 
 ### File Protocol Handler

@@ -28,7 +28,8 @@ type Server struct {
 	errorLog       *log.Logger
 	defaultFilters *Filters
 
-	aliases aliases
+	aliases                  aliases
+	accessControlAllowOrigin string
 }
 
 // New creates a server instance.
@@ -48,11 +49,12 @@ func New(c *config.Config) (*Server, error) {
 	// FIXME: should not be global.
 	configp.Config = *c
 	s := &Server{
-		fileSrv:        http.FileServer(http.FS(stripFS)),
-		accessLog:      alog,
-		errorLog:       elog,
-		defaultFilters: &Filters{descs: c.DefaultFilters},
-		aliases:        defaultAliases.mergeMap(c.Aliases),
+		fileSrv:                  http.FileServer(http.FS(stripFS)),
+		accessLog:                alog,
+		errorLog:                 elog,
+		defaultFilters:           &Filters{descs: c.DefaultFilters},
+		aliases:                  defaultAliases.mergeMap(c.Aliases),
+		accessControlAllowOrigin: c.AccessControlAllowOrigin,
 	}
 	s.httpd = &http.Server{
 		Addr:    c.Addr,
@@ -69,8 +71,13 @@ func (s *Server) Run() error {
 
 func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	s.accessLog.Printf("%s %s %s", req.Method, req.URL.EscapedPath(), req.URL.RawQuery)
-	// TODO: enable by option.
-	//res.Header().Set("Access-Control-Allow-Origin", "*")
+	// "Access-Control-Allow-Origin" header enabled by configuration.
+	if v := s.accessControlAllowOrigin; v != "" {
+		res.Header().Set("Access-Control-Allow-Origin", v)
+		if v != "*" {
+			res.Header().Set("Vary", "Origin")
+		}
+	}
 	if req.URL.Path == "/favicon.ico" {
 		s.fileSrv.ServeHTTP(res, req)
 		return

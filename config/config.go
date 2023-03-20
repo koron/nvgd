@@ -30,6 +30,12 @@ type Config struct {
 
 	// Aliases provides custom aliases.
 	Aliases map[string]string `yaml:"aliases,omitempty"`
+
+	// AccessControlAllowOrigin specify a value for
+	// "Access-Control-Allow-Origin" header put to all responses.
+	// The header is not put when this is empty string.
+	// Default value is empty.
+	AccessControlAllowOrigin string `yaml:"access_control_allow_origin,omitempty"`
 }
 
 type customConfig map[string]interface{}
