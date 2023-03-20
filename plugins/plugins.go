@@ -3,6 +3,7 @@ package plugins
 
 import (
 	_ "github.com/koron/nvgd/filter/count"
+	_ "github.com/koron/nvgd/filter/echarts"
 	_ "github.com/koron/nvgd/filter/htmltable"
 	_ "github.com/koron/nvgd/filter/indexhtml"
 	_ "github.com/koron/nvgd/filter/jsonarray"
