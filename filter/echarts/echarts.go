@@ -118,9 +118,27 @@ func buildPieRenderer(serieses []Series, options []charts.GlobalOpts, p filter.P
 }
 
 func buildScatterRenderer(serieses []Series, options []charts.GlobalOpts, p filter.Params) (render.Renderer, error) {
+	if len(serieses) < 2 {
+		return nil, fmt.Errorf("less serieses for scatter chart: %d", len(serieses))
+	}
 	scatter := charts.NewScatter()
 	scatter.SetGlobalOptions(options...)
-	// TODO:
+	scatter.SetXAxis(serieses[0].Values[1:])
+	for _, s := range serieses[1:] {
+		if len(s.Values) == 0 {
+			continue
+		}
+		name := s.Values[0]
+		data := make([]opts.ScatterData, 0, len(s.Values)-1)
+		for _, v := range s.Values[1:] {
+			dv, err := strconv.ParseFloat(v, 64)
+			if err != nil {
+				return nil, err
+			}
+			data = append(data, opts.ScatterData{Value: dv})
+		}
+		scatter.AddSeries(name, data)
+	}
 	return scatter, nil
 }
 
