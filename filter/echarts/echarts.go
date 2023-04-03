@@ -155,7 +155,7 @@ func readSerieses(src *resource.Resource, columnar bool, tsv bool) ([]Series, er
 	if tsv {
 		r.Comma = '\t'
 	}
-	var parseColumns func([]string) error = func(ss []string) error {
+	var parseColumns = func(ss []string) error {
 		if serieses == nil {
 			serieses = make([]Series, len(ss))
 		}
