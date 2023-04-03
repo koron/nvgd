@@ -1,0 +1,35 @@
+input:read-only,
+textarea:read-only {
+  background-color: #eee;
+}
+
+label {
+  user-select: none;
+}
+
+button {
+  padding: 1ex 1em;
+}
+
+iframe {
+  border: 1px solid #999;
+  margin: 1ex 0;
+}
+
+section > div {
+  margin-top: 1ex;
+  margin-left: 1ex;
+}
+section > div > h3 {
+  margin-top: 0.5ex;
+  margin-bottom: 0.5ex;
+}
+
+kbd {
+  font-size: .95em;
+  border: 1px solid #666;
+  border-radius: 3px;
+  background-color: #eee;
+  display: inline-block;
+  padding: 2px 6px;
+}

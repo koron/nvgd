@@ -44,6 +44,7 @@ func trdsqlFilter(r *resource.Resource, p filter.Params) (*resource.Resource, er
 
 		query = p["q"]
 	)
+	defer r.Close()
 
 	// setup importer
 	stdin := r

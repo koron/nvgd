@@ -118,6 +118,10 @@ Nvgd supports these `protocol`s:
 
       [See docuemnt for detail](doc/filter-trdsql.md).
 
+  * `echarts` - ECharts query editor
+
+      [See docuemnt for detail](doc/filter-echarts.md).
+
   * `config` - current nvgd's configuration
 
       `/config://` or `/config/` (alias)
@@ -439,6 +443,7 @@ Nvgd supports these filters:
   * [Refresh filter](#refresh-filter)
   * [Download filter](#download-filter)
   * [TRDSQL filter](#trdsql-filter)
+  * [Echarts filter](#echarts-filter)
   * [All (pseudo) filter](#all-pseudo-filter)
 
 ### Filter Spec
@@ -649,6 +654,11 @@ Example: download the file "messages" and would be saved as file.
 TRDSQL filter provides SQL on CSV.
 [See docuemnt for detail](doc/filter-trdsql.md).
 
+### Echarts filter
+
+Echarts filter provides drawing charts feature.
+[See docuemnt for detail](doc/filter-echarts.md).
+
 ### All (pseudo) filter
 
 Ignore [default filters](#default-filters)
@@ -672,6 +682,7 @@ Currently these aliases are registered.
 * `config/` -> `config://`
 * `help/` -> `help://`
 * `trdsql/` -> `trdsql:///`
+* `echarts/` -> `echats:///`
 * `version/` -> `version://`
 
 For example this URL:
