@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="./editor.css">
+<h1>Echarts Editor</h1>
+
+<section>
+  <h2>Input</h2>
+  <div>
+    <h3>Basic</h3>
+    <div>
+      <label for="source_url">Source URL</label>
+      <input type="text" size="80" id="source_url">
+    </div>
+    <div>
+      <label for="series_direction">Series direction</label>
+      <select id="series_direction">
+        <option>column</option>
+        <option>row</option>
+      </select>
+    </div>
+    <div>
+      <label for="chart_type">Chart type</label>
+      <select id="chart_type">
+        <option>line</option>
+        <option>bar</option>
+        <option>pie</option>
+        <option>scatter</option>
+      </select>
+    </div>
+  </div>
+  <div>
+    <h3>Title</h3>
+    <div>
+      <label for="title_text">Title</span>
+      <input type="text" size=40" id="title_text">
+      <label for="title_subtext">Subtitle</span>
+      <input type="text" size=40" id="title_subtext">
+    </div>
+  </div>
+  <div>
+    <h3>Legend</h3>
+    <div>
+      <input type="checkbox" id="legend_show"><label for="legend_show">Show lenegeds</label>
+    </div>
+  </div>
+  <div>
+    <button id="submit">Query</button>
+  </div>
+</section>
+
+<section>
+  <h2>Output</h2>
+
+  <section>
+    <label>Composed URL</label>
+    <input type="text" size="80" readonly id="composed_url">
+    <button id="copy_url">Copy URL to clipboard</button>
+  </section>
+
+  <section>
+    <iframe id="output" width="100%" height="600" ></iframe>
+  </section>
+</section>
+
+<script src="./editor.js"></script>

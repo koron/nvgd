@@ -1,5 +1,5 @@
-// Package trdsql provides TRDSQL's query editor
-package trdsql
+// Package echarts provides chart editor.
+package echarts
 
 import (
 	"embed"
@@ -12,5 +12,5 @@ import (
 var assetFS embed.FS
 
 func init() {
-	protocol.MustRegister("trdsql", embedresource.New(assetFS))
+	protocol.MustRegister("echarts", embedresource.New(assetFS))
 }

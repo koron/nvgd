@@ -59,14 +59,14 @@
     optOnullCheckbox.checked = false;
     optOnullForm.value = "";
     // save to localStorage
-    localStorage.setItem("optIh", false);
-    localStorage.setItem("optOh", false);
-    localStorage.setItem("optIfmt", "CSV");
-    localStorage.setItem("optOfmt", "CSV");
-    localStorage.setItem("optInull", false);
-    localStorage.setItem("optInullText", "");
-    localStorage.setItem("optOnull", false);
-    localStorage.setItem("optOnullText", "");
+    saveItem("optIh", false);
+    saveItem("optOh", false);
+    saveItem("optIfmt", "CSV");
+    saveItem("optOfmt", "CSV");
+    saveItem("optInull", false);
+    saveItem("optInullText", "");
+    saveItem("optOnull", false);
+    saveItem("optOnullText", "");
     // apply UI changes
     optInullForm.readOnly = true;
     optOnullForm.readOnly = true;
@@ -78,11 +78,18 @@
       .then(() => {}, () => g.alert("Copy failed"))
   });
 
-  function keepElementValue(el, id) {
+  var storagePrefix = "trdsql_";
+
+  function keepElementValue(el, rawID) {
+    var id = storagePrefix + rawID;
     el.addEventListener("input", () => {
       localStorage.setItem(id, getElementValue(el));
     });
     setElementValue(el, localStorage.getItem(id));
+  }
+
+  function saveItem(id, value) {
+    localStorage.setItem(storagePrefix + id, value);
   }
 
   function getElementValue(el) {
