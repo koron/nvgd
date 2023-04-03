@@ -149,9 +149,12 @@ var rendererBuilders = map[string]rendererBuilderFunc{
 	"scatter": buildScatterRenderer,
 }
 
-func readSerieses(src *resource.Resource, columnar bool) ([]Series, error) {
+func readSerieses(src *resource.Resource, columnar bool, tsv bool) ([]Series, error) {
 	var serieses []Series
 	r := csv.NewReader(src)
+	if tsv {
+		r.Comma = '\t'
+	}
 	var parseColumns func([]string) error = func(ss []string) error {
 		if serieses == nil {
 			serieses = make([]Series, len(ss))
@@ -247,6 +250,7 @@ func EchartsFilter(src *resource.Resource, p filter.Params) (*resource.Resource,
 	var (
 		chartType = p.String("t", "line")   // "line", "bar", "pie", "scatter"
 		seriesDir = p.String("d", "column") // "column", "row"
+		format    = p.String("f", "CSV")    // "CSV", "TSV"
 	)
 	defer src.Close()
 
@@ -258,8 +262,9 @@ func EchartsFilter(src *resource.Resource, p filter.Params) (*resource.Resource,
 	_ = seriesDir
 
 	// read "r" as CSV or TSV
+	tsv := strings.ToUpper(format) == "TSV"
 	var serieses []Series
-	serieses, err := readSerieses(src, strings.ToLower(seriesDir) == "column")
+	serieses, err := readSerieses(src, strings.ToLower(seriesDir) == "column", tsv)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read CSV/TSV: %w", err)
 	}

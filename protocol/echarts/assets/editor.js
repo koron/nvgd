@@ -6,6 +6,7 @@
 
   var sourceForm = d.querySelector("#source_url");
   var seriesDirSelector = d.querySelector("#series_direction");
+  var formatSelector = d.querySelector("#format");
   var chartTypeSelector = d.querySelector("#chart_type");
   var submitButton = d.querySelector("#submit");
   var composedForm = d.querySelector("#composed_url");
@@ -18,6 +19,7 @@
 
   keepElementValue(sourceForm, "source_url");
   keepElementValue(seriesDirSelector, "series_dir");
+  keepElementValue(formatSelector, "format");
   keepElementValue(chartTypeSelector, "chart_type");
 
   submitButton.addEventListener("click", () => doQuery());
@@ -101,7 +103,12 @@
     s += s.includes("?") ? "&" : "?";
     s += "echarts=";
     s += "t:" + chartTypeSelector.value;
-    s += "%3Bd:" + seriesDirSelector.value;
+    if (seriesDirSelector.value != "column") {
+      s += "%3Bd:" + seriesDirSelector.value;
+    }
+    if (formatSelector.value != "CSV") {
+      s += "%3Bf:" + formatSelector.value;
+    }
     var titleOpts = getTitleOpts();
     if (Object.keys(titleOpts).length > 0) {
       s += "%3BtitleOpts:" + JSON.stringify(titleOpts);

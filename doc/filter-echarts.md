@@ -15,6 +15,7 @@ Name    | Type    | Requirements | Description
 --------|---------|--------------|-------------
 `t`     | String  | Optional     | [Chart type](#chart-types-supported) (default is `line`)
 `d`     | String  | Optional     | Direction of series, `column` or `row` (default is `column`)
+`f`     | String  | Optional     | Input format, `CSV` or `TSV` (default is `CSV`)
 `titleOpts` | JSON| Optional     | [Title settings](#title-settings)
 `legendOpts`| JSON| Optional     | [Legend settings](#legend-settings)
 
