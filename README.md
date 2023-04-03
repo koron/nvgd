@@ -118,6 +118,10 @@ Nvgd supports these `protocol`s:
 
       [See docuemnt for detail](doc/filter-trdsql.md).
 
+  * `echarts` - ECharts query editor
+
+      [See docuemnt for detail](doc/filter-echarts.md).
+
   * `config` - current nvgd's configuration
 
       `/config://` or `/config/` (alias)
@@ -678,6 +682,7 @@ Currently these aliases are registered.
 * `config/` -> `config://`
 * `help/` -> `help://`
 * `trdsql/` -> `trdsql:///`
+* `echarts/` -> `echats:///`
 * `version/` -> `version://`
 
 For example this URL:

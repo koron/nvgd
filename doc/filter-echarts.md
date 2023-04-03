@@ -1,9 +1,13 @@
 # "echarts" filter
 
 echarts filter provides chart rendering.
-Which uses [Apache Echarts][echarts].
+Which uses [Apache ECharts][echarts].
+
+[echarts editor is provided][editor].
+It will help to compose URL with echarts filter.
 
 [echarts]:https://echarts.apache.org/en/index.html
+[editor]:/echarts/
 
 ## Parameters
 
@@ -17,9 +21,23 @@ Name    | Type    | Requirements | Description
 ### Chart types supported
 
 * `line`
+    * 1st row is legends, 2nd rows or later are series data
+    * 1st column is for X axis
+    * 2nd column is a series, later columns are other serieses
 * `bar`
+    * 1st row is legends, 2nd rows or later are series data
+    * 1st column is for X axis
+    * 2nd column is a series, later columns are other serieses
 * `pie`
+    * 1st row is legends, 2nd rows or later are series data.
+    * 1st (odd) column is labels
+    * 2nd (even) column is values
 * `scatter`
+    * 1st row is legends, 2nd rows or later are series data
+    * 1st column is for X axis
+    * 2nd column is a series (Y-axis), later columns are other serieses
+
+`column` and `row` will be swapped when `d` is `row`.
 
 ### Title settings
 
