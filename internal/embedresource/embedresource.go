@@ -10,7 +10,7 @@ import (
 )
 
 type EmbedResource struct {
-	fs embed.FS
+	fs     embed.FS
 	prefix string
 }
 

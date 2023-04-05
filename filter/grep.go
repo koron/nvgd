@@ -49,12 +49,12 @@ func (g *Grep) readNext(buf *bytes.Buffer) error {
 		g.currLnum++
 		b := g.lf.Apply(raw)
 		if g.re.Match(b) != g.match {
-			if (g.contextAfter > 0) {
+			if g.contextAfter > 0 {
 				g.contextAfter--
 				return g.output(buf, g.currLnum, raw)
 			}
 			// add to the before context.
-			if (g.cnum > 0) {
+			if g.cnum > 0 {
 				if len(g.contextBefore) >= g.cnum {
 					copy(g.contextBefore[:g.cnum-1], g.contextBefore[1:g.cnum])
 					g.contextBefore = g.contextBefore[:g.cnum-1]
@@ -63,7 +63,7 @@ func (g *Grep) readNext(buf *bytes.Buffer) error {
 			}
 			continue
 		}
-		if (g.cnum > 0) {
+		if g.cnum > 0 {
 			// output the before conext.
 			for i, d := range g.contextBefore {
 				err := g.output(buf, g.currLnum-len(g.contextBefore)+i, d)

@@ -4,8 +4,8 @@ package markdown
 import (
 	"bytes"
 	"io"
-	"text/template"
 	"regexp"
+	"text/template"
 
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/filter"
