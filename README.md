@@ -122,6 +122,8 @@ Nvgd supports these `protocol`s:
 
       [See docuemnt for detail](doc/filter-echarts.md).
 
+  * `examples` - Example files to use demo/document of filters
+
   * `config` - current nvgd's configuration
 
       `/config://` or `/config/` (alias)
