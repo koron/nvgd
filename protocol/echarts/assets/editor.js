@@ -24,6 +24,15 @@
 
   submitButton.addEventListener("click", () => doQuery());
 
+  d.addEventListener("keydown", (ev) => {
+    // Ctrl+Enter: do query
+    if (ev.ctrlKey && ev.keyCode == 13) {
+      ev.preventDefault();
+      doQuery();
+      return false;
+    }
+  });
+
   copyUrlButton.addEventListener("click", () => {
     g.navigator.clipboard.writeText(composedForm.value)
       .then(() => {}, () => g.alert("Copy failed"))

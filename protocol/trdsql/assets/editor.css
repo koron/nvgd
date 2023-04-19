@@ -45,3 +45,11 @@ kbd {
   display: inline-block;
   padding: 2px 6px;
 }
+
+#help {
+  float: right;
+  margin: 0.2em;
+  padding: 0.5em;
+  border: 2px solid #999;
+  border-radius: 0.5em;
+}

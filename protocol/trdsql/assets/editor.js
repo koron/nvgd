@@ -21,7 +21,8 @@
   var copyUrlButton = d.querySelector("#copy_url");
 
   keepElementValue(queryForm, "query");
-  queryForm.addEventListener("keydown", (ev) => {
+
+  d.addEventListener("keydown", (ev) => {
     // Ctrl+Enter: do query
     if (ev.ctrlKey && ev.keyCode == 13) {
       ev.preventDefault();
