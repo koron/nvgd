@@ -164,4 +164,52 @@
     return s;
   }
 
+  function parseInitParams() {
+    let paths = d.URL.split("/");
+    if (paths.length <= 0) {
+      return {};
+    }
+    let last = paths.pop();
+    if (last === "index.html") {
+      return {};
+    }
+    let rv = {};
+    let params = last.split("&");
+    params.forEach(p => {
+      let v = p.split("=", 2);
+      rv[decodeURIComponent(v[0])] = decodeURIComponent(v[1]);
+    });
+    return rv;
+  }
+
+  function applyInitParams(params) {
+    if (params["s"]) {
+      let src = (new URL(d.URL)).origin + params["s"];
+      sourceForm.value = src;
+      saveItem("source_url", src);
+    }
+    if (params["q"]) {
+      let q = params["q"];
+      queryForm.value = q;
+      saveItem("query", q);
+    }
+    if (params["ih"]) {
+      let ih = parseBool(params["ih"]);
+      optIhCheckbox.checked = ih;
+      saveItem("optIh", ih);
+    }
+    if (params["ifmt"]) {
+      let ifmt = params["ifmt"].toUpperCase();
+      optIfmtSelect.value = ifmt;
+      saveItem("optIfmt", ifmt);
+    }
+    // TODO:
+    console.log("params", params);
+  }
+
+  function parseBool(s) {
+    return s.toString().toLowerCase() === "true";
+  }
+
+  applyInitParams(parseInitParams());
 })(this);

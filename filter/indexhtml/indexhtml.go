@@ -5,7 +5,9 @@ import (
 	"bytes"
 	"html/template"
 	"io"
+	"net/url"
 	"path"
+	"strings"
 
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/filter"
@@ -23,14 +25,17 @@ var tmpl = template.Must(template.New("indexhtml").Parse(`<!DOCTYPE html>
   {{if .NextLink}}<a href="{{.NextLink}}">Next</a>{{end}}
 </div>
 <table border="1">
-  <tr><th>Name</th><th>Type</th><th>Size</th><th>Modified At</th><th>Download</th></tr>
+  <tr><th>Name</th><th>Type</th><th>Size</th><th>Modified At</th><th>Actions</th></tr>
   {{range .Entries}}
   <tr>
     <td><a href="{{.Link}}">{{.Name}}</a></td>
     <td>{{.Type}}</td>
     <td>{{.Size}}</td>
     <td>{{.ModifiedAt}}</td>
-	<td>{{if .Download}}<a href="{{.Download}}">DL</a>{{end}}</td>
+	<td>
+		{{if .Download}}<a href="{{.Download}}">DL</a>{{end}}
+		{{if .QueryLink}}<a href="{{.QueryLink}}">Query</a>{{end}}
+	</td>
   </tr>
   {{end}}
 </table>`))
@@ -49,7 +54,9 @@ type entry struct {
 	Size       string
 	ModifiedAt string
 	Link       string
-	Download   string
+
+	Download  string
+	QueryLink string
 }
 
 type Config struct {
@@ -83,13 +90,22 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 		if s.Empty() {
 			continue
 		}
+		name := s.GetFirst("name")
 		e := entry{
-			Name:       s.GetFirst("name"),
+			Name:       name,
 			Type:       s.GetFirst("type"),
 			Size:       s.GetFirst("size"),
 			ModifiedAt: s.GetFirst("modified_at"),
 			Link:       pathPrefix(s.GetFirst("link")),
 			Download:   pathPrefix(s.GetFirst("download")),
+		}
+		if fmt, ok := supportQuery(name); ok {
+			qlink := "/trdsql/"
+			qlink += "s=" + url.PathEscape(pathPrefix(s.GetFirst("link")))
+			qlink += "&q=" + url.PathEscape("SELECT * FROM t")
+			qlink += "&ifmt=" + fmt
+			qlink += "&ih=false"
+			e.QueryLink = qlink
 		}
 		d.Entries = append(d.Entries, e)
 	}
@@ -105,6 +121,17 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 		return nil, err
 	}
 	return r.Wrap(io.NopCloser(buf)), nil
+}
+
+// supportQuery checks filename, which is supported format as query target.
+func supportQuery(name string) (string, bool) {
+	ext := strings.ToLower(path.Ext(name))
+	switch ext {
+	case ".csv", ".ltsv", ".tsv":
+		return strings.ToUpper(ext[1:]), true
+	default:
+		return "", false
+	}
 }
 
 func init() {
