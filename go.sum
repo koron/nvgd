@@ -61,8 +61,6 @@ github.com/noborus/guesswidth v0.3.1 h1:IgdXiTYJpw5MYouFKVW83l/xURay9kQ72FIu8Tat
 github.com/noborus/guesswidth v0.3.1/go.mod h1:yUjU1Wurf1AikEIYRLlKU0DiH+c1sZWjm07IIpESlWQ=
 github.com/noborus/tbln v0.0.2 h1:pQIv+ZO38KPz52FOuhs/W3inpgmd5qwL8XFDqI+KKyY=
 github.com/noborus/tbln v0.0.2/go.mod h1:kS3WhEDRJhNwF3+aRGl9iaUzu/r3lExDagcPPENtNQ0=
-github.com/noborus/trdsql v0.11.1 h1:J143e1RGJu5rzZSJxuTjNLqNuqt/3qmfaj0Do25Ahdg=
-github.com/noborus/trdsql v0.11.1/go.mod h1:ZWpi3lgxcABBLp46CD+3jQyTto5QsCvfZemI4IwtCKI=
 github.com/olekukonko/tablewriter v0.0.5 h1:P2Ga83D34wi1o9J6Wh1mRuqd4mF/x/lgBS7N7AbDhec=
 github.com/olekukonko/tablewriter v0.0.5/go.mod h1:hPp6KlRPjbx+hW8ykQs1w3UBbZlj6HuIJcUGPhkA7kY=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=

@@ -42,5 +42,6 @@ require (
 )
 
 //replace github.com/koron/go-xlsx4db => ../go-xlsx4db
+replace github.com/noborus/trdsql v0.11.1 => ./_replace/trdsql@v0.11.1
 
 replace github.com/russross/blackfriday/v2 v2.1.0 => github.com/koron/blackfriday/v2 v2.1.0-fix.2

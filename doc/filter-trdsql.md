@@ -84,3 +84,4 @@ your environment.
 *   SQLite works with memory (no disk). It will exhaust memory if try to treat
     very big input or heavy query.
 *   The limitations in SQLite still apply
+*   Max number of columns is 2000
