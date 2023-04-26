@@ -80,7 +80,7 @@ func Connect(driver, dsn string) (*DB, error) {
 	switch driver {
 	case "sqlite3", "sqlite3_ext":
 		db.quote = "`"
-		db.maxBulk = 500
+		db.maxBulk = 2000
 	case "mysql":
 		db.quote = "`"
 		db.maxBulk = 1000
