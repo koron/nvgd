@@ -203,8 +203,6 @@
       optIfmtSelect.value = ifmt;
       saveItem("optIfmt", ifmt);
     }
-    // TODO:
-    console.log("params", params);
   }
 
   function parseBool(s) {

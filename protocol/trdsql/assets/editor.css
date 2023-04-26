@@ -48,8 +48,19 @@ kbd {
 
 #help {
   float: right;
-  margin: 0.2em;
+  margin: 0.2em 0 0.2em 8px;
   padding: 0.5em;
   border: 2px solid #999;
   border-radius: 0.5em;
+}
+
+#help > h2 {
+  margin: 0;
+  font-size: 1.2em;
+}
+#help > div {
+  padding-left: 0.5em;
+}
+#help a {
+  color: inherit;
 }
