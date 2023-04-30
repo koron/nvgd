@@ -23,9 +23,11 @@ Index:
 
 ## How to use
 
-Install or Update:
+Download an archive file which matches to your environment from [latest
+release](https://github.com/koron/nvgd/releases/latest).
 
-    $ go install github.com/koron/nvgd@latest
+Extract an executable `nvgd` or `nvgd.exe` from the archive file.  Then copy it
+to one of directory in PATH environment variable. (ex. `/usr/local/bin`)
 
 Run:
 
@@ -34,6 +36,32 @@ Run:
 Access:
 
     $ curl http://127.0.0.1:9280/file:///var/log/message/httpd.log?tail=limit:25
+
+NOTE: Pre-compiled binary for Linux is built with newer glibc. So it can't be
+run on Linux with old glibc, like CentOS 7 or so.  In that case, you must
+compile nvgd by your self. Please check next section to build from source.
+
+### Build from source
+
+Nvgd uses `replace` directives. So it couldn't be installed with `go install`
+for now.
+
+Requirements to build:
+
+* Go 1.19 or above (1.20.3 is recommended)
+* Git
+* C compiler (gcc or clang) for CGO
+
+```console
+# Check out source.
+$ git clone -b v1.12.2 --depth 1 https://github.com/koron/nvgd.git nvgd
+
+# Change current working directory.
+$ cd nvgd
+
+# Build and install.
+$ go install
+```
 
 ## Acceptable path
 
