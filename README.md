@@ -63,6 +63,8 @@ $ cd nvgd
 $ go install
 ```
 
+See also: [How to build on CentOS 7](doc/build-centos7.md)
+
 ## Acceptable path
 
 Nvgd accepts path in these like format:
