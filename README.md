@@ -48,7 +48,7 @@ for now.
 
 Requirements to build:
 
-* Go 1.19 or above (1.20.3 is recommended)
+* Go 1.19 or above (1.20.4 is recommended)
 * Git
 * C compiler (gcc or clang) for CGO
 
