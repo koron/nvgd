@@ -253,9 +253,11 @@ file:
   forbiddens:
     - '/etc/ssh'
     - '/etc/passwd'
+
+  use_unixtime: true
 ```
 
-This configuration has `locations` and `forbiddens` properties.  These props
+This configuration has `locations`, `forbiddens` properties.  These props
 define accessible area of file system.
 
 When paths are given as `locations`, only those paths are permitted to access,
@@ -263,6 +265,10 @@ others are forbidden.  Otherwise, all paths are accessible.
 
 When `forbiddens` are given, those paths can't be accessed even if it is under
 path in `locations`.
+
+If the value of `use_unixtime` property is set to true, UNIX time will be used
+instead of RFC1123 for all time expressions: `modified_at` or so.
+
 
 ### Command Protocol Handlers
 
@@ -328,6 +334,10 @@ s3:
     # other buckets can be added here.
     "your_bucket_name2":
       ...
+
+  # UNIX time will be used instead of RFC1123 for all time expression:
+  # `modified_at` or so. (OPTIONAL)
+  use_unixtime: true
 ```
 
 ### Config DB Protocol Handler

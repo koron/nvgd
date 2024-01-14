@@ -35,6 +35,9 @@ type FileConfig struct {
 
 	// Forbiddens is fobidden paths to access. It overrides Locations.
 	Forbiddens []string `yaml:"forbiddens"`
+
+	// UseUnixtime makes times in UNIX format: modified_at or so.
+	UseUnixtime bool `yaml:"use_unixtime"`
 }
 
 func match(path string, paths []string, defaultValue bool) bool {
@@ -107,6 +110,13 @@ func (f *File) openMulti(names []string, pattern string) (*resource.Resource, er
 	return resource.New(newMultiRC(readers...)), nil
 }
 
+func timeStr(ti time.Time) string {
+	if fc.UseUnixtime {
+		return strconv.FormatInt(ti.Unix(), 10)
+	}
+	return ti.Format(time.RFC1123)
+}
+
 func fileOpenDir(name string) (*resource.Resource, error) {
 	list, err := os.ReadDir(name)
 	if err != nil {
@@ -133,8 +143,8 @@ func fileOpenDir(name string) (*resource.Resource, error) {
 			link = fmt.Sprintf("/file://%s/%s", path, n)
 			download = link + "?all&download"
 		}
-		err = w.Write(n, t, strconv.FormatInt(fi.Size(), 10),
-			fi.ModTime().Format(time.RFC1123), link, download)
+		mtime := timeStr(fi.ModTime())
+		err = w.Write(n, t, strconv.FormatInt(fi.Size(), 10), mtime, link, download)
 		if err != nil {
 			return nil, err
 		}

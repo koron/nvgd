@@ -7,7 +7,9 @@ import (
 	"io"
 	"net/url"
 	"path"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/filter"
@@ -106,6 +108,10 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 			qlink += "&ifmt=" + fmt
 			qlink += "&ih=false"
 			e.QueryLink = qlink
+		}
+		// detect UNIX time, and convert it to RFC1123
+		if sec, err := strconv.ParseInt(e.ModifiedAt, 10, 64); err == nil {
+			e.ModifiedAt = time.Unix(sec, 0).Format(time.RFC1123)
 		}
 		d.Entries = append(d.Entries, e)
 	}

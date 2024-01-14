@@ -135,6 +135,13 @@ func (ph *S3ListHandler) Open(u *url.URL) (*resource.Resource, error) {
 	return rs, nil
 }
 
+func timeStr(ti time.Time) string {
+	if s3config.UseUnixtime {
+		return strconv.FormatInt(ti.Unix(), 10)
+	}
+	return ti.Format(time.RFC1123)
+}
+
 func (ph *S3ListHandler) writeAsLTSV(out *s3.ListObjectsV2Output, bucket string) (io.ReadCloser, error) {
 	var (
 		buf = &bytes.Buffer{}
@@ -152,9 +159,8 @@ func (ph *S3ListHandler) writeAsLTSV(out *s3.ListObjectsV2Output, bucket string)
 	for _, obj := range out.Contents {
 		link := fmt.Sprintf("/s3obj://%s/%s", bucket, *obj.Key)
 		download := link + "?download"
-		t := obj.LastModified.In(ph.Config.location())
-		err := w.Write(*obj.Key, "object", strconv.FormatInt(*obj.Size, 10),
-			t.Format(time.RFC1123), link, download)
+		mtime := timeStr(obj.LastModified.In(ph.Config.location()))
+		err := w.Write(*obj.Key, "object", strconv.FormatInt(*obj.Size, 10), mtime, link, download)
 		if err != nil {
 			return nil, err
 		}
@@ -175,6 +181,9 @@ type S3Config struct {
 	Buckets map[string]S3BucketConfig `yaml:"buckets,omitempty"`
 
 	loc *time.Location
+
+	// UseUnixtime makes times in UNIX format: modified_at or so.
+	UseUnixtime bool `yaml:"use_unixtime"`
 }
 
 func (c *S3Config) location() *time.Location {
