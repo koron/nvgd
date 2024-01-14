@@ -1,0 +1,12 @@
+addr: 0.0.0.0:9280
+
+access_log: (stdout)
+error_log: (stderr)
+
+protocols:
+
+  file:
+    locations:
+    - /var/log/
+    - /var/mail/
+    use_unixtime: true

@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# PROVIDE: nvgd
+# REQUIRE: LOGIN
+# BEFORE:  securelevel
+# KEYWORD: nojail shutdown
+
+. /etc/rc.subr
+
+name="nvgd"
+
+rcvar="${name}_enable"
+pidfile="/var/run/${name}.pid"
+logfile="/var/log/${name}.log"
+
+# read configuration and set defaults
+load_rc_config "$name"
+: ${nvgd_enable="NO"}
+: ${nvgd_command="/usr/local/bin/nvgd"}
+: ${nvgd_config="/usr/local/etc/nvgd.conf.yml"}
+
+command="/usr/sbin/daemon"
+command_args="-cfHr -o ${logfile} -P ${pidfile} -u nobody ${nvgd_command} -c ${nvgd_config}"
+required_files="${nvgd_config}"
+
+run_rc_command "$1"
