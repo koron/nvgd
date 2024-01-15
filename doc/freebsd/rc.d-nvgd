@@ -18,9 +18,10 @@ load_rc_config "$name"
 : ${nvgd_enable="NO"}
 : ${nvgd_command="/usr/local/bin/nvgd"}
 : ${nvgd_config="/usr/local/etc/nvgd.conf.yml"}
+: ${nvgd_run_user="nobody"}
 
 command="/usr/sbin/daemon"
-command_args="-cfHr -o ${logfile} -P ${pidfile} -u nobody ${nvgd_command} -c ${nvgd_config}"
+command_args="-cfHr -o ${logfile} -P ${pidfile} -u ${nvgd_run_user} ${nvgd_command} -c ${nvgd_config}"
 required_files="${nvgd_config}"
 
 run_rc_command "$1"
