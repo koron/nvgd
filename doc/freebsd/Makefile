@@ -3,7 +3,7 @@ DESTDIR = $(.CURDIR)/work
 PREFIX	= /usr/local
 
 OS_TARGET = freebsd14
-PKGFILE   = nvgd-$(OS_TARGET)-$(VERSION).tar.bz2
+PKGFILE   = nvgd-$(OS_TARGET)-$(VERSION)-bin.tar.bz2
 
 .PHONY: package
 package: clean test build install
