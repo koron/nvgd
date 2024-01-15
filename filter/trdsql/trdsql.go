@@ -4,6 +4,7 @@ package trdsql
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"fmt"
 	"io"
 	"strings"
@@ -12,8 +13,11 @@ import (
 	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/internal/httperror"
 	"github.com/koron/nvgd/resource"
+	"github.com/mattn/go-sqlite3"
 	"github.com/noborus/trdsql"
 )
+
+const safeDriver string = "sqlite3_safe"
 
 var execTimeout time.Duration = 30 * time.Second
 
@@ -82,6 +86,7 @@ func trdsqlFilter(r *resource.Resource, p filter.Params) (*resource.Resource, er
 
 	// execute a query
 	trd := trdsql.NewTRDSQL(importer, exporter)
+	trd.Driver = safeDriver
 	ctx, cancel := context.WithTimeout(context.Background(), execTimeout)
 	defer cancel()
 	err = trd.ExecContext(ctx, query)
@@ -135,4 +140,10 @@ func parseOutFormat(s string, defaultFormat trdsql.Format) trdsql.Format {
 
 func init() {
 	filter.MustRegister("trdsql", trdsqlFilter)
+	sql.Register(safeDriver, &sqlite3.SQLiteDriver{
+		ConnectHook: func(conn *sqlite3.SQLiteConn) error {
+			conn.SetLimit(sqlite3.SQLITE_LIMIT_ATTACHED, 0)
+			return nil
+		},
+	})
 }

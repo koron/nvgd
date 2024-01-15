@@ -78,7 +78,7 @@ func Connect(driver, dsn string) (*DB, error) {
 	debug.Printf("driver: %s, dsn: %s", driver, dsn)
 
 	switch driver {
-	case "sqlite3", "sqlite3_ext":
+	case "sqlite3", "sqlite3_ext", "sqlite3_safe":
 		db.quote = "`"
 		db.maxBulk = 2000
 	case "mysql":
