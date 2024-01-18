@@ -1,51 +1,128 @@
 name: Release
 
-on:
-  push:
-    tags:
-    - 'v*'
+on: [push]
 
 env:
-  GOPATH: ${{ github.workspace }}/..
+  GO_VERSION: '>=1.20.13'
+  NAME: 'nvgd'
 
 jobs:
-  release:
-    name: Release
-    runs-on: ubuntu-latest
+
+  build:
+
+    name: Build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        arch: [ amd64, arm64 ]
+        exclude:
+        - os: windows-latest
+          arch: arm64
 
     steps:
 
-    - uses: actions/setup-go@v3
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
       with:
-        go-version: 1.x
+        go-version: ${{ env.GO_VERSION }}
 
-    - uses: actions/checkout@v3
-
-    - name: Install tools
+    - name: Setup env
+      id: setup
+      shell: bash
       run: |
-        mkdir -p $(go env GOPATH)/bin/
-        go install github.com/Songmu/goxz/cmd/goxz@v0.9.1
-        go install github.com/tcnksm/ghr@v0.16.0
+        if [[ ${GITHUB_REF} =~ ^refs/tags/v[0-9]+\.[0-9]+ ]] ; then
+          export VERSION=${GITHUB_REF_NAME}
+        else
+          export VERSION=SNAPSHOT
+        fi
+        echo "VERSION=${VERSION}" >> $GITHUB_ENV
+        case ${{ matrix.os }} in
+          ubuntu-*)
+            if [ "${{ matrix.arch }}" = "arm64" ] ; then
+              sudo apt-get update
+              sudo apt-get -y install gcc-12-aarch64-linux-gnu
+              echo "CC=aarch64-linux-gnu-gcc-12" >> $GITHUB_ENV
+            fi
+            export GOOS=linux
+            export PKGEXT=.tar.gz
+            ;;
+          macos-*)
+            export GOOS=darwin
+            export PKGEXT=.zip
+            ;;
+          windows-*)
+            choco install zip
+            export GOOS=windows
+            export PKGEXT=.zip
+            ;;
+        esac
+        export GOARCH=${{ matrix.arch }}
+        echo "GOOS=${GOOS}" >> $GITHUB_ENV
+        echo "GOARCH=${GOARCH}" >> $GITHUB_ENV
+        echo "CGO_ENABLED=1" >> $GITHUB_ENV
+        echo "PKGNAME=${NAME}_${VERSION}_${GOOS}_${GOARCH}" >> $GITHUB_ENV
+        echo "PKGEXT=${PKGEXT}" >> $GITHUB_ENV
 
-    - name: Build release binaries
+    - name: Build
+      shell: bash
       run: |
-        echo ${GITHUB_REF##*/}
-        goxz -d goxz -pv ${GITHUB_REF##*/} -os windows,linux,darwin -arch=amd64
-        goxz -d goxz -pv ${GITHUB_REF##*/} -os linux,darwin -arch=arm64
+        go build
 
-    - name: Create a release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Archive
+      shell: bash
+      run: |
+        rm -rf _build/${PKGNAME}
+        mkdir -p _build/${PKGNAME}
+        cp -p ${NAME} _build/${PKGNAME}
+        cp -p LICENSE _build/${PKGNAME}
+        cp -p README.md _build/${PKGNAME}
+
+        case "${PKGEXT}" in
+          ".tar.gz")
+            tar cf _build/${PKGNAME}${PKGEXT} -C _build ${PKGNAME}
+            ;;
+          ".zip")
+            (cd _build && zip -r9q ${PKGNAME}${PKGEXT} ${PKGNAME})
+            ;;
+        esac
+        ls -laFR _build
+
+    - name: Artifact upload
+      uses: actions/upload-artifact@v4
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') }}
+        name: ${{ env.GOOS }}_${{ env.GOARCH }}
+        path: _build/${{ env.PKGNAME }}${{ env.PKGEXT }}
 
-    - name: Upload binaries to the release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        ghr ${GITHUB_REF##*/} goxz
+  create-release:
+    name: Create release
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    needs:
+    - build
+    steps:
+    - uses: actions/download-artifact@v4
+      with: { name: darwin_amd64 }
+    - uses: actions/download-artifact@v4
+      with: { name: darwin_arm64 }
+    - uses: actions/download-artifact@v4
+      with: { name: linux_amd64 }
+    - uses: actions/download-artifact@v4
+      with: { name: linux_arm64 }
+    - uses: actions/download-artifact@v4
+      with: { name: windows_amd64 }
+    - run: ls -lafR
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        draft: true
+        prerelease: ${{ contains(github.ref_name, '-alpha.') || contains(github.ref_name, '-beta.') }}
+        files: |
+          *.tar.gz
+          *.zip
+        fail_on_unmatched_files: true
+        generate_release_notes: true
+        append_body: true
 
 # based on: github.com/koron-go/_skeleton/.github/workflows/release.yml
