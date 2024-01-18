@@ -75,7 +75,7 @@ jobs:
       run: |
         rm -rf _build/${PKGNAME}
         mkdir -p _build/${PKGNAME}
-        cp -p nvgd _build/${PKGNAME}
+        cp -p ${NAME} _build/${PKGNAME}
         cp -p LICENSE _build/${PKGNAME}
         cp -p README.md _build/${PKGNAME}
 
@@ -124,3 +124,5 @@ jobs:
         fail_on_unmatched_files: true
         generate_release_notes: true
         append_body: true
+
+# based on: github.com/koron-go/_skeleton/.github/workflows/release.yml
