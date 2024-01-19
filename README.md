@@ -197,6 +197,9 @@ error_log: (stderr)
 # Destination (path or keyword) for access log, default is `(discard)`
 access_log: (stdout)
 
+# File which served as "/" root.
+root_contents_file: "/opt/nvgd/index.html"
+
 # Configuration for protocols (OPTIONAL)
 protocols:
 

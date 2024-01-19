@@ -6,11 +6,15 @@ import (
 	"io"
 	"io/fs"
 	"log"
+	"mime"
 	"net/http"
 	"net/url"
+	"os"
 	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/filter"
@@ -30,6 +34,7 @@ type Server struct {
 
 	aliases                  aliases
 	accessControlAllowOrigin string
+	rootContentsFile         string
 }
 
 // New creates a server instance.
@@ -55,6 +60,7 @@ func New(c *config.Config) (*Server, error) {
 		defaultFilters:           &Filters{descs: c.DefaultFilters},
 		aliases:                  defaultAliases.mergeMap(c.Aliases),
 		accessControlAllowOrigin: c.AccessControlAllowOrigin,
+		rootContentsFile:         c.RootContentsFile,
 	}
 	s.httpd = &http.Server{
 		Addr:    c.Addr,
@@ -78,22 +84,57 @@ func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 			res.Header().Set("Vary", "Origin")
 		}
 	}
+	if req.URL.Path == "/" && s.rootContentsFile != "" {
+		s.serveFile(res, req, s.rootContentsFile)
+		return
+	}
 	if req.URL.Path == "/favicon.ico" {
 		s.fileSrv.ServeHTTP(res, req)
 		return
 	}
 	if err := s.serve(res, req); err != nil {
-		// TODO: log an error.
-		var herr httpError
-		if errors.As(err, &herr) {
-			//if herr, ok := err.(httpError); ok {
-			res.WriteHeader(herr.StatusCode())
-			res.Write(([]byte)(herr.Body()))
-			return
-		}
-		res.WriteHeader(http.StatusInternalServerError)
-		res.Write(([]byte)(err.Error()))
+		s.serveError(res, err)
+	}
+}
+
+// serveError serves an error and logs it.
+func (s *Server) serveError(w http.ResponseWriter, err error) {
+	msg, code := toHTTPError(err)
+	http.Error(w, msg, code)
+	s.errorLog.Printf("serve an error: %s", msg)
+}
+
+// serveFile serves a specified file.
+func (s *Server) serveFile(w http.ResponseWriter, r *http.Request, name string) {
+	f, err := os.Open(name)
+	if err != nil {
+		s.serveError(w, err)
 		return
+	}
+	defer f.Close()
+	fi, err := f.Stat()
+	if fi.IsDir() {
+		s.serveError(w, errors.New("root contents should not be a directory"))
+		return
+	}
+	// Last-Modified
+	modtime := fi.ModTime()
+	if !modtime.IsZero() && !modtime.Equal(time.Unix(0, 0)) {
+		w.Header().Set("Last-Modified", modtime.UTC().Format(http.TimeFormat))
+	}
+	// Content-Type
+	ctype := mime.TypeByExtension(filepath.Ext(name))
+	if ctype == "" {
+		ctype = "text/plain"
+	}
+	w.Header().Set("Content-Type", ctype)
+	// Content-Length
+	w.Header().Set("Content-Length", strconv.FormatInt(fi.Size(), 10))
+	// flush header
+	w.WriteHeader(http.StatusOK)
+	// body
+	if r.Method != "HEAD" {
+		io.Copy(w, f)
 	}
 }
 
