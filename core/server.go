@@ -99,6 +99,7 @@ func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	isServed, err := s.rscSrv.isServed(req.URL.Path)
 	if err != nil {
 		s.serveError(res, err)
+		return
 	}
 	if isServed {
 		s.rscSrv.serveHTTP(res, req)

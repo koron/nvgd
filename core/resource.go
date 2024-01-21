@@ -37,10 +37,6 @@ func (rs *resourceServer) isServed(name string) (bool, error) {
 		return false, err
 	}
 	defer f.Close()
-	//fi, err := f.Stat()
-	//if err != nil {
-	//	return false, err
-	//}
 	return true, nil
 }
 
