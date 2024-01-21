@@ -83,6 +83,9 @@ func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		if v != "*" {
 			res.Header().Set("Vary", "Origin")
 		}
+		if req.Method == "OPTIONS" {
+			res.Header().Set("Access-Control-Allow-Methods", "HEAD, GET, POST, ORIGIN")
+		}
 	}
 	if req.URL.Path == "/" && s.rootContentsFile != "" {
 		s.serveFile(res, req, s.rootContentsFile)
