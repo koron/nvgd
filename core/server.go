@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/fs"
 	"log"
 	"mime"
 	"net/http"
@@ -27,7 +26,6 @@ import (
 // Server represents NVGD server.
 type Server struct {
 	httpd          *http.Server
-	fileSrv        http.Handler
 	accessLog      *log.Logger
 	errorLog       *log.Logger
 	defaultFilters *Filters
@@ -35,6 +33,8 @@ type Server struct {
 	aliases                  aliases
 	accessControlAllowOrigin string
 	rootContentsFile         string
+
+	rscSrv *resourceServer
 }
 
 // New creates a server instance.
@@ -47,20 +47,22 @@ func New(c *config.Config) (*Server, error) {
 	if err != nil {
 		return nil, err
 	}
-	stripFS, err := fs.Sub(assetsFS, "assets")
+	rscSrv, err := newResourceServer()
 	if err != nil {
-		return nil, fmt.Errorf("failed to fs.Sub on core/assets: %w", err)
+		return nil, fmt.Errorf("failed to prepare resource/assets server: %w", err)
 	}
+	aliases := defaultAliases.mergeMap(c.Aliases)
+	// FIXME: check conflictions between aliases and rscSrv
 	// FIXME: should not be global.
 	configp.Config = *c
 	s := &Server{
-		fileSrv:                  http.FileServer(http.FS(stripFS)),
 		accessLog:                alog,
 		errorLog:                 elog,
 		defaultFilters:           &Filters{descs: c.DefaultFilters},
-		aliases:                  defaultAliases.mergeMap(c.Aliases),
+		aliases:                  aliases,
 		accessControlAllowOrigin: c.AccessControlAllowOrigin,
 		rootContentsFile:         c.RootContentsFile,
+		rscSrv:                   rscSrv,
 	}
 	s.httpd = &http.Server{
 		Addr:    c.Addr,
@@ -88,15 +90,21 @@ func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 			res.Header().Set("Access-Control-Allow-Headers", "*")
 		}
 	}
+	// serve customized root contents
 	if req.URL.Path == "/" && s.rootContentsFile != "" {
 		s.serveFile(res, req, s.rootContentsFile)
 		return
 	}
-	if req.URL.Path == "/favicon.ico" {
-		s.fileSrv.ServeHTTP(res, req)
+	// serve embedded resources: favicon.ico or so.
+	isServed, err := s.rscSrv.isServed(req.URL.Path)
+	if err != nil {
+		s.serveError(res, err)
+	}
+	if isServed {
+		s.rscSrv.serveHTTP(res, req)
 		return
 	}
-	if err := s.serve(res, req); err != nil {
+	if err := s.serveProtocols(res, req); err != nil {
 		s.serveError(res, err)
 	}
 }
@@ -186,7 +194,7 @@ func (s *Server) open(p protocol.Protocol, u *url.URL, req *http.Request) (*reso
 	return rsrc, nil
 }
 
-func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
+func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) error {
 	upath := req.URL.EscapedPath()[1:]
 	upath, appliedAlias := s.aliases.apply(upath)
 	u, err := url.Parse(upath)
