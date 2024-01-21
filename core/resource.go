@@ -2,6 +2,7 @@ package core
 
 import (
 	"embed"
+	"errors"
 	"io/fs"
 	"net/http"
 	"strings"
@@ -28,12 +29,15 @@ func newResourceServer() (*resourceServer, error) {
 }
 
 func (rs *resourceServer) isServed(name string) (bool, error) {
-	name = strings.TrimPrefix(name, "/")
+	name = strings.Trim(name, "/")
 	if name == "" {
 		name = "."
 	}
 	f, err := rs.stripFS.Open(name)
 	if err != nil {
+		if errors.Is(err, fs.ErrInvalid) || errors.Is(err, fs.ErrNotExist) {
+			return false, nil
+		}
 		return false, err
 	}
 	defer f.Close()
