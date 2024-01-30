@@ -2,7 +2,7 @@
 
 *   Disable `root_contents_file` (empty)
 
-    Check it doens't work
+    Check that `/` and `/index.html` return contents in core/assets/index.html
 
 *   Enable `root_contents_file` with invalid path)
 
