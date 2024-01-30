@@ -4,13 +4,16 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/fs"
 	"log"
+	"mime"
 	"net/http"
 	"net/url"
+	"os"
 	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/filter"
@@ -23,13 +26,15 @@ import (
 // Server represents NVGD server.
 type Server struct {
 	httpd          *http.Server
-	fileSrv        http.Handler
 	accessLog      *log.Logger
 	errorLog       *log.Logger
 	defaultFilters *Filters
 
 	aliases                  aliases
 	accessControlAllowOrigin string
+	rootContentsFile         string
+
+	rscSrv *resourceServer
 }
 
 // New creates a server instance.
@@ -42,19 +47,22 @@ func New(c *config.Config) (*Server, error) {
 	if err != nil {
 		return nil, err
 	}
-	stripFS, err := fs.Sub(assetsFS, "assets")
+	rscSrv, err := newResourceServer()
 	if err != nil {
-		return nil, fmt.Errorf("failed to fs.Sub on core/assets: %w", err)
+		return nil, fmt.Errorf("failed to prepare resource/assets server: %w", err)
 	}
+	aliases := defaultAliases.mergeMap(c.Aliases)
+	// FIXME: check conflictions between aliases and rscSrv
 	// FIXME: should not be global.
 	configp.Config = *c
 	s := &Server{
-		fileSrv:                  http.FileServer(http.FS(stripFS)),
 		accessLog:                alog,
 		errorLog:                 elog,
 		defaultFilters:           &Filters{descs: c.DefaultFilters},
-		aliases:                  defaultAliases.mergeMap(c.Aliases),
+		aliases:                  aliases,
 		accessControlAllowOrigin: c.AccessControlAllowOrigin,
+		rootContentsFile:         c.RootContentsFile,
+		rscSrv:                   rscSrv,
 	}
 	s.httpd = &http.Server{
 		Addr:    c.Addr,
@@ -77,23 +85,69 @@ func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		if v != "*" {
 			res.Header().Set("Vary", "Origin")
 		}
-	}
-	if req.URL.Path == "/favicon.ico" {
-		s.fileSrv.ServeHTTP(res, req)
-		return
-	}
-	if err := s.serve(res, req); err != nil {
-		// TODO: log an error.
-		var herr httpError
-		if errors.As(err, &herr) {
-			//if herr, ok := err.(httpError); ok {
-			res.WriteHeader(herr.StatusCode())
-			res.Write(([]byte)(herr.Body()))
-			return
+		if req.Method == "OPTIONS" {
+			res.Header().Set("Access-Control-Allow-Methods", "HEAD, GET, POST, ORIGIN")
+			res.Header().Set("Access-Control-Allow-Headers", "*")
 		}
-		res.WriteHeader(http.StatusInternalServerError)
-		res.Write(([]byte)(err.Error()))
+	}
+	// serve customized root contents
+	if req.URL.Path == "/" && s.rootContentsFile != "" {
+		s.serveFile(res, req, s.rootContentsFile)
 		return
+	}
+	// serve embedded resources: favicon.ico or so.
+	isServed, err := s.rscSrv.isServed(req.URL.Path)
+	if err != nil {
+		s.serveError(res, err)
+		return
+	}
+	if isServed {
+		s.rscSrv.serveHTTP(res, req)
+		return
+	}
+	if err := s.serveProtocols(res, req); err != nil {
+		s.serveError(res, err)
+	}
+}
+
+// serveError serves an error and logs it.
+func (s *Server) serveError(w http.ResponseWriter, err error) {
+	msg, code := toHTTPError(err)
+	http.Error(w, msg, code)
+	s.errorLog.Printf("serve an error: %s", msg)
+}
+
+// serveFile serves a specified file.
+func (s *Server) serveFile(w http.ResponseWriter, r *http.Request, name string) {
+	f, err := os.Open(name)
+	if err != nil {
+		s.serveError(w, err)
+		return
+	}
+	defer f.Close()
+	fi, err := f.Stat()
+	if fi.IsDir() {
+		s.serveError(w, errors.New("root contents should not be a directory"))
+		return
+	}
+	// Last-Modified
+	modtime := fi.ModTime()
+	if !modtime.IsZero() && !modtime.Equal(time.Unix(0, 0)) {
+		w.Header().Set("Last-Modified", modtime.UTC().Format(http.TimeFormat))
+	}
+	// Content-Type
+	ctype := mime.TypeByExtension(filepath.Ext(name))
+	if ctype == "" {
+		ctype = "text/plain"
+	}
+	w.Header().Set("Content-Type", ctype)
+	// Content-Length
+	w.Header().Set("Content-Length", strconv.FormatInt(fi.Size(), 10))
+	// flush header
+	w.WriteHeader(http.StatusOK)
+	// body
+	if r.Method != "HEAD" {
+		io.Copy(w, f)
 	}
 }
 
@@ -141,7 +195,7 @@ func (s *Server) open(p protocol.Protocol, u *url.URL, req *http.Request) (*reso
 	return rsrc, nil
 }
 
-func (s *Server) serve(res http.ResponseWriter, req *http.Request) error {
+func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) error {
 	upath := req.URL.EscapedPath()[1:]
 	upath, appliedAlias := s.aliases.apply(upath)
 	u, err := url.Parse(upath)

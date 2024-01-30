@@ -22,6 +22,10 @@ type Config struct {
 	// AccessLogPath specify path of access log. default is "(discard)".
 	AccessLogPath string `yaml:"access_log"`
 
+	// RootContentsFile specify file path which be served as "/" (root).
+	// default is empty and no contents are served as "/".
+	RootContentsFile string `yaml:"root_contents_file"`
+
 	Protocols customConfig `yaml:"protocols,omitempty"`
 
 	Filters customConfig `yaml:"filters,omitempty"`
