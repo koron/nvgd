@@ -1,4 +1,4 @@
-package filter
+package cut
 
 import (
 	"bytes"

@@ -1,4 +1,4 @@
-package filter
+package cut
 
 import (
 	"bytes"
@@ -8,12 +8,13 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/resource"
 )
 
 // Cut represents cut filter.
 type Cut struct {
-	Base
+	filter.Base
 	delim     []byte
 	selectors []cutSelector
 	write     cutWriter
@@ -199,7 +200,7 @@ func newCutRangeEnd(n int) cutSelector {
 	}
 }
 
-func newCut(r *resource.Resource, p Params) (*resource.Resource, error) {
+func newCut(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
 	delim := []byte(p.String("delim", "\t"))
 	selectors, err := toCutSelector(p.String("list", ""))
 	if err != nil {
@@ -209,5 +210,5 @@ func newCut(r *resource.Resource, p Params) (*resource.Resource, error) {
 }
 
 func init() {
-	MustRegister("cut", newCut)
+	filter.MustRegister("cut", newCut)
 }
