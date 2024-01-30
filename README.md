@@ -567,7 +567,7 @@ Output selected fields of lines.
       * `N` - N'th field counted from 1.
       * `N-M` - from N'th, to M'th field (included).
       * `N-` - from N'th field, to end of line.
-      * `N-` - from first, to N'th field.
+      * `-N` - from first, to N'th field.
 
 ### Hash filter
 
