@@ -1,3 +1,4 @@
+// Package cut provides "cut" command like filter for NVGD.
 package cut
 
 import (
@@ -16,23 +17,32 @@ import (
 type Cut struct {
 	filter.Base
 	delim     []byte
+	splitter  SplitFunc
 	selectors []cutSelector
 	write     cutWriter
 }
+
+type SplitFunc func(b []byte) [][]byte
 
 type cutSelector func(dst, src [][]byte) [][]byte
 type cutWriter func(io.Writer, []byte) error
 
 // NewCut creates an instance of cut filter.
-func NewCut(r io.ReadCloser, delim []byte, selectors []cutSelector) *Cut {
+func NewCut(r io.ReadCloser, delim []byte, selectors []cutSelector, splitFunc SplitFunc) *Cut {
 	f := &Cut{
-		delim: delim,
+		delim:    delim,
+		splitter: splitFunc,
 	}
 	if len(selectors) == 0 {
 		f.write = f.writeAll
 	} else {
 		f.selectors = selectors
 		f.write = f.writeSome
+	}
+	if f.splitter == nil {
+		f.splitter = func(b []byte) [][]byte {
+			return bytes.Split(b, delim)
+		}
 	}
 	f.Base.Init(r, f.readNext)
 	return f
@@ -53,7 +63,7 @@ func (f *Cut) writeAll(w io.Writer, b []byte) error {
 
 func (f *Cut) writeSome(w io.Writer, b []byte) error {
 	b, lf := splitLF(b)
-	src := bytes.Split(b, f.delim)
+	src := f.splitter(b)
 	var selected [][]byte
 	for _, s := range f.selectors {
 		selected = s(selected, src)
@@ -200,13 +210,57 @@ func newCutRangeEnd(n int) cutSelector {
 	}
 }
 
+func splitWhite(s []byte) [][]byte {
+	// count separator chunks
+	n := 0
+	lastWhite := false
+	for _, b := range s {
+		if b == ' ' || b == '\t' {
+			if !lastWhite {
+				n++
+				lastWhite = true
+			}
+		} else {
+			lastWhite = false
+		}
+	}
+	// split bytes
+	a := make([][]byte, 0, n+1)
+	lastWhite = false
+	x := 0 // start position of a current chunk
+	for i, b := range s {
+		if b == ' ' || b == '\t' {
+			if !lastWhite {
+				lastWhite = true
+				a = append(a, s[x:i])
+			}
+		} else {
+			if lastWhite {
+				lastWhite = false
+				x = i
+			}
+		}
+	}
+	// complete the last chunk
+	if lastWhite {
+		a = append(a, s[len(s):])
+	} else {
+		a = append(a, s[x:])
+	}
+	return a
+}
+
 func newCut(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
 	delim := []byte(p.String("delim", "\t"))
+	var splitter SplitFunc
+	if p.Bool("white", false) {
+		splitter = splitWhite
+	}
 	selectors, err := toCutSelector(p.String("list", ""))
 	if err != nil {
 		return nil, err
 	}
-	return r.Wrap(NewCut(r, delim, selectors)), nil
+	return r.Wrap(NewCut(r, delim, selectors, splitter)), nil
 }
 
 func init() {

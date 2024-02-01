@@ -563,6 +563,7 @@ Output selected fields of lines.
   * filter\_name: `cut`
   * options:
     * `delim` - field delimiter string (default: TAB character).
+    * `white` - use consecutive whites as one single field separator (default: false)
     * `list` - selected fields, combinable by comma `,`.
       * `N` - N'th field counted from 1.
       * `N-M` - from N'th, to M'th field (included).

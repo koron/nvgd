@@ -3,6 +3,7 @@ package plugins
 
 import (
 	_ "github.com/koron/nvgd/filter/count"
+	_ "github.com/koron/nvgd/filter/cut"
 	_ "github.com/koron/nvgd/filter/echarts"
 	_ "github.com/koron/nvgd/filter/htmltable"
 	_ "github.com/koron/nvgd/filter/indexhtml"
@@ -21,4 +22,5 @@ import (
 	_ "github.com/koron/nvgd/protocol/redis"
 	_ "github.com/koron/nvgd/protocol/trdsql"
 	_ "github.com/koron/nvgd/protocol/version"
+	//_ "github.com/koron/nvgd/filter/vcut"
 )
