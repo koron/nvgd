@@ -119,11 +119,11 @@
     }
     var titleOpts = getTitleOpts();
     if (Object.keys(titleOpts).length > 0) {
-      s += "%3BtitleOpts:" + JSON.stringify(titleOpts);
+      s += "%3BtitleOpts:" + encodeQuery(JSON.stringify(titleOpts));
     }
     var legendOpts = getLegendOpts();
     if (Object.keys(legendOpts).length > 0) {
-      s += "%3BlegendOpts:" + JSON.stringify(legendOpts);
+      s += "%3BlegendOpts:" + encodeQuery(JSON.stringify(legendOpts));
     }
     return s;
   }
