@@ -3,6 +3,7 @@
 
   var d = g.document;
   var localStorage = g.localStorage;
+  var storagePrefix = "trdsql_";
 
   var queryForm = d.querySelector("#query");
   var submitButton = d.querySelector("#submit");
@@ -78,8 +79,6 @@
     g.navigator.clipboard.writeText(composedForm.value)
       .then(() => {}, () => g.alert("Copy failed"))
   });
-
-  var storagePrefix = "trdsql_";
 
   function keepElementValue(el, rawID) {
     var id = storagePrefix + rawID;

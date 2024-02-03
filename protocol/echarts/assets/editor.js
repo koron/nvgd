@@ -3,6 +3,7 @@
 
   var d = g.document;
   var localStorage = g.localStorage;
+  var storagePrefix = "echarts_";
 
   var sourceForm = d.querySelector("#source_url");
   var seriesDirSelector = d.querySelector("#series_direction");
@@ -43,8 +44,6 @@
     composedForm.value = url;
     outputFrame.src = url;
   }
-
-  var storagePrefix = "echarts_";
 
   function keepElementValue(el, rawID) {
     var id = storagePrefix + rawID;
