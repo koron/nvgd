@@ -609,7 +609,11 @@ Convert LTSV to Index HTML.
 (limited for s3list and files (dir) source for now)
 
   * filter\_name: `indexhtml`
-  * options: (none)
+  * options:
+    * `timefmt`: Time layout for "Modified At" or so. default is `RFC1123`.
+      Possible values are, case insensitive: `ANSIC`, `UNIX`, `RUBY`, `RFC822`,
+      `RFC822Z`, `RFC850`, `RFC1123`, `RFC1123Z`, `RFC3339`, `RFC3339NANO`,
+      `STAMP`, and `DATETIME`
   * configurations:
     * `custom_css_urls`: list of URLs to link as CSS.
 
