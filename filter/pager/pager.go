@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"regexp"
-	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -21,8 +20,8 @@ type Pager struct {
 	filter.Base
 
 	rx      *regexp.Regexp
-	pages   []int
-	lasts   []int
+	pages   []int // sorted positive numbers
+	lasts   []int // sorted negative numbers
 	showNum bool
 
 	pageNum  int
@@ -123,8 +122,17 @@ func (f *Pager) readNext(buf *bytes.Buffer) error {
 }
 
 func contains(a []int, v int) bool {
-	// XXX: from Go 1.21
-	return slices.Contains(a, v)
+	if len(a) == 0 {
+		return false
+	}
+	mid := len(a) / 2
+	if v == a[mid] {
+		return true
+	}
+	if v < a[mid] {
+		return contains(a[:mid], v)
+	}
+	return contains(a[mid+1:], v)
 }
 
 var (
