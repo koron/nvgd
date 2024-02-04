@@ -61,3 +61,14 @@ func (b *Buffer) incR() int {
 	}
 	return b.r
 }
+
+func (b *Buffer) Len() int {
+	return b.n
+}
+
+func (b *Buffer) Peek(n int) interface{} {
+	if n >= b.n {
+		return nil
+	}
+	return b.d[(b.r + n)%len(b.d)]
+}

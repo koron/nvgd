@@ -9,6 +9,7 @@ import (
 	_ "github.com/koron/nvgd/filter/indexhtml"
 	_ "github.com/koron/nvgd/filter/jsonarray"
 	_ "github.com/koron/nvgd/filter/markdown"
+	_ "github.com/koron/nvgd/filter/pager"
 	_ "github.com/koron/nvgd/filter/tail"
 	_ "github.com/koron/nvgd/filter/texttable"
 	_ "github.com/koron/nvgd/filter/trdsql"
@@ -22,5 +23,4 @@ import (
 	_ "github.com/koron/nvgd/protocol/redis"
 	_ "github.com/koron/nvgd/protocol/trdsql"
 	_ "github.com/koron/nvgd/protocol/version"
-	//_ "github.com/koron/nvgd/filter/vcut"
 )
