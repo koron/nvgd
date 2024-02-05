@@ -28,7 +28,7 @@ type Pager struct {
 	pageIncr bool
 
 	// fields for lasts enabled
-	lastsBuf *ringbuf.Buffer
+	lastsBuf *ringbuf.Buffer[*bytes.Buffer]
 	lastPage *bytes.Buffer
 	lastPut  bool
 }
@@ -43,7 +43,7 @@ func NewPager(r io.ReadCloser, rx *regexp.Regexp, pages, lasts []int, showNum bo
 		pageIncr: true,
 	}
 	if len(lasts) > 0 {
-		f.lastsBuf = ringbuf.New(-lasts[0])
+		f.lastsBuf = ringbuf.New[*bytes.Buffer](-lasts[0])
 		f.lastPage = new(bytes.Buffer)
 		f.lastPut = false
 	}
@@ -104,10 +104,7 @@ func (f *Pager) readNext(buf *bytes.Buffer) error {
 	// flush lastsBuf if "lasts" avaiable
 	if len(f.lasts) > 0 {
 		for i := 0; i < f.lastsBuf.Len(); i++ {
-			curr, ok := f.lastsBuf.Peek(i).(*bytes.Buffer)
-			if !ok {
-				continue
-			}
+			curr := f.lastsBuf.Peek(i)
 			pnumRel := -f.lastsBuf.Len() + i
 			pnumAbs := f.pageNum + 1 + pnumRel
 			// don't write if already wrote a page

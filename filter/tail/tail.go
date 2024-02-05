@@ -13,7 +13,7 @@ type Tail struct {
 	filter.Base
 
 	rf bool
-	rb *ringbuf.Buffer
+	rb *ringbuf.Buffer[[]byte]
 }
 
 // NewTail creates an instance of tail filter.
@@ -22,7 +22,7 @@ func NewTail(r io.ReadCloser, limit int) *Tail {
 		limit = 10
 	}
 	t := &Tail{
-		rb: ringbuf.New(limit),
+		rb: ringbuf.New[[]byte](limit),
 	}
 	t.Base.Init(r, t.readNext)
 	return t
@@ -43,7 +43,7 @@ func (t *Tail) readNext(buf *bytes.Buffer) error {
 		if !ok {
 			return io.EOF
 		}
-		_, err := buf.Write(v.([]byte))
+		_, err := buf.Write(v)
 		if err != nil {
 			return err
 		}

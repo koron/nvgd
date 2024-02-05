@@ -4,7 +4,7 @@ import "testing"
 
 func TestRing(t *testing.T) {
 	check := func(n int, in []int, exp []int) {
-		b := New(n)
+		b := New[int](n)
 		for _, v := range in {
 			b.Put(v)
 		}
@@ -14,7 +14,7 @@ func TestRing(t *testing.T) {
 				t.Errorf("Get() failed: i=%d n=%d in=%v", i, n, in)
 				return
 			}
-			if w.(int) != v {
+			if w != v {
 				t.Errorf("Get() mismatch: i=%d w=%v(!=%d) n=%d in=%v", i, w, v, n, in)
 				return
 			}

@@ -2,24 +2,24 @@
 package ringbuf
 
 // Buffer provides ring buffer.
-type Buffer struct {
-	d []interface{}
+type Buffer[T any] struct {
+	d []T
 	r int
 	n int
 }
 
 // New creates a ring buffer with specified capacity.
-func New(capacity int) *Buffer {
+func New[T any](capacity int) *Buffer[T] {
 	if capacity <= 0 {
 		panic("capacity must be large than 0")
 	}
-	return &Buffer{
-		d: make([]interface{}, capacity),
+	return &Buffer[T]{
+		d: make([]T, capacity),
 	}
 }
 
 // Put puts a value.
-func (b *Buffer) Put(v interface{}) {
+func (b *Buffer[T]) Put(v T) {
 	b.d[(b.r+b.n)%len(b.d)] = v
 	if b.n < len(b.d) {
 		b.n++
@@ -29,32 +29,34 @@ func (b *Buffer) Put(v interface{}) {
 }
 
 // Get retrieves a value.
-func (b *Buffer) Get() (interface{}, bool) {
+func (b *Buffer[T]) Get() (T, bool) {
+	var zero T
 	if b.n <= 0 {
-		return nil, false
+		return zero, false
 	}
 	v := b.d[b.r]
-	b.d[b.r] = nil
+	b.d[b.r] = zero
 	b.incR()
 	b.n--
 	return v, true
 }
 
 // Clear remove all values.
-func (b *Buffer) Clear() {
+func (b *Buffer[T]) Clear() {
+	var zero T
 	for b.n > 0 {
-		b.d[b.r] = nil
+		b.d[b.r] = zero
 		b.incR()
 		b.n--
 	}
 }
 
 // Empty checks the buffer is empty or not.
-func (b *Buffer) Empty() bool {
+func (b *Buffer[T]) Empty() bool {
 	return b.n == 0
 }
 
-func (b *Buffer) incR() int {
+func (b *Buffer[T]) incR() int {
 	b.r++
 	if b.r == len(b.d) {
 		b.r = 0
@@ -62,13 +64,14 @@ func (b *Buffer) incR() int {
 	return b.r
 }
 
-func (b *Buffer) Len() int {
+func (b *Buffer[T]) Len() int {
 	return b.n
 }
 
-func (b *Buffer) Peek(n int) interface{} {
+func (b *Buffer[T]) Peek(n int) T {
+	var zero T
 	if n >= b.n {
-		return nil
+		return zero
 	}
 	return b.d[(b.r + n)%len(b.d)]
 }
