@@ -53,15 +53,30 @@ E
 	filtertest.Check(t, newPager, filter.Params{"eop": "^--", "num": "true", "pages": "1,-1"}, in, "(page 1)\nA\n--\n(page 5)\nE\n--\n")
 }
 
-func TestPagerFail(t *testing.T) {
+func TestFail(t *testing.T) {
 	filtertest.Fail(t, newPager, filter.Params{}, "", `"eop" option is required`)
 
 	// Hard to make regexp.Compile() fail.
-	//filtertest.Fail(t, newPager, filter.Params{"eop":"$^"}, "", `invalid "eop" patter: `) 
+	//filtertest.Fail(t, newPager, filter.Params{"eop":"$^"}, "", `invalid "eop" patter: `)
 
 	filtertest.Fail(t, newPager, filter.Params{"eop": "^--", "pages": "foo"}, "", `invalid "pages": unknown pages item: foo`)
 	filtertest.Fail(t, newPager, filter.Params{"eop": "^--", "pages": "0"}, "", `invalid "pages": unknown pages item: 0`)
 
 	// Never happen for current parsePages()
 	//filtertest.Fail(t, newPager, filter.Params{"eop": "^--", "pages": ""}, "", `no "pages" choosen`)
+}
+
+func TestAfterEOP(t *testing.T) {
+	const in = `A
+--
+B
+--
+C
+--
+D
+--
+E
+`
+	filtertest.Check(t, newPager, filter.Params{"eop": "^--", "pages": "-1"}, in, "E\n")
+	filtertest.Check(t, newPager, filter.Params{"eop": "^--", "pages": "-1", "num": "true"}, in, "(page 5)\nE\n")
 }

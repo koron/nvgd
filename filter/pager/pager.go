@@ -25,12 +25,11 @@ type Pager struct {
 	showNum bool
 
 	pageNum  int
-	pageIncr bool
+
+	currPW *pageWriter
 
 	// fields for lasts enabled
-	lastsBuf *ringbuf.Buffer[*bytes.Buffer]
-	lastPage *bytes.Buffer
-	lastPut  bool
+	lastsRing *ringbuf.Buffer[*bytes.Buffer]
 }
 
 func NewPager(r io.ReadCloser, rx *regexp.Regexp, pages, lasts []int, showNum bool) *Pager {
@@ -40,12 +39,9 @@ func NewPager(r io.ReadCloser, rx *regexp.Regexp, pages, lasts []int, showNum bo
 		lasts:    lasts,
 		showNum:  showNum,
 		pageNum:  0,
-		pageIncr: true,
 	}
 	if len(lasts) > 0 {
-		f.lastsBuf = ringbuf.New[*bytes.Buffer](-lasts[0])
-		f.lastPage = new(bytes.Buffer)
-		f.lastPut = false
+		f.lastsRing = ringbuf.New[*bytes.Buffer](-lasts[0])
 	}
 	f.Base.Init(r, f.readNext)
 	return f
@@ -62,50 +58,39 @@ func (f *Pager) readNext(buf *bytes.Buffer) error {
 				break
 			}
 		}
-		writeNum := false
-		if f.pageIncr {
+
+		if f.currPW == nil {
 			f.pageNum++
-			f.pageIncr = false
-			if f.showNum {
-				writeNum = true
+			f.currPW = &pageWriter{
+				num:     f.pageNum,
+				showNum: f.showNum,
+				w1:      new(bytes.Buffer),
+			}
+			if f.lastsRing != nil {
+				f.lastsRing.Put(f.currPW.w1)
 			}
 		}
-		// store a line to "lasts"
-		if len(f.lasts) > 0 {
-			if writeNum {
-				fmt.Fprintf(f.lastPage, "(page %d)\n", f.pageNum)
-			}
-			_, err := f.lastPage.Write(line)
-			if err != nil {
-				return err
-			}
-			if !f.lastPut {
-				f.lastsBuf.Put(f.lastPage)
-				f.lastPut = true
-			}
+		hit := contains(f.pages, f.pageNum)
+		if hit {
+			f.currPW.w2 = buf
 		}
-		// check the pattern for end of a page.
+		f.currPW.Write(line)
+		// Clear pageWriter when "eop" matches. it cause page feeding in next
+		// loop.
 		if f.rx.Match(line) {
-			f.pageIncr = true
-			if len(f.lasts) > 0 {
-				f.lastPage = new(bytes.Buffer)
-				f.lastPut = false
-			}
+			f.currPW = nil
 		}
-		// immediate flush
-		if contains(f.pages, f.pageNum) {
-			if writeNum {
-				fmt.Fprintf(buf, "(page %d)\n", f.pageNum)
-			}
-			_, err = buf.Write(line)
-			return err
+		// Delegate to another filters when sure to output.
+		if hit {
+			return nil
 		}
 	}
+
 	// flush lastsBuf if "lasts" avaiable
-	if len(f.lasts) > 0 {
-		for i := 0; i < f.lastsBuf.Len(); i++ {
-			curr := f.lastsBuf.Peek(i)
-			pnumRel := -f.lastsBuf.Len() + i
+	if f.lastsRing != nil {
+		for i := 0; i < f.lastsRing.Len(); i++ {
+			curr := f.lastsRing.Peek(i)
+			pnumRel := -f.lastsRing.Len() + i
 			pnumAbs := f.pageNum + 1 + pnumRel
 			// don't write if already wrote a page
 			if contains(f.lasts, pnumRel) && !contains(f.pages, pnumAbs) {
