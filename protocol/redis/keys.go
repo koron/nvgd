@@ -28,6 +28,7 @@ func keys(c *redis.Client, args []string) (*resource.Resource, error) {
 
 var keysTmpl = template.Must(template.New("htmltable").Parse(`<!DOCTYPE html>
 <meta charset="UTF-8">
+<meta name="referrer" content="no-referrer">
 <style>
 #query {
   display: block;

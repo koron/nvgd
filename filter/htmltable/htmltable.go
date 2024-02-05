@@ -85,6 +85,7 @@ type row struct {
 
 var tmpl = template.Must(template.New("htmltable").Parse(`<!DOCTYPE html>
 <meta charset="UTF-8">
+<meta name="referrer" content="no-referrer">
 <style>
 td, th {
   white-space: nowrap;
