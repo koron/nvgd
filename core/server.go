@@ -126,6 +126,10 @@ func (s *Server) serveFile(w http.ResponseWriter, r *http.Request, name string) 
 	}
 	defer f.Close()
 	fi, err := f.Stat()
+	if err != nil {
+		s.serveError(w, err)
+		return
+	}
 	if fi.IsDir() {
 		s.serveError(w, errors.New("root contents should not be a directory"))
 		return
