@@ -8,6 +8,10 @@ build:
 test:
 	go test $(TEST_PACKAGE)
 
+.PHONY: bench
+bench:
+	go test -bench $(TEST_PACKAGE)
+
 .PHONY: tags
 tags:
 	gotags -f tags -R .
@@ -24,10 +28,6 @@ checkall: vet staticcheck
 .PHONY: vet
 vet:
 	go vet $(TEST_PACKAGE)
-
-.PHONY: lint
-lint:
-	golint $(TEST_PACKAGE)
 
 .PHONY: staticcheck
 staticcheck:

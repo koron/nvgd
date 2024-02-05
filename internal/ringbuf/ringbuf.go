@@ -70,8 +70,8 @@ func (b *Buffer[T]) Len() int {
 
 func (b *Buffer[T]) Peek(n int) T {
 	var zero T
-	if n >= b.n {
+	if n < 0 || n >= b.n {
 		return zero
 	}
-	return b.d[(b.r + n)%len(b.d)]
+	return b.d[(b.r+n)%len(b.d)]
 }
