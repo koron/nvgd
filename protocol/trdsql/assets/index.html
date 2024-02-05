@@ -1,5 +1,8 @@
 <!DOCTYPE html>
+
 <meta charset="UTF-8">
+<meta name="referrer" content="no-referrer">
+
 <link rel="stylesheet" type="text/css" href="./editor.css">
 <h1>TRDSQL Query Editor</h1>
 
@@ -20,8 +23,10 @@
   </div>
 
   <section class="container">
-    <textarea id="query" rows="8"></textarea>
+    <textarea id="query" rows="10"></textarea>
     <div class="vpanel">
+      <button id="format">Format</button>
+      <button id="minify">Minify</button>
       <button id="submit">Query</button>
     </div>
   </section>
@@ -89,4 +94,5 @@
   </section>
 </section>
 
+<script src="https://cdn.jsdelivr.net/npm/sql-formatter@15.2.0/dist/sql-formatter.min.js"></script>
 <script src="./editor.js"></script>

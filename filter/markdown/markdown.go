@@ -26,6 +26,7 @@ func init() {
 
 var tmpl = template.Must(template.New("markdown").Parse(`<!DOCTYPE html>
 <meta charset="UTF-8">
+<meta name="referrer" content="no-referrer">
 {{range .Config.CustomCSSURLs}}{{if .}}<link rel="stylesheet" href="{{.}}" type="text/css" />
 {{end}}{{end}}
 `))
