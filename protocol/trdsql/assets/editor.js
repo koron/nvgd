@@ -6,6 +6,8 @@
   var storagePrefix = "trdsql_";
 
   var queryForm = d.querySelector("#query");
+  var formatButton = d.querySelector("#format")
+  var minifyButton = d.querySelector("#minify")
   var submitButton = d.querySelector("#submit");
   var sourceForm = d.querySelector("#source_url");
   var composedForm = d.querySelector("#composed_url");
@@ -34,6 +36,8 @@
 
   keepElementValue(sourceForm, "source_url");
 
+  formatButton.addEventListener("click", () => doFormat());
+  minifyButton.addEventListener("click", () => doMinify());
   submitButton.addEventListener("click", () => doQuery());
 
   keepElementValue(optIhCheckbox, "optIh");
@@ -120,6 +124,23 @@
   function bindCheckboxToReadonly(cb, target) {
     cb.addEventListener("change", () => target.readOnly = !cb.checked);
     target.readOnly = !cb.checked;
+  }
+
+  function doFormat() {
+    var formatted = sqlFormatter.format(queryForm.value);
+    queryForm.value = formatted;
+    saveItem("query", queryForm.value)
+  }
+
+  function doMinify() {
+    var s = queryForm.value;
+    var t = s.split(/\n/).
+      map((s) => s.replace(/--.*$/, '')).
+      map((s) => s.replace(/^ +/, '')).
+      map((s) => s.replace(/ +$/, '')).
+      join(' ').replace(/ *([\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7e]) */g, '$1');
+    queryForm.value = t;
+    saveItem("query", queryForm.value)
   }
 
   function doQuery() {
