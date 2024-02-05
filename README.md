@@ -584,7 +584,6 @@ match the specified pattern.
       You can specify multiple pages separated by commas. Examples
 
       * `1`: First page only
-      * `0`: No outputs
       * `2,4,6`: Page 2, 4, and 6
       * `-1`: Last page
       * `-3`: 3rd page from the end
@@ -593,7 +592,7 @@ match the specified pattern.
 
     * `num`: Boolean. Output a page number at the top of the page.
 
-      Format: `(12 page: nvgd pager)`
+      Example: `(page 12)`
 
 ### Hash filter
 

@@ -95,7 +95,7 @@ func (f *Pager) readNext(buf *bytes.Buffer) error {
 		// immediate flush
 		if contains(f.pages, f.pageNum) {
 			if writeNum {
-				fmt.Fprintf(buf, "(%d page: nvgd pager)\n", f.pageNum)
+				fmt.Fprintf(buf, "(page %d)\n", f.pageNum)
 			}
 			_, err = buf.Write(line)
 			return err
@@ -136,20 +136,20 @@ func contains(a []int, v int) bool {
 }
 
 var (
-	rxCutOne   = regexp.MustCompile(`^-?[1-9]\d*$`)
-	rxCutRange = regexp.MustCompile(`^([1-9]\d*)-([1-9]\d*)$`)
+	rxPageOne   = regexp.MustCompile(`^-?[1-9]\d*$`)
+	rxPageRange = regexp.MustCompile(`^([1-9]\d*)-([1-9]\d*)$`)
 )
 
 func parsePages(s string) ([]int, error) {
 	pages := make([]int, 0, 2)
 	for _, item := range strings.Split(s, ",") {
-		if m := rxCutOne.FindString(item); m != "" {
+		if m := rxPageOne.FindString(item); m != "" {
 			n, err := strconv.Atoi(m)
 			if err != nil {
 				return nil, err
 			}
 			pages = append(pages, n)
-		} else if m := rxCutRange.FindStringSubmatch(item); m != nil {
+		} else if m := rxPageRange.FindStringSubmatch(item); m != nil {
 			s, err := strconv.Atoi(m[1])
 			if err != nil {
 				return nil, err
@@ -158,7 +158,7 @@ func parsePages(s string) ([]int, error) {
 			if err != nil {
 				return nil, err
 			}
-			if e > s {
+			if s > e {
 				s, e = e, s
 			}
 			for i := s; i <= e; i++ {
