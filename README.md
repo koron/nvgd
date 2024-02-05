@@ -478,6 +478,7 @@ Nvgd supports these filters:
   * [Head filter](#head-filter)
   * [Tail filter](#tail-filter)
   * [Cut filter](#cut-filter)
+  * [Pager filter](#pager-filter)
   * [Hash filter](#hash-filter)
   * [LTSV filter](#ltsv-filter)
   * [JSONArray filter](#jsonarray-filter)
@@ -563,11 +564,35 @@ Output selected fields of lines.
   * filter\_name: `cut`
   * options:
     * `delim` - field delimiter string (default: TAB character).
+    * `white` - use consecutive whites as one single field separator (default: false)
     * `list` - selected fields, combinable by comma `,`.
       * `N` - N'th field counted from 1.
       * `N-M` - from N'th, to M'th field (included).
       * `N-` - from N'th field, to end of line.
-      * `N-` - from first, to N'th field.
+      * `-N` - from first, to N'th field.
+
+### Pager filter
+
+`pager` is a filter that divides the input stream into pages by lines that
+match the specified pattern.
+
+  * filter\_name: `pager`
+  * options:
+    * `eop`: Regular expression that matches page separator lines.
+    * `pages`: Page number to output (1-based number)
+
+      You can specify multiple pages separated by commas. Examples
+
+      * `1`: First page only
+      * `2,4,6`: Page 2, 4, and 6
+      * `-1`: Last page
+      * `-3`: 3rd page from the end
+      * `1,-1`: First and last pages
+      * `10-12`: Pages 10 to 12
+
+    * `num`: Boolean. Output a page number at the top of the page.
+
+      Example: `(page 12)`
 
 ### Hash filter
 
@@ -587,7 +612,8 @@ Count lines.
 
 ### LTSV filter
 
-Output, match to value of specified label, and output selected labels.
+A filter that outputs only the specified labels from the rows of LTSV that
+match the another specified label value.
 
   * filter\_name: `ltsv`
   * options:
@@ -608,7 +634,11 @@ Convert LTSV to Index HTML.
 (limited for s3list and files (dir) source for now)
 
   * filter\_name: `indexhtml`
-  * options: (none)
+  * options:
+    * `timefmt`: Time layout for "Modified At" or so. default is `RFC1123`.
+      Possible values are, case insensitive: `ANSIC`, `UNIX`, `RUBY`, `RFC822`,
+      `RFC822Z`, `RFC850`, `RFC1123`, `RFC1123Z`, `RFC3339`, `RFC3339NANO`,
+      `STAMP`, and `DATETIME`
   * configurations:
     * `custom_css_urls`: list of URLs to link as CSS.
 

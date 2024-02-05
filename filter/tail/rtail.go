@@ -21,6 +21,7 @@ type RTail struct {
 }
 
 // NewRTail creates an instance of RTail.
+// RTail is specialized Tail for io.Reader which have io.Seeker and Closer also.
 func NewRTail(r readSeekCloser, limit int, bufsize int) *RTail {
 	return &RTail{
 		raw:     r,

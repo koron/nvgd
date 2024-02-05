@@ -3,6 +3,7 @@
 
   var d = g.document;
   var localStorage = g.localStorage;
+  var storagePrefix = "echarts_";
 
   var sourceForm = d.querySelector("#source_url");
   var seriesDirSelector = d.querySelector("#series_direction");
@@ -43,8 +44,6 @@
     composedForm.value = url;
     outputFrame.src = url;
   }
-
-  var storagePrefix = "echarts_";
 
   function keepElementValue(el, rawID) {
     var id = storagePrefix + rawID;
@@ -120,11 +119,11 @@
     }
     var titleOpts = getTitleOpts();
     if (Object.keys(titleOpts).length > 0) {
-      s += "%3BtitleOpts:" + JSON.stringify(titleOpts);
+      s += "%3BtitleOpts:" + encodeQuery(JSON.stringify(titleOpts));
     }
     var legendOpts = getLegendOpts();
     if (Object.keys(legendOpts).length > 0) {
-      s += "%3BlegendOpts:" + JSON.stringify(legendOpts);
+      s += "%3BlegendOpts:" + encodeQuery(JSON.stringify(legendOpts));
     }
     return s;
   }

@@ -74,7 +74,39 @@ func pathPrefix(s string) string {
 	return path.Join(config.Root().PathPrefix, s)
 }
 
+func chooseTimeLayout(name string) string {
+	switch strings.ToUpper(name) {
+	case "ANSIC":
+		return time.ANSIC
+	case "UNIX":
+		return time.UnixDate
+	case "RUBY":
+		return time.RubyDate
+	case "RFC822":
+		return time.RFC822
+	case "RFC822Z":
+		return time.RFC822Z
+	case "RFC850":
+		return time.RFC850
+	case "RFC1123":
+		return time.RFC1123
+	case "RFC1123Z":
+		return time.RFC1123Z
+	case "RFC3339":
+		return time.RFC3339
+	case "RFC3339NANO":
+		return time.RFC3339Nano
+	case "STAMP":
+		return time.Stamp
+	case "DATETIME":
+		return time.DateTime
+	default:
+		return time.RFC1123
+	}
+}
+
 func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
+	timeLayout := chooseTimeLayout(p.String("timefmt", "RFC1123"))
 	// compose document.
 	d := &doc{
 		Config: &cfg,
@@ -109,9 +141,9 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 			qlink += "&ih=false"
 			e.QueryLink = qlink
 		}
-		// detect UNIX time, and convert it to RFC1123
+		// detect UNIX time, and convert it to specified time layout (default is RFC1123).
 		if sec, err := strconv.ParseInt(e.ModifiedAt, 10, 64); err == nil {
-			e.ModifiedAt = time.Unix(sec, 0).Format(time.RFC1123)
+			e.ModifiedAt = time.Unix(sec, 0).Format(timeLayout)
 		}
 		d.Entries = append(d.Entries, e)
 	}
