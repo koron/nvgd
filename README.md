@@ -478,6 +478,7 @@ Nvgd supports these filters:
   * [Head filter](#head-filter)
   * [Tail filter](#tail-filter)
   * [Cut filter](#cut-filter)
+  * [Pager filter](#pager-filter)
   * [Hash filter](#hash-filter)
   * [LTSV filter](#ltsv-filter)
   * [JSONArray filter](#jsonarray-filter)
@@ -570,6 +571,30 @@ Output selected fields of lines.
       * `N-` - from N'th field, to end of line.
       * `-N` - from first, to N'th field.
 
+### Pager filter
+
+`pager` is a filter that divides the input stream into pages by lines that
+match the specified pattern.
+
+  * filter\_name: `pager`
+  * options:
+    * `eop`: Regular expression that matches page separator lines.
+    * `pages`: Page number to output (1-based number)
+
+      You can specify multiple pages separated by commas. Examples
+
+      * `1`: First page only
+      * `0`: No outputs
+      * `2,4,6`: Page 2, 4, and 6
+      * `-1`: Last page
+      * `-3`: 3rd page from the end
+      * `1,-1`: First and last pages
+      * `10-12`: Pages 10 to 12
+
+    * `num`: Boolean. Output a page number at the top of the page.
+
+      Format: `(12 page: nvgd pager)`
+
 ### Hash filter
 
 Output hash value.
@@ -588,7 +613,8 @@ Count lines.
 
 ### LTSV filter
 
-Output, match to value of specified label, and output selected labels.
+A filter that outputs only the specified labels from the rows of LTSV that
+match the another specified label value.
 
   * filter\_name: `ltsv`
   * options:
