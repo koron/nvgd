@@ -64,10 +64,12 @@ func (b *Buffer[T]) incR() int {
 	return b.r
 }
 
+// Len returns number of valid items in the ringbuf
 func (b *Buffer[T]) Len() int {
 	return b.n
 }
 
+// Peek peeks checks a n'th value in ringbuf without removing the value.
 func (b *Buffer[T]) Peek(n int) T {
 	var zero T
 	if n < 0 || n >= b.n {
