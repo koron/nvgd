@@ -37,6 +37,8 @@ github.com/jwalton/go-supportscolor v1.1.0 h1:HsXFJdMPjRUAx8cIW6g30hVSFYaxh9yRQw
 github.com/jwalton/go-supportscolor v1.1.0/go.mod h1:hFVUAZV2cWg+WFFC4v8pT2X/S2qUUBYMioBD9AINXGs=
 github.com/klauspost/compress v1.16.3 h1:XuJt9zzcnaz6a16/OU53ZjWp/v7/42WcR5t2a0PcNQY=
 github.com/klauspost/compress v1.16.3/go.mod h1:ntbaceVETuRiXiv4DpjP66DpAtAGkEQskQzEyD//IeE=
+github.com/koron-go/ringbuf v1.0.0 h1:pjQI1WO/brA+mWuLhV28pruWwBPRjveTe2+ZT9tzVkc=
+github.com/koron-go/ringbuf v1.0.0/go.mod h1:DevQjFKZLOEuL9dLRw2NCRLCmFmlbirEhTKBc1e0rCE=
 github.com/koron/blackfriday/v2 v2.1.0-fix.2 h1:KXwErOgSCzOV28f7dklOwAKyuQeubCA8iDvviEV8prE=
 github.com/koron/blackfriday/v2 v2.1.0-fix.2/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/koron/go-xlsx4db v0.0.3 h1:EOP8y89XuRdOrPAiEK/C6yZ9hyxV5NGRxlUzewT9GTo=

@@ -11,8 +11,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/koron-go/ringbuf"
 	"github.com/koron/nvgd/filter"
-	"github.com/koron/nvgd/internal/ringbuf"
 	"github.com/koron/nvgd/resource"
 )
 
@@ -24,7 +24,7 @@ type Pager struct {
 	lasts   []int // sorted negative numbers
 	showNum bool
 
-	pageNum  int
+	pageNum int
 
 	currPW *pageWriter
 
@@ -34,11 +34,11 @@ type Pager struct {
 
 func NewPager(r io.ReadCloser, rx *regexp.Regexp, pages, lasts []int, showNum bool) *Pager {
 	f := &Pager{
-		rx:       rx,
-		pages:    pages,
-		lasts:    lasts,
-		showNum:  showNum,
-		pageNum:  0,
+		rx:      rx,
+		pages:   pages,
+		lasts:   lasts,
+		showNum: showNum,
+		pageNum: 0,
 	}
 	if len(lasts) > 0 {
 		f.lastsRing = ringbuf.New[*bytes.Buffer](-lasts[0])
@@ -67,7 +67,7 @@ func (f *Pager) readNext(buf *bytes.Buffer) error {
 				w1:      new(bytes.Buffer),
 			}
 			if f.lastsRing != nil {
-				f.lastsRing.Put(f.currPW.w1)
+				f.lastsRing.Enqueue(f.currPW.w1)
 			}
 		}
 		hit := contains(f.pages, f.pageNum)

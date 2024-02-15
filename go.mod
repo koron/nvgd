@@ -1,6 +1,6 @@
 module github.com/koron/nvgd
 
-go 1.19
+go 1.21
 
 require (
 	github.com/aws/aws-sdk-go v1.44.209
@@ -28,6 +28,7 @@ require (
 	github.com/jwalton/gchalk v1.3.0 // indirect
 	github.com/jwalton/go-supportscolor v1.1.0 // indirect
 	github.com/klauspost/compress v1.16.3 // indirect
+	github.com/koron-go/ringbuf v1.0.0 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/multiprocessio/go-sqlite3-stdlib v0.0.0-20220822170115-9f6825a1cd25 // indirect
 	github.com/noborus/guesswidth v0.3.1 // indirect

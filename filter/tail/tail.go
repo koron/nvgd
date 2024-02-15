@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"io"
 
+	"github.com/koron-go/ringbuf"
 	"github.com/koron/nvgd/filter"
-	"github.com/koron/nvgd/internal/ringbuf"
 )
 
 // Tail is "tail" like filter.
@@ -39,7 +39,7 @@ func (t *Tail) readNext(buf *bytes.Buffer) error {
 		return io.EOF
 	}
 	for {
-		v, ok := t.rb.Get()
+		v, ok := t.rb.Dequeue()
 		if !ok {
 			return io.EOF
 		}
@@ -55,12 +55,12 @@ func (t *Tail) readAll() error {
 		b, err := t.ReadLine()
 		if err == io.EOF {
 			if len(b) > 0 {
-				t.rb.Put(b)
+				t.rb.Enqueue(b)
 			}
 			return nil
 		} else if err != nil {
 			return err
 		}
-		t.rb.Put(b)
+		t.rb.Enqueue(b)
 	}
 }
