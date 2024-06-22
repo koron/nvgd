@@ -17,10 +17,10 @@ func toHTTPError(err error) (msg string, code int) {
 		return herr.Body(), herr.StatusCode()
 	}
 	if errors.Is(err, fs.ErrNotExist) {
-		return "404 page not found", http.StatusNotFound
+		return "404 page not found: " + err.Error(), http.StatusNotFound
 	}
 	if errors.Is(err, fs.ErrPermission) {
-		return "403 Forbidden", http.StatusForbidden
+		return "403 Forbidden: " + err.Error(), http.StatusForbidden
 	}
 	// Default:
 	return "500 Internal Server Error: " + err.Error(), http.StatusInternalServerError

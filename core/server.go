@@ -204,7 +204,7 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 	upath, appliedAlias := s.aliases.apply(upath)
 	u, err := url.Parse(upath)
 	if err != nil {
-		return fmt.Errorf("failed to parse %q as URL: %s", upath, err)
+		return fmt.Errorf("failed to parse %q as URL: %w", upath, err)
 	}
 	u.RawQuery = req.URL.RawQuery
 	p := protocol.Find(u.Scheme)
@@ -213,7 +213,7 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 	}
 	rsrc, err := s.open(p, u, req)
 	if err != nil {
-		return fmt.Errorf("failed to open %s; %s", upath, err)
+		return fmt.Errorf("failed to open %s; %w", upath, err)
 	}
 	if rsrc == nil {
 		return fmt.Errorf("nil resource for %s", upath)
@@ -233,7 +233,7 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 	qp, err := qparamsParse(req.URL.RawQuery)
 	if err != nil {
 		rsrc.Close()
-		return fmt.Errorf("failed to parse query string: %s", err)
+		return fmt.Errorf("failed to parse query string: %w", err)
 	}
 	if parsed, ok := rsrc.Strings(protocol.ParsedKeys); ok {
 		qp = qp.deleteKeys(parsed)
@@ -254,7 +254,7 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 			if r != nil {
 				r.Close()
 			}
-			return fmt.Errorf("default filters for %q causes problem: %s", upath, err)
+			return fmt.Errorf("default filters for %q causes problem: %w", upath, err)
 		}
 	}
 	defer r.Close()
