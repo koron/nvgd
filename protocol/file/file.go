@@ -7,6 +7,7 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
+	"io/fs"
 	"log"
 	"net/url"
 	"os"
@@ -71,7 +72,8 @@ func (f *File) Open(u *url.URL) (*resource.Resource, error) {
 	if err != nil {
 		return nil, err
 	}
-	if len(m) == 1 {
+	switch len(m) {
+	case 0, 1:
 		return f.openOne(name)
 	}
 	return f.openMulti(m, name)
@@ -80,7 +82,7 @@ func (f *File) Open(u *url.URL) (*resource.Resource, error) {
 func (f *File) openOne(name string) (*resource.Resource, error) {
 	// TODO: consider relative path.
 	if !fc.isAccessible(name) {
-		return nil, fmt.Errorf("forbidden: %s", name)
+		return nil, fs.ErrPermission
 	}
 	fi, err := os.Lstat(name)
 	if err != nil {
