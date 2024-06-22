@@ -230,6 +230,14 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 		rsrc = rewritten
 	}
 
+	// Respond to preflight requests only when the resource exists.
+	if req.Method == http.MethodOptions {
+		res.Header().Set("Content-Length", "0")
+		res.WriteHeader(http.StatusOK)
+		return nil
+	}
+
+	// Apply filters.
 	qp, err := qparamsParse(req.URL.RawQuery)
 	if err != nil {
 		rsrc.Close()
@@ -258,6 +266,10 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 		}
 	}
 	defer r.Close()
+
+	// Process special filters.
+
+	/// Set Refresh header if required.
 	if refresh > 0 {
 		v := fmt.Sprintf("%d; URL=%s", refresh, req.URL.String())
 		res.Header().Set("Refresh", v)
@@ -280,6 +292,8 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 	} else if s.isHTML(qp) {
 		res.Header().Set("Content-Type", "text/html")
 	}
+
+	// Output the headers and the body to ResponseWriter.
 	res.WriteHeader(http.StatusOK)
 	_, err = io.Copy(res, r)
 	if err != nil {
