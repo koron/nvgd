@@ -114,7 +114,7 @@ jobs:
       with: { name: windows_amd64 }
     - run: ls -lafR
     - name: Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         draft: true
         prerelease: ${{ contains(github.ref_name, '-alpha.') || contains(github.ref_name, '-beta.') }}
