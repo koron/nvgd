@@ -127,6 +127,40 @@ func TestLongLine(t *testing.T) {
 		if p.Value != wantValue {
 			t.Errorf("the value for #%d (label=%s) is incorrect: got=%s", i, p.Label, p.Value)
 		}
+	}
+}
 
+func TestLongLine2(t *testing.T) {
+	// Test to confirm that the line can be read twice as long. Confirming that
+	// the buffer extension occurs two or more times.
+	f, err := os.Open(filepath.Join("testdata", "longline_002.ltsv"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+	r := NewReader(f)
+	set, err := r.Read()
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Verify the set contents.
+	if got := len(set.Properties); got != 20 {
+		t.Errorf("unexpected size to read: want=%d got=%d", 20, got)
+	}
+	for i, p := range set.Properties {
+		wantLabel := strconv.Itoa(i % 10)
+		gotLabel := p.Label
+		if d := cmp.Diff(wantLabel, gotLabel); d != "" {
+			t.Errorf("incorrect label for #%d entry: -want +got\n%s", i, d)
+			wantValue := strings.Repeat(gotLabel, 500)
+			if d := cmp.Diff(wantValue, p.Value); d != "" {
+				t.Errorf("  the value for the incorrect label is also incorrect: -want +got (got len=%d)\n%s", len(p.Value), d)
+			}
+			continue
+		}
+		wantValue := strings.Repeat(wantLabel, 500)
+		if p.Value != wantValue {
+			t.Errorf("the value for #%d (label=%s) is incorrect: got=%s", i, p.Label, p.Value)
+		}
 	}
 }
