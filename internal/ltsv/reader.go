@@ -19,19 +19,23 @@ func NewReader(r io.Reader) *Reader {
 }
 
 func (r *Reader) readLine() ([]byte, error) {
+	// FIXME: Avoids loading a file with very long line and allocating
+	// excessive memory.  It would be better to use a larger buffer from the
+	// beginning, nor never extending .
 	d, err := r.rd.ReadSlice('\n')
 	if err == nil || (err == io.EOF && len(d) > 0) {
 		return d, nil
 	} else if err != bufio.ErrBufferFull {
 		return nil, err
 	}
-	bb := bytes.NewBuffer(d)
+	// Read the rest of the lines that have gone beyond the default buffer into
+	// another, larger buffer.
+	bb := bytes.NewBuffer(make([]byte, 0, 8192))
+	bb.Write(d) // bytes.Buffer.Writer never be failed.
 	for {
 		d2, err := r.rd.ReadSlice('\n')
 		if len(d2) > 0 {
-			if _, err := bb.Write(d2); err != nil {
-				return nil, err
-			}
+			bb.Write(d2) // bytes.Buffer.Writer never be failed.
 		}
 		if err == nil || err == io.EOF {
 			return bb.Bytes(), nil
