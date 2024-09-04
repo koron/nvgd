@@ -45,10 +45,15 @@ func TestHasLimit(t *testing.T) {
 		{`SELECT * FROM user LIMIT 10000`, true}, // LIMIT with number
 		{`LIMIT 10000`, true},                    // only LIMIT with number
 		{`SELECT * FROM user LIMIT abc`, false},  // LIMIT without number
+		{"LIMIT\n10000", true},                   // LIMIT with a new line
+		{"LIMIT \n10000", true},                  // LIMIT with a new line
+		{"LIMIT\n 10000", true},                  // LIMIT with a new line
+		{"LIMIT\n\n10000", true},                 // LIMIT with new lines
+		{"LIMIT\n\n\n10000", true},               // LIMIT with new lines
 	} {
 		got := hasLimit(tc.query)
 		if got != tc.want {
-			t.Errorf("unexpected hasLimit return: want=%t got=%t:#%d: %s", tc.want, got, i, tc.query)
+			t.Errorf("unexpected hasLimit return: want=%t got=%t:#%d: %q", tc.want, got, i, tc.query)
 		}
 	}
 }
