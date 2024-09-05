@@ -1,4 +1,4 @@
-package filter
+package ltsv
 
 import (
 	"bytes"
@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/internal/filterbase"
 	"github.com/koron/nvgd/resource"
 )
@@ -127,7 +128,7 @@ func (l *LTSV) filter(v ltsvValue) ltsvValue {
 	return r
 }
 
-func newLTSV(r *resource.Resource, p Params) (*resource.Resource, error) {
+func newLTSV(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
 	label, re, err := parseGrep(p)
 	if err != nil {
 		return nil, err
@@ -137,7 +138,7 @@ func newLTSV(r *resource.Resource, p Params) (*resource.Resource, error) {
 	return r.Wrap(NewLTSV(r, label, re, match, cut)), nil
 }
 
-func parseGrep(p Params) (label string, pattern *regexp.Regexp, err error) {
+func parseGrep(p filter.Params) (label string, pattern *regexp.Regexp, err error) {
 	v := strings.SplitN(p.String("grep", ""), ",", 2)
 	if len(v) < 2 || v[0] == "" || v[1] == "" {
 		return "", nil, nil
@@ -149,7 +150,7 @@ func parseGrep(p Params) (label string, pattern *regexp.Regexp, err error) {
 	return v[0], re, err
 }
 
-func parseCut(p Params) []string {
+func parseCut(p filter.Params) []string {
 	s := p.String("cut", "")
 	if s == "" {
 		return []string{}
@@ -158,5 +159,5 @@ func parseCut(p Params) []string {
 }
 
 func init() {
-	MustRegister("lstv", newLTSV)
+	filter.MustRegister("lstv", newLTSV)
 }
