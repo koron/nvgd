@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"io"
 
+	"github.com/koron/nvgd/internal/filterbase"
 	"github.com/koron/nvgd/resource"
 )
 
@@ -26,7 +27,7 @@ func newHead(r *resource.Resource, p Params) (*resource.Resource, error) {
 
 // Head is "head" like filter.
 type Head struct {
-	Base
+	filterbase.Base
 	start uint
 	last  uint
 	curr  uint

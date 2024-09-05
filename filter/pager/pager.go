@@ -13,11 +13,12 @@ import (
 
 	"github.com/koron-go/ringbuf"
 	"github.com/koron/nvgd/filter"
+	"github.com/koron/nvgd/internal/filterbase"
 	"github.com/koron/nvgd/resource"
 )
 
 type Pager struct {
-	filter.Base
+	filterbase.Base
 
 	rx      *regexp.Regexp
 	pages   []int // sorted positive numbers

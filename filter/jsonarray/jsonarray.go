@@ -7,6 +7,7 @@ import (
 	"io"
 
 	"github.com/koron/nvgd/filter"
+	"github.com/koron/nvgd/internal/filterbase"
 	"github.com/koron/nvgd/resource"
 )
 
@@ -19,7 +20,7 @@ func newFilter(r *resource.Resource, p filter.Params) (*resource.Resource, error
 }
 
 type Filter struct {
-	filter.Base
+	filterbase.Base
 
 	first bool
 	last  bool

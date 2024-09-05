@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/koron/nvgd/filter"
+	"github.com/koron/nvgd/internal/filterbase"
 	"github.com/koron/nvgd/resource"
 )
 
@@ -19,7 +20,7 @@ func newCount(r *resource.Resource, p filter.Params) (*resource.Resource, error)
 }
 
 type Count struct {
-	filter.Base
+	filterbase.Base
 	n int64
 }
 

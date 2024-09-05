@@ -6,12 +6,13 @@ import (
 	"io"
 	"regexp"
 
+	"github.com/koron/nvgd/internal/filterbase"
 	"github.com/koron/nvgd/resource"
 )
 
 // Grep represents grep like filter.
 type Grep struct {
-	Base
+	filterbase.Base
 	currLnum int
 
 	re    *regexp.Regexp

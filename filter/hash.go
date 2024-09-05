@@ -12,12 +12,13 @@ import (
 	"io"
 	"strings"
 
+	"github.com/koron/nvgd/internal/filterbase"
 	"github.com/koron/nvgd/resource"
 )
 
 // Hash represents hash filter.
 type Hash struct {
-	Base
+	filterbase.Base
 	s   int
 	h   hash.Hash
 	enc hashEncoder

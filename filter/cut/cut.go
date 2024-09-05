@@ -10,12 +10,13 @@ import (
 	"strings"
 
 	"github.com/koron/nvgd/filter"
+	"github.com/koron/nvgd/internal/filterbase"
 	"github.com/koron/nvgd/resource"
 )
 
 // Cut represents cut filter.
 type Cut struct {
-	filter.Base
+	filterbase.Base
 	delim     []byte
 	splitter  SplitFunc
 	selectors []cutSelector

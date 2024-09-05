@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/koron/nvgd/internal/filterbase"
 	"github.com/koron/nvgd/resource"
 )
 
@@ -52,7 +53,7 @@ func (v ltsvValue) put(buf *bytes.Buffer) error {
 
 // LTSV represents a structure for LTSV (labeled tab separated value)
 type LTSV struct {
-	Base
+	filterbase.Base
 	label string
 	re    *regexp.Regexp
 	match bool
