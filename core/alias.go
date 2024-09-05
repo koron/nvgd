@@ -27,7 +27,7 @@ func (a alias) rewritePath(src string) string {
 
 func (a alias) rewriteLTSV(src *resource.Resource) (*resource.Resource, error) {
 	buf := &bytes.Buffer{}
-	lr := ltsv.NewReader(src)
+	lr := ltsv.NewReaderSize(src, 4096)
 	for {
 		s, err := lr.Read()
 		if err != nil {

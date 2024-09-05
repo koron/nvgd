@@ -6,6 +6,7 @@ import (
 	"io"
 
 	"github.com/koron/nvgd/filter"
+	"github.com/koron/nvgd/internal/filterbase"
 	"github.com/koron/nvgd/internal/ltsv"
 	"github.com/koron/nvgd/resource"
 	"github.com/olekukonko/tablewriter"
@@ -70,7 +71,7 @@ type row struct {
 func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
 	// compose document.
 	d := &doc{}
-	lr := ltsv.NewReader(r)
+	lr := filterbase.NewLTSVReader(r)
 	first := true
 	for {
 		s, err := lr.Read()

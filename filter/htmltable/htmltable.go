@@ -3,6 +3,7 @@ package htmltable
 
 import (
 	"bytes"
+	"errors"
 	"html/template"
 	"io"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/internal/commonconst"
+	"github.com/koron/nvgd/internal/filterbase"
 	"github.com/koron/nvgd/internal/ltsv"
 	"github.com/koron/nvgd/resource"
 )
@@ -158,13 +160,13 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 		Linefeed: p.Bool(commonconst.Linefeed, false),
 		Config:   &cfg,
 	}
-	lr := ltsv.NewReader(r)
+	lr := filterbase.NewLTSVReader(r)
 	first := true
 	for {
 		s, err := lr.Read()
 		if err != nil {
 			r.Close()
-			if err != io.EOF {
+			if !errors.Is(err, io.EOF) {
 				return nil, err
 			}
 			break
