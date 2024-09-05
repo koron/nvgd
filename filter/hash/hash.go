@@ -1,3 +1,4 @@
+// Package hash provides a filter to calculate hashes like MD5, SHA1 or so.
 package hash
 
 import (

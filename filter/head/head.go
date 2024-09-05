@@ -1,3 +1,4 @@
+// Package head provides "head" filter for NVGD.
 package head
 
 import (

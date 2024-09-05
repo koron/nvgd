@@ -1,3 +1,4 @@
+// Package filterbase provides utility tools to implement filters.
 package filterbase
 
 import (

@@ -1,3 +1,4 @@
+// Package grep provides "grep" filter for NVGD.
 package grep
 
 import (

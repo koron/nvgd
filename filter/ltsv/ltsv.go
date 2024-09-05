@@ -1,3 +1,4 @@
+// Package ltsv provides a filter modify (grep and cut) LTSV.
 package ltsv
 
 import (
