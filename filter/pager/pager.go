@@ -19,6 +19,7 @@ import (
 
 type Pager struct {
 	filterbase.Base
+	reader *filterbase.LineReader
 
 	rx      *regexp.Regexp
 	pages   []int // sorted positive numbers
@@ -35,6 +36,7 @@ type Pager struct {
 
 func NewPager(r io.ReadCloser, rx *regexp.Regexp, pages, lasts []int, showNum bool) *Pager {
 	f := &Pager{
+		reader:  filterbase.NewLineReader(r),
 		rx:      rx,
 		pages:   pages,
 		lasts:   lasts,
@@ -50,7 +52,7 @@ func NewPager(r io.ReadCloser, rx *regexp.Regexp, pages, lasts []int, showNum bo
 
 func (f *Pager) readNext(buf *bytes.Buffer) error {
 	for {
-		line, err := f.ReadLine()
+		line, err := f.reader.ReadLine()
 		if err != nil {
 			if !errors.Is(err, io.EOF) {
 				return err

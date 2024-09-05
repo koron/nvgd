@@ -13,6 +13,7 @@ import (
 // Grep represents grep like filter.
 type Grep struct {
 	filterbase.Base
+	reader   *filterbase.LineReader
 	currLnum int
 
 	re    *regexp.Regexp
@@ -28,11 +29,12 @@ type Grep struct {
 // NewGrep creates an instance of grep filter.
 func NewGrep(r io.ReadCloser, re *regexp.Regexp, match bool, lf LineFilter, lnum bool, cnum int) *Grep {
 	g := &Grep{
-		re:    re,
-		match: match,
-		lf:    TrimEOL.Chain(lf),
-		lnum:  lnum,
-		cnum:  cnum,
+		reader: filterbase.NewLineReader(r),
+		re:     re,
+		match:  match,
+		lf:     TrimEOL.Chain(lf),
+		lnum:   lnum,
+		cnum:   cnum,
 	}
 	if cnum > 0 {
 		g.contextBefore = make([][]byte, 0, cnum)
@@ -43,7 +45,7 @@ func NewGrep(r io.ReadCloser, re *regexp.Regexp, match bool, lf LineFilter, lnum
 
 func (g *Grep) readNext(buf *bytes.Buffer) error {
 	for {
-		raw, err := g.ReadLine()
+		raw, err := g.reader.ReadLine()
 		if err != nil && len(raw) == 0 {
 			return err
 		}

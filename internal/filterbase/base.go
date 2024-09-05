@@ -59,20 +59,6 @@ func (b *Base) Read(buf []byte) (int, error) {
 	return b.buf.Read(buf)
 }
 
-// ReadLine reads a line as []byte.
-func (b *Base) ReadLine() ([]byte, error) {
-	d, err := b.Reader.ReadSlice('\n')
-	if err == nil || err == io.EOF {
-		bb := make([]byte, len(d))
-		copy(bb, d)
-		return bb, err
-	}
-	if err != bufio.ErrBufferFull {
-		return nil, err
-	}
-	return nil, ErrMaxLineExceeded
-}
-
 // Close closes head filter.
 func (b *Base) Close() error {
 	if b.closed {

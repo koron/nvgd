@@ -1,4 +1,5 @@
 // Package jsonarray provides JSON array filter.
+// The json array filter converts string arrays to JSON array.
 package jsonarray
 
 import (
@@ -21,13 +22,16 @@ func newFilter(r *resource.Resource, p filter.Params) (*resource.Resource, error
 
 type Filter struct {
 	filterbase.Base
+	reader *filterbase.LineReader
 
 	first bool
 	last  bool
 }
 
 func New(r io.ReadCloser) *Filter {
-	f := &Filter{}
+	f := &Filter{
+		reader: filterbase.NewLineReader(r),
+	}
 	f.Base.Init(r, f.readNext)
 	return f
 }
@@ -40,7 +44,7 @@ func (f *Filter) readNext(buf *bytes.Buffer) error {
 		buf.WriteByte('[')
 		f.first = true
 	}
-	b, err0 := f.Base.ReadLine()
+	b, err0 := f.reader.ReadLine()
 	if n := len(b); n > 0 && b[n-1] == '\n' {
 		b = b[:n-1]
 	}

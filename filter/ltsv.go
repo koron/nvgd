@@ -54,19 +54,21 @@ func (v ltsvValue) put(buf *bytes.Buffer) error {
 // LTSV represents a structure for LTSV (labeled tab separated value)
 type LTSV struct {
 	filterbase.Base
-	label string
-	re    *regexp.Regexp
-	match bool
-	cut   []string
+	reader *filterbase.LineReader
+	label  string
+	re     *regexp.Regexp
+	match  bool
+	cut    []string
 }
 
 // NewLTSV creates a new instance of LTSV.
 func NewLTSV(r io.ReadCloser, label string, re *regexp.Regexp, match bool, cut []string) *LTSV {
 	l := &LTSV{
-		label: label,
-		re:    re,
-		match: match,
-		cut:   cut,
+		label:  label,
+		reader: filterbase.NewLineReader(r),
+		re:     re,
+		match:  match,
+		cut:    cut,
 	}
 	l.Base.Init(r, l.readNext)
 	return l
@@ -74,9 +76,12 @@ func NewLTSV(r io.ReadCloser, label string, re *regexp.Regexp, match bool, cut [
 
 func (l *LTSV) readNext(buf *bytes.Buffer) error {
 	for {
-		b, err := l.ReadLine()
+		b, err := l.reader.ReadLine()
 		if err != nil {
 			return err
+		}
+		if last := len(b) - 1; last > 0 && b[last] == '\n' {
+			b = b[0:last]
 		}
 		v := parseLTSV(string(b))
 		if !l.isMatch(v) {
