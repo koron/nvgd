@@ -42,9 +42,9 @@ type Config struct {
 	AccessControlAllowOrigin string `yaml:"access_control_allow_origin,omitempty"`
 }
 
-type customConfig map[string]interface{}
+type customConfig map[string]any
 
-func (cc customConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (cc customConfig) UnmarshalYAML(unmarshal func(any) error) error {
 	var m yaml.MapSlice
 	if err := unmarshal(&m); err != nil {
 		return err
@@ -124,6 +124,7 @@ func LoadConfig(filename string) (*Config, error) {
 	}
 	f, err := os.Open(filename)
 	if err != nil {
+		// Use the default setting value if the file is not found.
 		if os.IsNotExist(err) {
 			return root, nil
 		}
@@ -141,11 +142,11 @@ func LoadConfig(filename string) (*Config, error) {
 }
 
 // RegisterProtocol registers protocol configuration.
-func RegisterProtocol(name string, v interface{}) {
+func RegisterProtocol(name string, v any) {
 	root.Protocols[name] = v
 }
 
 // RegisterFilter registers a filter configuration.
-func RegisterFilter(name string, v interface{}) {
+func RegisterFilter(name string, v any) {
 	root.Filters[name] = v
 }
