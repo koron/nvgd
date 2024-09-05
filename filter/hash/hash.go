@@ -1,4 +1,4 @@
-package filter
+package hash
 
 import (
 	"bytes"
@@ -12,6 +12,7 @@ import (
 	"io"
 	"strings"
 
+	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/internal/filterbase"
 	"github.com/koron/nvgd/resource"
 )
@@ -103,7 +104,7 @@ func hashEncBin(w io.Writer, b []byte) error {
 	return err
 }
 
-func newHash(r *resource.Resource, p Params) (*resource.Resource, error) {
+func newHash(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
 	h, err := toHash(p.String("algorithm", "md5"))
 	if err != nil {
 		return nil, err
@@ -116,5 +117,5 @@ func newHash(r *resource.Resource, p Params) (*resource.Resource, error) {
 }
 
 func init() {
-	MustRegister("hash", newHash)
+	filter.MustRegister("hash", newHash)
 }
