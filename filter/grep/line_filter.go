@@ -1,4 +1,4 @@
-package filter
+package grep
 
 import "bytes"
 

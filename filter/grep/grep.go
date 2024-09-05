@@ -19,7 +19,7 @@ type Grep struct {
 
 	re    *regexp.Regexp
 	match bool
-	lf    filter.LineFilter
+	lf    LineFilter
 	lnum  bool
 	cnum  int
 
@@ -28,12 +28,12 @@ type Grep struct {
 }
 
 // NewGrep creates an instance of grep filter.
-func NewGrep(r io.ReadCloser, re *regexp.Regexp, match bool, lf filter.LineFilter, lnum bool, cnum int) *Grep {
+func NewGrep(r io.ReadCloser, re *regexp.Regexp, match bool, lf LineFilter, lnum bool, cnum int) *Grep {
 	g := &Grep{
 		reader: filterbase.NewLineReader(r),
 		re:     re,
 		match:  match,
-		lf:     filter.TrimEOL.Chain(lf),
+		lf:     TrimEOL.Chain(lf),
 		lnum:   lnum,
 		cnum:   cnum,
 	}
@@ -99,14 +99,14 @@ func newGrep(r *resource.Resource, p filter.Params) (*resource.Resource, error) 
 	match := p.Bool("match", true)
 	lnum := p.Bool("number", false)
 	cnum := p.Int("context", 0)
-	var lf filter.LineFilter
+	var lf LineFilter
 	// field filter
 	var (
 		field = p.Int("field", 0)
 		delim = []byte(p.String("delim", "\t"))
 	)
 	if field > 0 {
-		lf = lf.Chain(filter.NewCutLF(delim, field-1))
+		lf = lf.Chain(NewCutLF(delim, field-1))
 	}
 	return r.Wrap(NewGrep(r, re, match, lf, lnum, cnum)), nil
 }
