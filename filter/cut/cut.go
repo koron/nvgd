@@ -10,12 +10,14 @@ import (
 	"strings"
 
 	"github.com/koron/nvgd/filter"
+	"github.com/koron/nvgd/internal/filterbase"
 	"github.com/koron/nvgd/resource"
 )
 
 // Cut represents cut filter.
 type Cut struct {
-	filter.Base
+	filterbase.Base
+	reader    *filterbase.LineReader
 	delim     []byte
 	splitter  SplitFunc
 	selectors []cutSelector
@@ -30,6 +32,7 @@ type cutWriter func(io.Writer, []byte) error
 // NewCut creates an instance of cut filter.
 func NewCut(r io.ReadCloser, delim []byte, selectors []cutSelector, splitFunc SplitFunc) *Cut {
 	f := &Cut{
+		reader:   filterbase.NewLineReader(r),
 		delim:    delim,
 		splitter: splitFunc,
 	}
@@ -49,7 +52,7 @@ func NewCut(r io.ReadCloser, delim []byte, selectors []cutSelector, splitFunc Sp
 }
 
 func (f *Cut) readNext(buf *bytes.Buffer) error {
-	raw, err := f.ReadLine()
+	raw, err := f.reader.ReadLine()
 	if err != nil && (err != io.EOF || len(raw) == 0) {
 		return err
 	}

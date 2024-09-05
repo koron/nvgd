@@ -103,7 +103,7 @@ func TestLongLine(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer f.Close()
-	r := NewReader(f)
+	r := NewReaderSize(f, 1*1024*1024)
 	set, err := r.Read()
 	if err != nil {
 		t.Fatal(err)
@@ -138,7 +138,7 @@ func TestLongLine2(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer f.Close()
-	r := NewReader(f)
+	r := NewReaderSize(f, 1*1024*1024)
 	set, err := r.Read()
 	if err != nil {
 		t.Fatal(err)

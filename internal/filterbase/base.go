@@ -1,9 +1,17 @@
-package filter
+// Package filterbase provides utility tools to implement filters.
+package filterbase
 
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"io"
+
+	"github.com/koron/nvgd/config"
+)
+
+var (
+	ErrMaxLineExceeded = errors.New("maximum line length is exceeded. this limit can be extended with config.filters._base_.max_line_len")
 )
 
 // Base is base of filters.  It provides common features for filter.
@@ -18,9 +26,19 @@ type Base struct {
 // BaseReadNext is callback to read next data hunk to buf
 type BaseReadNext func(buf *bytes.Buffer) error
 
+var Config = struct {
+	MaxLineLen int `yaml:"max_line_len"`
+}{
+	MaxLineLen: 1 * 1024 * 1024,
+}
+
+func init() {
+	config.RegisterFilter("_base_", &Config)
+}
+
 // Init initializes Base object.
 func (b *Base) Init(r io.ReadCloser, readNext BaseReadNext) {
-	b.Reader = bufio.NewReader(r)
+	b.Reader = bufio.NewReaderSize(r, Config.MaxLineLen)
 	b.raw = r
 	b.rn = readNext
 }
@@ -40,39 +58,6 @@ func (b *Base) Read(buf []byte) (int, error) {
 		}
 	}
 	return b.buf.Read(buf)
-}
-
-// ReadLine reads a line as []byte.
-func (b *Base) ReadLine() ([]byte, error) {
-	d, err := b.Reader.ReadSlice('\n')
-	if err == nil || err == io.EOF {
-		bb := make([]byte, len(d))
-		copy(bb, d)
-		return bb, err
-	}
-	if err != bufio.ErrBufferFull {
-		return nil, err
-	}
-
-	// for long line
-	bb := bytes.Buffer{}
-	if _, err := bb.Write(d); err != nil {
-		return nil, err
-	}
-	for {
-		b2, err := b.Reader.ReadSlice('\n')
-		if len(b2) > 0 {
-			if _, err := bb.Write(b2); err != nil {
-				return nil, err
-			}
-		}
-		if err == nil || err == io.EOF {
-			return bb.Bytes(), nil
-		}
-		if err != bufio.ErrBufferFull {
-			return nil, err
-		}
-	}
 }
 
 // Close closes head filter.

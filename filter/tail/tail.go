@@ -5,12 +5,13 @@ import (
 	"io"
 
 	"github.com/koron-go/ringbuf"
-	"github.com/koron/nvgd/filter"
+	"github.com/koron/nvgd/internal/filterbase"
 )
 
 // Tail is "tail" like filter.
 type Tail struct {
-	filter.Base
+	filterbase.Base
+	reader *filterbase.LineReader
 
 	rf bool
 	rb *ringbuf.Buffer[[]byte]
@@ -22,7 +23,8 @@ func NewTail(r io.ReadCloser, limit int) *Tail {
 		limit = 10
 	}
 	t := &Tail{
-		rb: ringbuf.New[[]byte](limit),
+		reader: filterbase.NewLineReader(r),
+		rb:     ringbuf.New[[]byte](limit),
 	}
 	t.Base.Init(r, t.readNext)
 	return t
@@ -52,7 +54,7 @@ func (t *Tail) readNext(buf *bytes.Buffer) error {
 
 func (t *Tail) readAll() error {
 	for {
-		b, err := t.ReadLine()
+		b, err := t.reader.ReadLine()
 		if err == io.EOF {
 			if len(b) > 0 {
 				t.rb.Enqueue(b)

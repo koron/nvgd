@@ -1,0 +1,3 @@
+filters:
+  _base_:
+    max_line_len: 2097152

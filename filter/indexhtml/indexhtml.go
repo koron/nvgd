@@ -14,7 +14,7 @@ import (
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/internal/commonconst"
-	"github.com/koron/nvgd/internal/ltsv"
+	"github.com/koron/nvgd/internal/filterbase"
 	"github.com/koron/nvgd/resource"
 )
 
@@ -111,7 +111,7 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 	d := &doc{
 		Config: &cfg,
 	}
-	lr := ltsv.NewReader(r)
+	lr := filterbase.NewLTSVReader(r)
 	for {
 		s, err := lr.Read()
 		if err != nil {

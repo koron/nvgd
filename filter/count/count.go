@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/koron/nvgd/filter"
+	"github.com/koron/nvgd/internal/filterbase"
 	"github.com/koron/nvgd/resource"
 )
 
@@ -19,12 +20,16 @@ func newCount(r *resource.Resource, p filter.Params) (*resource.Resource, error)
 }
 
 type Count struct {
-	filter.Base
-	n int64
+	filterbase.Base
+	reader *filterbase.LineReader
+	n      int64
 }
 
 func New(r io.ReadCloser) *Count {
-	c := &Count{n: -1}
+	c := &Count{
+		reader: filterbase.NewLineReader(r),
+		n:      -1,
+	}
 	c.Base.Init(r, c.readNext)
 	return c
 }
@@ -35,7 +40,7 @@ func (c *Count) readNext(buf *bytes.Buffer) error {
 	}
 	c.n = 0
 	for {
-		raw, err := c.ReadLine()
+		raw, err := c.reader.ReadLine()
 		if err != nil && len(raw) == 0 {
 			if err == io.EOF {
 				if _, err := buf.WriteString(strconv.FormatInt(c.n, 10)); err != nil {

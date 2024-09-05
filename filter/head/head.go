@@ -1,18 +1,21 @@
-package filter
+// Package head provides "head" filter for NVGD.
+package head
 
 import (
 	"bufio"
 	"bytes"
 	"io"
 
+	"github.com/koron/nvgd/filter"
+	"github.com/koron/nvgd/internal/filterbase"
 	"github.com/koron/nvgd/resource"
 )
 
 func init() {
-	MustRegister("head", newHead)
+	filter.MustRegister("head", newHead)
 }
 
-func newHead(r *resource.Resource, p Params) (*resource.Resource, error) {
+func newHead(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
 	start := p.Int("start", 0)
 	if start < 0 {
 		start = 0
@@ -26,10 +29,11 @@ func newHead(r *resource.Resource, p Params) (*resource.Resource, error) {
 
 // Head is "head" like filter.
 type Head struct {
-	Base
-	start uint
-	last  uint
-	curr  uint
+	filterbase.Base
+	reader *filterbase.LineReader
+	start  uint
+	last   uint
+	curr   uint
 }
 
 var (
@@ -39,8 +43,9 @@ var (
 // NewHead creates an instance of head filter.
 func NewHead(r io.ReadCloser, start, limit uint) *Head {
 	h := &Head{
-		start: start,
-		last:  start + limit,
+		reader: filterbase.NewLineReader(r),
+		start:  start,
+		last:   start + limit,
 	}
 	h.Base.Init(r, h.readNext)
 	return h
@@ -49,7 +54,7 @@ func NewHead(r io.ReadCloser, start, limit uint) *Head {
 func (h *Head) readNext(buf *bytes.Buffer) error {
 	for h.curr < h.last {
 		lnum := h.curr
-		b, err := h.Reader.ReadSlice('\n')
+		b, err := h.reader.ReadLine()
 		if err != nil {
 			if err != bufio.ErrBufferFull {
 				return err
