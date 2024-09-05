@@ -124,6 +124,7 @@ func LoadConfig(filename string) (*Config, error) {
 	}
 	f, err := os.Open(filename)
 	if err != nil {
+		// Use the default setting value if the file is not found.
 		if os.IsNotExist(err) {
 			return root, nil
 		}

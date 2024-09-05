@@ -1,13 +1,14 @@
 package config
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/koron/nvgd/internal/assert"
 )
 
 func TestDefault(t *testing.T) {
-	c, err := LoadConfig("empty.yml")
+	c, err := LoadConfig(filepath.Join("testdata", "_not_exist_.yml"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -23,7 +24,7 @@ func TestDefault(t *testing.T) {
 }
 
 func TestOnlyAddr(t *testing.T) {
-	c, err := LoadConfig("addr.yml")
+	c, err := LoadConfig(filepath.Join("testdata", "addr.yml"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -39,7 +40,7 @@ func TestOnlyAddr(t *testing.T) {
 }
 
 func TestOnlyFilters(t *testing.T) {
-	c, err := LoadConfig("filters.yml")
+	c, err := LoadConfig(filepath.Join("testdata", "filters.yml"))
 	if err != nil {
 		t.Fatal(err)
 	}
