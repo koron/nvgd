@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"bytes"
 	"io"
+
+	"github.com/koron/nvgd/internal/filterbase"
 )
 
 // Reader reads LTSV values.
@@ -14,7 +16,7 @@ type Reader struct {
 // NewReader creates a new LTSV reader.
 func NewReader(r io.Reader) *Reader {
 	return &Reader{
-		rd: bufio.NewReader(r),
+		rd: bufio.NewReaderSize(r, filterbase.Config.MaxLineLen),
 	}
 }
 
@@ -28,22 +30,7 @@ func (r *Reader) readLine() ([]byte, error) {
 	} else if err != bufio.ErrBufferFull {
 		return nil, err
 	}
-	// Read the rest of the lines that have gone beyond the default buffer into
-	// another, larger buffer.
-	bb := bytes.NewBuffer(make([]byte, 0, 8192))
-	bb.Write(d) // bytes.Buffer.Writer never be failed.
-	for {
-		d2, err := r.rd.ReadSlice('\n')
-		if len(d2) > 0 {
-			bb.Write(d2) // bytes.Buffer.Writer never be failed.
-		}
-		if err == nil || err == io.EOF {
-			return bb.Bytes(), nil
-		}
-		if err != bufio.ErrBufferFull {
-			return nil, err
-		}
-	}
+	return nil, filterbase.ErrMaxLineExceeded
 }
 
 // Read read a LTSV value.

@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	ErrMaxLineExceeded = errors.New("maximum line length is exceeded. this limit can be extended with config.filters._base.max_line_len")
+	ErrMaxLineExceeded = errors.New("maximum line length is exceeded. this limit can be extended with config.filters._base_.max_line_len")
 )
 
 // Base is base of filters.  It provides common features for filter.
@@ -26,7 +26,7 @@ type Base struct {
 type BaseReadNext func(buf *bytes.Buffer) error
 
 var Config = struct {
-	MaxLineLen int `yaml: max_line_len`
+	MaxLineLen int `yaml:"max_line_len"`
 }{
 	MaxLineLen: 1 * 1024 * 1024,
 }
