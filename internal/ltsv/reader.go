@@ -59,6 +59,12 @@ type Set struct {
 	Index      map[string][]int
 }
 
+func NewSet() *Set {
+	return &Set{
+		Index: make(map[string][]int),
+	}
+}
+
 // Put puts a property to the set.
 func (s *Set) Put(label, value string) {
 	n := len(s.Properties)

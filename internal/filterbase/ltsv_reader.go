@@ -9,11 +9,13 @@ import (
 )
 
 type LTSVReader struct {
-	r ltsv.Reader
+	r *ltsv.Reader
 }
 
-func NewLTSVReader(r io.Reader) *ltsv.Reader {
-	return ltsv.NewReaderSize(r, Config.MaxLineLen)
+func NewLTSVReader(r io.Reader) *LTSVReader {
+	return &LTSVReader{
+		r: ltsv.NewReaderSize(r, Config.MaxLineLen),
+	}
 }
 
 func (r *LTSVReader) Read() (*ltsv.Set, error) {
@@ -21,5 +23,5 @@ func (r *LTSVReader) Read() (*ltsv.Set, error) {
 	if errors.Is(err, bufio.ErrBufferFull) {
 		return nil, ErrMaxLineExceeded
 	}
-	return set, nil
+	return set, err
 }

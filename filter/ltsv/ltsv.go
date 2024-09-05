@@ -8,54 +8,14 @@ import (
 
 	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/internal/filterbase"
+	"github.com/koron/nvgd/internal/ltsv"
 	"github.com/koron/nvgd/resource"
 )
-
-type ltsvValue map[string][]string
-
-func parseLTSV(s string) ltsvValue {
-	r := ltsvValue{}
-	for _, raw := range strings.Split(s, "\t") {
-		kv := strings.SplitN(raw, ":", 2)
-		if len(kv) != 2 {
-			continue
-		}
-		k, v := kv[0], kv[1]
-		slot := r[k]
-		r[k] = append(slot, v)
-	}
-	return r
-}
-
-func (v ltsvValue) put(buf *bytes.Buffer) error {
-	first := true
-	for k, slot := range v {
-		for _, v := range slot {
-			if first {
-				first = false
-			} else {
-				if _, err := buf.WriteString("\t"); err != nil {
-					return err
-				}
-			}
-			if _, err := buf.WriteString(k); err != nil {
-				return err
-			}
-			if _, err := buf.WriteString(":"); err != nil {
-				return err
-			}
-			if _, err := buf.WriteString(v); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
 
 // LTSV represents a structure for LTSV (labeled tab separated value)
 type LTSV struct {
 	filterbase.Base
-	reader *filterbase.LineReader
+	reader *filterbase.LTSVReader
 	label  string
 	re     *regexp.Regexp
 	match  bool
@@ -66,7 +26,7 @@ type LTSV struct {
 func NewLTSV(r io.ReadCloser, label string, re *regexp.Regexp, match bool, cut []string) *LTSV {
 	l := &LTSV{
 		label:  label,
-		reader: filterbase.NewLineReader(r),
+		reader: filterbase.NewLTSVReader(r),
 		re:     re,
 		match:  match,
 		cut:    cut,
@@ -77,35 +37,28 @@ func NewLTSV(r io.ReadCloser, label string, re *regexp.Regexp, match bool, cut [
 
 func (l *LTSV) readNext(buf *bytes.Buffer) error {
 	for {
-		b, err := l.reader.ReadLine()
+		row, err := l.reader.Read()
 		if err != nil {
 			return err
 		}
-		if last := len(b) - 1; last > 0 && b[last] == '\n' {
-			b = b[0:last]
-		}
-		v := parseLTSV(string(b))
-		if !l.isMatch(v) {
+		if l.isMatch(row) != l.match {
 			continue
 		}
-		if err := l.filter(v).put(buf); err != nil {
-			return err
-		}
-		if _, err := buf.WriteString("\n"); err != nil {
+		if err = ltsv.Write(buf, l.filter(row).Properties); err != nil {
 			return err
 		}
 	}
 }
 
-func (l *LTSV) isMatch(v ltsvValue) bool {
+func (l *LTSV) isMatch(row *ltsv.Set) bool {
 	if l.label == "" {
 		return true
 	}
-	slot, ok := v[l.label]
-	if !ok {
+	values := row.Get(l.label)
+	if len(values) == 0 {
 		return false
 	}
-	for _, v := range slot {
+	for _, v := range values {
 		if l.re.MatchString(v) {
 			return true
 		}
@@ -113,19 +66,21 @@ func (l *LTSV) isMatch(v ltsvValue) bool {
 	return false
 }
 
-func (l *LTSV) filter(v ltsvValue) ltsvValue {
+func (l *LTSV) filter(row *ltsv.Set) *ltsv.Set {
 	if len(l.cut) == 0 {
-		return v
+		return row
 	}
-	r := ltsvValue{}
+	newRow := ltsv.NewSet()
 	for _, label := range l.cut {
-		slot, ok := v[label]
-		if !ok {
+		values := row.Get(label)
+		if len(values) == 0 {
 			continue
 		}
-		r[label] = slot
+		for _, v := range values {
+			newRow.Put(label, v)
+		}
 	}
-	return r
+	return newRow
 }
 
 func newLTSV(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
