@@ -43,7 +43,7 @@ func Fail(t *testing.T, f filter.Factory, p filter.Params, in, wantErr string) {
 	}
 	got := err.Error()
 	if got != wantErr {
-		t.Errorf("occurred error unmatch:\nwant=%s\ngot=%s", wantErr, got)
+		t.Errorf("occurred error unmatch:\nwant=%+q\ngot=%+q", wantErr, got)
 	}
 	if filter != nil {
 		t.Errorf("factory failed but returns non-nil filter: %+v", filter)

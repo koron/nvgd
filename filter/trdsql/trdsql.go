@@ -89,7 +89,7 @@ func trdsqlFilter(r *resource.Resource, p filter.Params) (*resource.Resource, er
 	trd.Driver = safeDriver
 	ctx, cancel := context.WithTimeout(context.Background(), execTimeout)
 	defer cancel()
-	err = trd.ExecContext(ctx, query)
+	err = execTrdsql(ctx, trd, query)
 	if err != nil {
 		return nil, httperror.Newf(400, "trdsql error: %s: %s", err, stderr.String())
 	}
