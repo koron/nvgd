@@ -1,6 +1,8 @@
 package trdsql
 
 import (
+	"fmt"
+	"path/filepath"
 	"testing"
 
 	"github.com/koron/nvgd/filter"
@@ -140,4 +142,11 @@ id,name,price
 4,qux,999
 `)
 	})
+}
+
+func TestAttachDatabaseFail(t *testing.T) {
+	name := filepath.Join(t.TempDir(), "test.db")
+	filtertest.Fail(t, trdsqlFilter, filter.Params{
+		"q": fmt.Sprintf("ATTACH DATABASE '%s' AS extdb", name),
+	}, "N/A", "trdsql error: export: too many attached databases - max 0: ")
 }
