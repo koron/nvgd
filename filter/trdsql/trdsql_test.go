@@ -1,8 +1,11 @@
 package trdsql
 
 import (
+	"bytes"
+	"encoding/csv"
 	"fmt"
 	"path/filepath"
+	"strconv"
 	"testing"
 
 	"github.com/koron/nvgd/filter"
@@ -149,4 +152,76 @@ func TestAttachDatabaseFail(t *testing.T) {
 	filtertest.Fail(t, trdsqlFilter, filter.Params{
 		"q": fmt.Sprintf("ATTACH DATABASE '%s' AS extdb", name),
 	}, "N/A", "trdsql error: export: too many attached databases - max 0: ")
+}
+
+func TestLargeColumn(t *testing.T) {
+	genRecords := func(prefix string, n int) []string {
+		recs := make([]string, n)
+		for i := range n {
+			recs[i] = prefix + strconv.Itoa(i)
+		}
+		return recs
+	}
+	genCsv := func(cols, rows int) string {
+		t.Helper()
+		bb := &bytes.Buffer{}
+		w := csv.NewWriter(bb)
+		err := w.Write(genRecords("c_", cols))
+		if err != nil {
+			t.Fatalf("failed to generate CSV header: %s", err)
+		}
+		for r := range rows {
+			err := w.Write(genRecords("r"+strconv.Itoa(r)+"_", cols))
+			if err != nil {
+				t.Fatalf("failed to generate CSV body: %s", err)
+			}
+		}
+		w.Flush()
+		return bb.String()
+	}
+
+	t.Run("500", func(t *testing.T) {
+		csv := genCsv(500, 10)
+		filtertest.Check(t, trdsqlFilter, filter.Params{
+			"q":  "SELECT COUNT(c_0) FROM t",
+			"ih": "true",
+		}, csv, "10\n")
+		filtertest.Check(t, trdsqlFilter, filter.Params{
+			"q":  "SELECT COUNT(c_499) FROM t",
+			"ih": "true",
+		}, csv, "10\n")
+	})
+	t.Run("1000", func(t *testing.T) {
+		csv := genCsv(1000, 10)
+		filtertest.Check(t, trdsqlFilter, filter.Params{
+			"q":  "SELECT COUNT(c_0) FROM t",
+			"ih": "true",
+		}, csv, "10\n")
+		filtertest.Check(t, trdsqlFilter, filter.Params{
+			"q":  "SELECT COUNT(c_999) FROM t",
+			"ih": "true",
+		}, csv, "10\n")
+	})
+	t.Run("1500", func(t *testing.T) {
+		csv := genCsv(1500, 10)
+		filtertest.Check(t, trdsqlFilter, filter.Params{
+			"q":  "SELECT COUNT(c_0) FROM t",
+			"ih": "true",
+		}, csv, "10\n")
+		filtertest.Check(t, trdsqlFilter, filter.Params{
+			"q":  "SELECT COUNT(c_1499) FROM t",
+			"ih": "true",
+		}, csv, "10\n")
+	})
+	t.Run("2000", func(t *testing.T) {
+		csv := genCsv(2000, 10)
+		filtertest.Check(t, trdsqlFilter, filter.Params{
+			"q":  "SELECT COUNT(c_0) FROM t",
+			"ih": "true",
+		}, csv, "10\n")
+		filtertest.Check(t, trdsqlFilter, filter.Params{
+			"q":  "SELECT COUNT(c_1999) FROM t",
+			"ih": "true",
+		}, csv, "10\n")
+	})
 }
