@@ -154,7 +154,7 @@ func TestAttachDatabaseFail(t *testing.T) {
 	}, "N/A", "trdsql error: export: too many attached databases - max 0: ")
 }
 
-func TestLargeColumn(t *testing.T) {
+func TestManyColumns(t *testing.T) {
 	genRecords := func(prefix string, n int) []string {
 		recs := make([]string, n)
 		for i := range n {
@@ -162,6 +162,7 @@ func TestLargeColumn(t *testing.T) {
 		}
 		return recs
 	}
+
 	genCsv := func(cols, rows int) string {
 		t.Helper()
 		bb := &bytes.Buffer{}
@@ -191,6 +192,7 @@ func TestLargeColumn(t *testing.T) {
 			"ih": "true",
 		}, csv, "10\n")
 	})
+
 	t.Run("1000", func(t *testing.T) {
 		csv := genCsv(1000, 10)
 		filtertest.Check(t, trdsqlFilter, filter.Params{
@@ -202,6 +204,7 @@ func TestLargeColumn(t *testing.T) {
 			"ih": "true",
 		}, csv, "10\n")
 	})
+
 	t.Run("1500", func(t *testing.T) {
 		csv := genCsv(1500, 10)
 		filtertest.Check(t, trdsqlFilter, filter.Params{
@@ -213,6 +216,7 @@ func TestLargeColumn(t *testing.T) {
 			"ih": "true",
 		}, csv, "10\n")
 	})
+
 	t.Run("2000", func(t *testing.T) {
 		csv := genCsv(2000, 10)
 		filtertest.Check(t, trdsqlFilter, filter.Params{
@@ -223,5 +227,13 @@ func TestLargeColumn(t *testing.T) {
 			"q":  "SELECT COUNT(c_1999) FROM t",
 			"ih": "true",
 		}, csv, "10\n")
+	})
+
+	t.Run("2001_fail", func(t *testing.T) {
+		csv := genCsv(2001, 10)
+		filtertest.Fail(t, trdsqlFilter, filter.Params{
+			"q":  "SELECT COUNT(c_2000) FROM t",
+			"ih": "true",
+		}, csv, "trdsql error: import: too many columns on t: ")
 	})
 }
