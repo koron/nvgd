@@ -36,10 +36,10 @@ require (
 	github.com/noborus/tbln v0.0.2 // indirect
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
-	github.com/ulikunitz/xz v0.5.11 // indirect
-	golang.org/x/crypto v0.17.0 // indirect
-	golang.org/x/sys v0.15.0 // indirect
-	golang.org/x/term v0.15.0 // indirect
+	github.com/ulikunitz/xz v0.5.12 // indirect
+	golang.org/x/crypto v0.27.0 // indirect
+	golang.org/x/sys v0.25.0 // indirect
+	golang.org/x/term v0.24.0 // indirect
 	gonum.org/v1/gonum v0.12.0 // indirect
 )
 
