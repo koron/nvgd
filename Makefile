@@ -39,4 +39,7 @@ clean:
 	rm -f tags
 	rm -f tmp/_cover.out tmp/cover.html
 
+list-upgradable-modules:
+	@go list -m -u -f '{{if .Update}}{{.Path}} {{.Version}} [{{.Update.Version}}]{{end}}' all
+
 # based on: github.com/koron-go/_skeleton/Makefile

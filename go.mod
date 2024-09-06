@@ -1,6 +1,6 @@
 module github.com/koron/nvgd
 
-go 1.21
+go 1.22.0
 
 require (
 	github.com/aws/aws-sdk-go v1.55.5
