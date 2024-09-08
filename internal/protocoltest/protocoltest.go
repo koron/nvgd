@@ -24,6 +24,20 @@ func CheckRegistered(t *testing.T, name string, want protocol.Protocol) {
 	}
 }
 
+func GetRegistered[T any](t *testing.T, name string) T {
+	t.Helper()
+	var zero T
+	got := protocol.Find(name)
+	if got == nil {
+		t.Fatalf("%s: the protocol is not registered", name)
+	}
+	p, ok := got.(T)
+	if !ok {
+		t.Fatalf("%s: registered protocol is not %T", name, zero)
+	}
+	return p
+}
+
 func Open(t *testing.T, protocolUrl string) *resource.Resource {
 	t.Helper()
 	u, err := url.Parse(protocolUrl)
