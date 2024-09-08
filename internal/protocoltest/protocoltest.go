@@ -67,7 +67,7 @@ func OpenFail(t *testing.T, protocolUrl string) error {
 	}
 	_, err = p.Open(u)
 	if err == nil {
-		t.Fatal("unexpected success. expected failure: %s", u.String())
+		t.Fatalf("unexpected success. expected failure: %s", u.String())
 	}
 	return err
 }
@@ -75,7 +75,7 @@ func OpenFail(t *testing.T, protocolUrl string) error {
 func ReadAllString(t *testing.T, rsrc *resource.Resource) string {
 	t.Helper()
 	if rsrc == nil {
-		t.Fatalf("no resource found", rsrc)
+		t.Fatal("no resource found")
 	}
 	b, err := io.ReadAll(rsrc)
 	if err != nil {
