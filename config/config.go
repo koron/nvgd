@@ -26,9 +26,9 @@ type Config struct {
 	// default is empty and no contents are served as "/".
 	RootContentsFile string `yaml:"root_contents_file"`
 
-	Protocols customConfig `yaml:"protocols,omitempty"`
+	Protocols CustomConfig `yaml:"protocols,omitempty"`
 
-	Filters customConfig `yaml:"filters,omitempty"`
+	Filters CustomConfig `yaml:"filters,omitempty"`
 
 	DefaultFilters FiltersMap `yaml:"default_filters,omitempty"`
 
@@ -42,9 +42,9 @@ type Config struct {
 	AccessControlAllowOrigin string `yaml:"access_control_allow_origin,omitempty"`
 }
 
-type customConfig map[string]any
+type CustomConfig map[string]any
 
-func (cc customConfig) UnmarshalYAML(unmarshal func(any) error) error {
+func (cc CustomConfig) UnmarshalYAML(unmarshal func(any) error) error {
 	var m yaml.MapSlice
 	if err := unmarshal(&m); err != nil {
 		return err
@@ -108,8 +108,8 @@ var root = &Config{
 	Addr:           defaultAddr,
 	AccessLogPath:  defaultAccessLog,
 	ErrorLogPath:   defaultErrorLog,
-	Protocols:      customConfig{},
-	Filters:        customConfig{},
+	Protocols:      CustomConfig{},
+	Filters:        CustomConfig{},
 	DefaultFilters: FiltersMap{},
 }
 
