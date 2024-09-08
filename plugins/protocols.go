@@ -2,6 +2,7 @@ package plugins
 
 import (
 	_ "github.com/koron/nvgd/protocol/aws"
+	_ "github.com/koron/nvgd/protocol/command"
 	_ "github.com/koron/nvgd/protocol/configp"
 	_ "github.com/koron/nvgd/protocol/db"
 	_ "github.com/koron/nvgd/protocol/echarts"

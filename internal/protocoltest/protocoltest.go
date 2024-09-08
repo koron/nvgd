@@ -55,6 +55,23 @@ func Open(t *testing.T, protocolUrl string) *resource.Resource {
 	return r
 }
 
+func OpenFail(t *testing.T, protocolUrl string) error {
+	t.Helper()
+	u, err := url.Parse(protocolUrl)
+	if err != nil {
+		t.Fatalf("failed to parse URL %s: %s", protocolUrl, err)
+	}
+	p := protocol.Find(u.Scheme)
+	if p == nil {
+		t.Fatalf("protocol %q is not found", u.Scheme)
+	}
+	_, err = p.Open(u)
+	if err == nil {
+		t.Fatal("unexpected success. expected failure: %s", u.String())
+	}
+	return err
+}
+
 func ReadAllString(t *testing.T, rsrc *resource.Resource) string {
 	t.Helper()
 	if rsrc == nil {
@@ -65,6 +82,13 @@ func ReadAllString(t *testing.T, rsrc *resource.Resource) string {
 		t.Fatalf("failed to read the resource: %s", err)
 	}
 	return string(b)
+}
+
+func OpenString(t *testing.T, protocolUrl string) string {
+	t.Helper()
+	rsrc := Open(t, protocolUrl)
+	defer rsrc.Close()
+	return ReadAllString(t, rsrc)
 }
 
 func CheckRedirect(t *testing.T, rsrc *resource.Resource, redirectPath string) {

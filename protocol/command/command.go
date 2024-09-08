@@ -1,4 +1,4 @@
-package protocol
+package command
 
 import (
 	"errors"
@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/koron/nvgd/config"
+	"github.com/koron/nvgd/protocol"
 	"github.com/koron/nvgd/resource"
 )
 
@@ -19,7 +20,7 @@ type command struct {
 var commandHandler = &command{}
 
 func init() {
-	MustRegister("command", commandHandler)
+	protocol.MustRegister("command", commandHandler)
 	config.RegisterProtocol("command", &commandHandler.preDefined)
 }
 
