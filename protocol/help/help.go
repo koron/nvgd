@@ -16,15 +16,8 @@ func init() {
 	protocol.MustRegister("help", protocol.ProtocolFunc(Serve))
 }
 
-type Help struct {
-}
-
 // Text is default content of help.
 var Text string
-
-func (hp *Help) Open(u *url.URL) (*resource.Resource, error) {
-	return Serve(u)
-}
 
 func Serve(u *url.URL) (*resource.Resource, error) {
 	if u.Path == "" || strings.HasSuffix(u.Path, "/doc/") {
