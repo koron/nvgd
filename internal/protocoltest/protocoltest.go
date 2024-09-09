@@ -1,9 +1,13 @@
 package protocoltest
 
 import (
+	"bytes"
 	"io"
+	"mime/multipart"
+	"net/http"
 	"net/url"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/koron/nvgd/internal/commonconst"
@@ -38,17 +42,21 @@ func GetRegistered[T any](t *testing.T, name string) T {
 	return p
 }
 
-func Open(t *testing.T, protocolUrl string) *resource.Resource {
+func open(t *testing.T, protocolUrl string, req *http.Request) *resource.Resource {
 	t.Helper()
 	u, err := url.Parse(protocolUrl)
 	if err != nil {
 		t.Fatalf("failed to parse URL %s: %s", protocolUrl, err)
 	}
-	r, err := protocol.Open(u, nil)
+	r, err := protocol.Open(u, req)
 	if err != nil {
-		t.Fatalf("protocol.Open failed %s: %s", u.String(), err)
+		t.Fatalf("protocol.Open failed %q: %s", u.String(), err)
 	}
 	return r
+}
+
+func Open(t *testing.T, protocolUrl string) *resource.Resource {
+	return open(t, protocolUrl, nil)
 }
 
 func OpenFail(t *testing.T, protocolUrl string) error {
@@ -104,4 +112,50 @@ func CheckNotRedirect(t *testing.T, rsrc *resource.Resource) {
 	if got, ok := rsrc.Options[commonconst.Redirect]; ok {
 		t.Errorf("unexpected redirect to: %s", got)
 	}
+}
+
+func Post(t *testing.T, protocolUrl string, contents any) *resource.Resource {
+	t.Helper()
+	var body io.Reader
+	var contentType string
+	switch v := contents.(type) {
+	case string:
+		body = strings.NewReader(v)
+	case map[string]string:
+		body, contentType = multipartBytes(t, v)
+	case []byte:
+		body = bytes.NewReader(v)
+	case io.Reader:
+		body = v
+	default:
+		t.Fatalf("unsupported contents type: %T", contents)
+	}
+	req, err := http.NewRequest("POST", protocolUrl, body)
+	if err != nil {
+		t.Fatalf("failed to create a post request: %s", err)
+	}
+	if contentType != "" {
+		req.Header.Set("Content-Type", contentType)
+	}
+	return open(t, protocolUrl, req)
+}
+
+func multipartBytes(t *testing.T, values map[string]string) (io.Reader, string) {
+	b := &bytes.Buffer{}
+	w := multipart.NewWriter(b)
+	defer w.Close()
+	for k, v := range values {
+		if strings.HasPrefix(k, "file") {
+			p, err := w.CreateFormFile(k, k)
+			if err != nil {
+				t.Fatalf("failed to create a file: name=%s value=%s: %s", k, v, err)
+			}
+			io.WriteString(p, v) // bytes.Buffer never fail.
+			continue
+		}
+		if err := w.WriteField(k, v); err != nil {
+			t.Fatalf("failed to write field: name=%s value=%s: %s", k, v, err)
+		}
+	}
+	return b, w.FormDataContentType()
 }
