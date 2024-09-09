@@ -44,11 +44,7 @@ func Open(t *testing.T, protocolUrl string) *resource.Resource {
 	if err != nil {
 		t.Fatalf("failed to parse URL %s: %s", protocolUrl, err)
 	}
-	p := protocol.Find(u.Scheme)
-	if p == nil {
-		t.Fatalf("protocol %q is not found", u.Scheme)
-	}
-	r, err := p.Open(u)
+	r, err := protocol.Open(u, nil)
 	if err != nil {
 		t.Fatalf("protocol.Open failed %s: %s", u.String(), err)
 	}
@@ -61,11 +57,7 @@ func OpenFail(t *testing.T, protocolUrl string) error {
 	if err != nil {
 		t.Fatalf("failed to parse URL %s: %s", protocolUrl, err)
 	}
-	p := protocol.Find(u.Scheme)
-	if p == nil {
-		t.Fatalf("protocol %q is not found", u.Scheme)
-	}
-	_, err = p.Open(u)
+	_, err = protocol.Open(u, nil)
 	if err == nil {
 		t.Fatalf("unexpected success. expected failure: %s", u.String())
 	}

@@ -2,8 +2,10 @@
 package protocol
 
 import (
+	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 
 	"github.com/koron/nvgd/resource"
@@ -54,4 +56,38 @@ func Find(name string) Protocol {
 		return nil
 	}
 	return p
+}
+
+func Open(u *url.URL, req *http.Request) (*resource.Resource, error) {
+	p := Find(u.Scheme)
+	if p == nil {
+		return nil, fmt.Errorf("not found protocol for %q", u.Scheme)
+	}
+	if post, ok := p.(Postable); ok && req != nil && req.Method == http.MethodPost {
+		return openPost(post, u, req)
+	}
+	return p.Open(u)
+}
+
+func openPost(p Postable, u *url.URL, req *http.Request) (*resource.Resource, error) {
+	defer req.Body.Close()
+	data := req.Body
+	// If the body is multi-part, only the "file00" file is extracted and used.
+	// Otherwise, if it is a single stream, it is used as is.
+	err := req.ParseMultipartForm(32 * 1024 * 1024) // 32MB
+	if err == nil {
+		fh, ok := req.MultipartForm.File["file00"]
+		if !ok || len(fh) < 1 {
+			return nil, errors.New("no files uploaded")
+		}
+		f, err := fh[0].Open()
+		if err != nil {
+			return nil, err
+		}
+		defer f.Close()
+		data = f
+	} else if !errors.Is(err, http.ErrNotMultipart) {
+		return nil, err
+	}
+	return p.Post(u, data)
 }
