@@ -167,39 +167,8 @@ func (s *Server) isPost(p protocol.Protocol, req *http.Request) (protocol.Postab
 
 }
 
-func (s *Server) open(p protocol.Protocol, u *url.URL, req *http.Request) (*resource.Resource, error) {
-	if p2, ok := s.isPost(p, req); ok {
-		defer req.Body.Close()
-		data := req.Body
-		err := req.ParseMultipartForm(32 * 1024 * 1024)
-		if err == nil {
-			fh, ok := req.MultipartForm.File["file00"]
-			if !ok || len(fh) < 1 {
-				return nil, errors.New("no files uploaded")
-			}
-			f, err := fh[0].Open()
-			if err != nil {
-				return nil, err
-			}
-			defer f.Close()
-			data = f
-		} else if err != http.ErrNotMultipart {
-			return nil, err
-		}
-		rsrc, err := p2.Post(u, data)
-		if err != nil {
-			return nil, err
-		}
-		return rsrc, nil
-	}
-	rsrc, err := p.Open(u)
-	if err != nil {
-		return nil, err
-	}
-	return rsrc, nil
-}
-
 func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) error {
+	// Generate internal URL for dispatching to the protocol
 	upath := req.URL.EscapedPath()[1:]
 	upath, appliedAlias := s.aliases.apply(upath)
 	u, err := url.Parse(upath)
@@ -207,17 +176,16 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 		return fmt.Errorf("failed to parse %q as URL: %w", upath, err)
 	}
 	u.RawQuery = req.URL.RawQuery
-	p := protocol.Find(u.Scheme)
-	if p == nil {
-		return fmt.Errorf("not found protocol for %q", u.Scheme)
-	}
-	rsrc, err := s.open(p, u, req)
+
+	// Open protocol.
+	rsrc, err := protocol.Open(u ,req)
 	if err != nil {
 		return fmt.Errorf("failed to open %s; %w", upath, err)
 	}
 	if rsrc == nil {
 		return fmt.Errorf("nil resource for %s", upath)
 	}
+
 	if redirect, ok := rsrc.String(commonconst.Redirect); ok {
 		http.Redirect(res, req, "/"+redirect, http.StatusSeeOther)
 		return nil
@@ -237,18 +205,20 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 		return nil
 	}
 
-	// Apply filters.
+	// Apply filters to query params.
 	qp, err := qparamsParse(req.URL.RawQuery)
 	if err != nil {
 		rsrc.Close()
 		return fmt.Errorf("failed to parse query string: %w", err)
 	}
-	if parsed, ok := rsrc.Strings(protocol.ParsedKeys); ok {
+	if parsed, ok := rsrc.Strings(commonconst.ParsedKeys); ok {
 		qp = qp.deleteKeys(parsed)
 	}
 	qp, refresh := s.splitRefresh(qp)
 	qp, download := s.splitDownload(qp)
 	qp, all := s.splitAll(qp)
+
+	// Apply filters to the contents.
 	r, err := s.applyFilters(qp, rsrc)
 	if err != nil {
 		if r != nil {
@@ -303,7 +273,7 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 }
 
 func (s *Server) isSmall(r *resource.Resource) bool {
-	v, ok := r.Bool(protocol.Small)
+	v, ok := r.Bool(commonconst.Small)
 	return ok && v
 }
 

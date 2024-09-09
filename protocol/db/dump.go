@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/koron/go-xlsx4db"
+	"github.com/koron/nvgd/internal/commonconst"
 	"github.com/koron/nvgd/protocol"
 	"github.com/koron/nvgd/resource"
 	"github.com/tealeg/xlsx"
@@ -43,7 +44,7 @@ func (dh *DumpHandler) Open(u *url.URL) (*resource.Resource, error) {
 	n, _ := extractNames(u)
 	t := time.Now().Format("20060102T150405MST")
 	rs.PutFilename(fmt.Sprintf("%s-%s.xlsx", n, t))
-	rs.Put(protocol.Small, true)
+	rs.Put(commonconst.Small, true)
 	return rs, nil
 }
 

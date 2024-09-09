@@ -10,12 +10,9 @@ import (
 )
 
 func init() {
-	protocol.MustRegister("version", &source{})
+	protocol.MustRegister("version", protocol.ProtocolFunc(Open))
 }
 
-type source struct {
-}
-
-func (s *source) Open(u *url.URL) (*resource.Resource, error) {
+func Open(u *url.URL) (*resource.Resource, error) {
 	return resource.NewString(version.Version), nil
 }

@@ -17,16 +17,12 @@ import (
 var Config config.Config
 
 func init() {
-	protocol.MustRegister("config", &ConfigP{})
+	protocol.MustRegister("config", protocol.ProtocolFunc(Open))
 }
 
-// ConfigP provides config protocol.
-type ConfigP struct {
-}
+var mx = regexp.MustCompile(`(secret_access_key): .+`)
 
-var mx = regexp.MustCompile(`(secret_access_key): \S+`)
-
-func (cp *ConfigP) Open(u *url.URL) (*resource.Resource, error) {
+func Open(u *url.URL) (*resource.Resource, error) {
 	b, err := yaml.Marshal(&Config)
 	if err != nil {
 		return nil, err
