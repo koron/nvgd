@@ -237,18 +237,20 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 		return nil
 	}
 
-	// Apply filters.
+	// Apply filters to query params.
 	qp, err := qparamsParse(req.URL.RawQuery)
 	if err != nil {
 		rsrc.Close()
 		return fmt.Errorf("failed to parse query string: %w", err)
 	}
-	if parsed, ok := rsrc.Strings(protocol.ParsedKeys); ok {
+	if parsed, ok := rsrc.Strings(commonconst.ParsedKeys); ok {
 		qp = qp.deleteKeys(parsed)
 	}
 	qp, refresh := s.splitRefresh(qp)
 	qp, download := s.splitDownload(qp)
 	qp, all := s.splitAll(qp)
+
+	// Apply filters to the contents.
 	r, err := s.applyFilters(qp, rsrc)
 	if err != nil {
 		if r != nil {
@@ -303,7 +305,7 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 }
 
 func (s *Server) isSmall(r *resource.Resource) bool {
-	v, ok := r.Bool(protocol.Small)
+	v, ok := r.Bool(commonconst.Small)
 	return ok && v
 }
 

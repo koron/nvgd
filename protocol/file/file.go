@@ -153,7 +153,7 @@ func fileOpenDir(name string) (*resource.Resource, error) {
 	}
 	rs := resource.New(io.NopCloser(buf))
 	rs.Put(commonconst.LTSV, true)
-	rs.Put(protocol.Small, true)
+	rs.Put(commonconst.Small, true)
 	// add updir
 	if path != "" {
 		up := strings.TrimRight(rxLastComponent.ReplaceAllString(path, ""), "/")
