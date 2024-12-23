@@ -1,9 +1,9 @@
 module github.com/koron/nvgd
 
-go 1.22.0
+go 1.22.10
 
 require (
-	github.com/alicebob/miniredis/v2 v2.33.0
+	github.com/alicebob/miniredis/v2 v2.34.0
 	github.com/aws/aws-sdk-go v1.55.5
 	github.com/go-echarts/go-echarts/v2 v2.4.1
 	github.com/go-redis/redis/v7 v7.4.1
@@ -12,10 +12,10 @@ require (
 	github.com/koron-go/ringbuf v1.0.0
 	github.com/koron/go-xlsx4db v0.0.3
 	github.com/lib/pq v1.10.9
-	github.com/mattn/go-sqlite3 v1.14.23
-	github.com/noborus/trdsql v1.0.1
+	github.com/mattn/go-sqlite3 v1.14.24
+	github.com/noborus/trdsql v1.1.0
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/pierrec/lz4/v4 v4.1.21
+	github.com/pierrec/lz4/v4 v4.1.22
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/tealeg/xlsx v1.0.5
 	gopkg.in/yaml.v2 v2.4.0
@@ -23,7 +23,7 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/alicebob/gopher-json v0.0.0-20200520072559-a9ecdc9d1d3a // indirect
+	github.com/alicebob/gopher-json v0.0.0-20230218143504-906a9b012302 // indirect
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/fatih/color v1.16.0 // indirect
@@ -39,10 +39,10 @@ require (
 	github.com/klauspost/compress v1.17.8 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/mattn/go-runewidth v0.0.15 // indirect
+	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/multiprocessio/go-sqlite3-stdlib v0.0.0-20220822170115-9f6825a1cd25 // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
-	github.com/noborus/guesswidth v0.3.4 // indirect
+	github.com/noborus/guesswidth v0.4.0 // indirect
 	github.com/noborus/sqlss v0.1.0 // indirect
 	github.com/noborus/tbln v0.0.2 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
@@ -55,10 +55,10 @@ require (
 	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
 	gonum.org/v1/gonum v0.14.0 // indirect
 	modernc.org/gc/v3 v3.0.0-20240304020402-f0dba7c97c2b // indirect
-	modernc.org/libc v1.41.0 // indirect
+	modernc.org/libc v1.55.3 // indirect
 	modernc.org/mathutil v1.6.0 // indirect
-	modernc.org/memory v1.7.2 // indirect
-	modernc.org/sqlite v1.29.1 // indirect
+	modernc.org/memory v1.8.0 // indirect
+	modernc.org/sqlite v1.31.1 // indirect
 	modernc.org/strutil v1.2.0 // indirect
 	modernc.org/token v1.1.0 // indirect
 )
