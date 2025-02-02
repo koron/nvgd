@@ -1,3 +1,6 @@
+/*
+Package protocoltest provides help utilities to implement protocol tests.
+*/
 package protocoltest
 
 import (
@@ -42,11 +45,11 @@ func GetRegistered[T any](t *testing.T, name string) T {
 	return p
 }
 
-func open(t *testing.T, protocolUrl string, req *http.Request) *resource.Resource {
+func open(t *testing.T, protocolURL string, req *http.Request) *resource.Resource {
 	t.Helper()
-	u, err := url.Parse(protocolUrl)
+	u, err := url.Parse(protocolURL)
 	if err != nil {
-		t.Fatalf("failed to parse URL %s: %s", protocolUrl, err)
+		t.Fatalf("failed to parse URL %s: %s", protocolURL, err)
 	}
 	r, err := protocol.Open(u, req)
 	if err != nil {
@@ -55,15 +58,15 @@ func open(t *testing.T, protocolUrl string, req *http.Request) *resource.Resourc
 	return r
 }
 
-func Open(t *testing.T, protocolUrl string) *resource.Resource {
-	return open(t, protocolUrl, nil)
+func Open(t *testing.T, protocolURL string) *resource.Resource {
+	return open(t, protocolURL, nil)
 }
 
-func OpenFail(t *testing.T, protocolUrl string) error {
+func OpenFail(t *testing.T, protocolURL string) error {
 	t.Helper()
-	u, err := url.Parse(protocolUrl)
+	u, err := url.Parse(protocolURL)
 	if err != nil {
-		t.Fatalf("failed to parse URL %s: %s", protocolUrl, err)
+		t.Fatalf("failed to parse URL %s: %s", protocolURL, err)
 	}
 	_, err = protocol.Open(u, nil)
 	if err == nil {
@@ -84,9 +87,9 @@ func ReadAllString(t *testing.T, rsrc *resource.Resource) string {
 	return string(b)
 }
 
-func OpenString(t *testing.T, protocolUrl string) string {
+func OpenString(t *testing.T, protocolURL string) string {
 	t.Helper()
-	rsrc := Open(t, protocolUrl)
+	rsrc := Open(t, protocolURL)
 	defer rsrc.Close()
 	return ReadAllString(t, rsrc)
 }
@@ -114,7 +117,7 @@ func CheckNotRedirect(t *testing.T, rsrc *resource.Resource) {
 	}
 }
 
-func Post(t *testing.T, protocolUrl string, contents any) *resource.Resource {
+func Post(t *testing.T, protocolURL string, contents any) *resource.Resource {
 	t.Helper()
 	var body io.Reader
 	var contentType string
@@ -130,14 +133,14 @@ func Post(t *testing.T, protocolUrl string, contents any) *resource.Resource {
 	default:
 		t.Fatalf("unsupported contents type: %T", contents)
 	}
-	req, err := http.NewRequest("POST", protocolUrl, body)
+	req, err := http.NewRequest("POST", protocolURL, body)
 	if err != nil {
 		t.Fatalf("failed to create a post request: %s", err)
 	}
 	if contentType != "" {
 		req.Header.Set("Content-Type", contentType)
 	}
-	return open(t, protocolUrl, req)
+	return open(t, protocolURL, req)
 }
 
 func multipartBytes(t *testing.T, values map[string]string) (io.Reader, string) {

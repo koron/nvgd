@@ -1,3 +1,6 @@
+/*
+Package command defines a NVGD protocol to execute a command.
+*/
 package command
 
 import (

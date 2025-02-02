@@ -155,18 +155,6 @@ func (s *Server) serveFile(w http.ResponseWriter, r *http.Request, name string) 
 	}
 }
 
-func (s *Server) isPost(p protocol.Protocol, req *http.Request) (protocol.Postable, bool) {
-	if req.Method != http.MethodPost {
-		return nil, false
-	}
-	p2, ok := p.(protocol.Postable)
-	if !ok {
-		return nil, false
-	}
-	return p2, true
-
-}
-
 func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) error {
 	// Generate internal URL for dispatching to the protocol
 	upath := req.URL.EscapedPath()[1:]
@@ -178,7 +166,7 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 	u.RawQuery = req.URL.RawQuery
 
 	// Open protocol.
-	rsrc, err := protocol.Open(u ,req)
+	rsrc, err := protocol.Open(u, req)
 	if err != nil {
 		return fmt.Errorf("failed to open %s; %w", upath, err)
 	}
