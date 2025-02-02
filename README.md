@@ -639,6 +639,9 @@ Convert LTSV to Index HTML.
       Possible values are, case insensitive: `ANSIC`, `UNIX`, `RUBY`, `RFC822`,
       `RFC822Z`, `RFC850`, `RFC1123`, `RFC1123Z`, `RFC3339`, `RFC3339NANO`,
       `STAMP`, and `DATETIME`
+    * `nouplink`: Hide the "Up" link to navigate back through the directory
+      hierarchy, when its value is `true`. Default is `false`: show the "Up"
+      link.
   * configurations:
     * `custom_css_urls`: list of URLs to link as CSS.
 

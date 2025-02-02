@@ -107,6 +107,7 @@ func chooseTimeLayout(name string) string {
 
 func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
 	timeLayout := chooseTimeLayout(p.String("timefmt", "RFC1123"))
+	noUpLink := p.Bool("nouplink", false)
 	// compose document.
 	d := &doc{
 		Config: &cfg,
@@ -147,7 +148,7 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 		}
 		d.Entries = append(d.Entries, e)
 	}
-	if link, ok := r.String(commonconst.UpLink); ok {
+	if link, ok := r.String(commonconst.UpLink); ok && !noUpLink {
 		d.UpLink = pathPrefix(link)
 	}
 	if link, ok := r.String(commonconst.NextLink); ok {

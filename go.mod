@@ -1,6 +1,6 @@
 module github.com/koron/nvgd
 
-go 1.22.10
+go 1.22.11
 
 require (
 	github.com/alicebob/miniredis/v2 v2.34.0
