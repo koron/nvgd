@@ -4,15 +4,15 @@ go 1.23.0
 
 require (
 	github.com/alicebob/miniredis/v2 v2.34.0
-	github.com/aws/aws-sdk-go v1.55.5
-	github.com/go-echarts/go-echarts/v2 v2.4.1
+	github.com/aws/aws-sdk-go v1.55.7
+	github.com/go-echarts/go-echarts/v2 v2.5.3
 	github.com/go-redis/redis/v7 v7.4.1
-	github.com/go-sql-driver/mysql v1.8.1
-	github.com/google/go-cmp v0.6.0
+	github.com/go-sql-driver/mysql v1.9.2
+	github.com/google/go-cmp v0.7.0
 	github.com/koron-go/ringbuf v1.0.0
 	github.com/koron/go-xlsx4db v0.0.3
 	github.com/lib/pq v1.10.9
-	github.com/mattn/go-sqlite3 v1.14.24
+	github.com/mattn/go-sqlite3 v1.14.28
 	github.com/noborus/trdsql v1.1.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/pierrec/lz4/v4 v4.1.22
@@ -52,7 +52,7 @@ require (
 	golang.org/x/crypto v0.37.0 // indirect
 	golang.org/x/sys v0.32.0 // indirect
 	golang.org/x/term v0.31.0 // indirect
-	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
+	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	gonum.org/v1/gonum v0.14.0 // indirect
 	modernc.org/gc/v3 v3.0.0-20240304020402-f0dba7c97c2b // indirect
 	modernc.org/libc v1.55.3 // indirect
