@@ -6,6 +6,12 @@ HTTP file server to help DevOps.
 [![Actions/Go](https://github.com/koron/nvgd/workflows/Go/badge.svg)](https://github.com/koron/nvgd/actions?query=workflow%3AGo)
 [![Go Report Card](https://goreportcard.com/badge/github.com/koron/nvgd)](https://goreportcard.com/report/github.com/koron/nvgd)
 
+NVGD (Night Vision Goggles Daemon) is an HTTP file server designed to help
+DevOps professionals access and transform data from various sources.  It
+provides a unified interface to retrieve data from local files, databases, AWS
+S3, Redis, and other sources, then apply transformations like filtering,
+formatting, and visualization before serving the results to clients.
+
 Index:
 
   * [How to use](#how-to-use)
@@ -48,7 +54,7 @@ for now.
 
 Requirements to build:
 
-* Go 1.19 or above (1.20.4 is recommended)
+* Go 1.23.0 or above (1.24.2 is recommended)
 * Git
 * C compiler (gcc or clang) for CGO
 
