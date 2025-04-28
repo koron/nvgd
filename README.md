@@ -60,7 +60,7 @@ Requirements to build:
 
 ```console
 # Check out source.
-$ git clone -b v1.12.2 --depth 1 https://github.com/koron/nvgd.git nvgd
+$ git clone -b v1.14.4 --depth 1 https://github.com/koron/nvgd.git nvgd
 
 # Change current working directory.
 $ cd nvgd
