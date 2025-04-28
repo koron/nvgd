@@ -8,6 +8,7 @@ require (
 	github.com/go-echarts/go-echarts/v2 v2.5.3
 	github.com/go-redis/redis/v7 v7.4.1
 	github.com/go-sql-driver/mysql v1.9.2
+	github.com/goccy/go-yaml v1.17.1
 	github.com/google/go-cmp v0.7.0
 	github.com/koron-go/ringbuf v1.0.0
 	github.com/koron/go-xlsx4db v0.0.3
@@ -18,7 +19,6 @@ require (
 	github.com/pierrec/lz4/v4 v4.1.22
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/tealeg/xlsx v1.0.5
-	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
@@ -27,7 +27,6 @@ require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/fatih/color v1.16.0 // indirect
-	github.com/goccy/go-yaml v1.11.3 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/iancoleman/orderedmap v0.3.0 // indirect
@@ -54,6 +53,7 @@ require (
 	golang.org/x/term v0.31.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	gonum.org/v1/gonum v0.14.0 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 	modernc.org/gc/v3 v3.0.0-20240304020402-f0dba7c97c2b // indirect
 	modernc.org/libc v1.55.3 // indirect
 	modernc.org/mathutil v1.6.0 // indirect

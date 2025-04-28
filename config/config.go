@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	"gopkg.in/yaml.v2"
+	"github.com/goccy/go-yaml"
 )
 
 // Config represents NVGD server configuration.

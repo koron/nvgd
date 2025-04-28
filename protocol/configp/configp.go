@@ -7,10 +7,10 @@ import (
 	"net/url"
 	"regexp"
 
+	"github.com/goccy/go-yaml"
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/protocol"
 	"github.com/koron/nvgd/resource"
-	"gopkg.in/yaml.v2"
 )
 
 // Config hold configuration of nvgd.
