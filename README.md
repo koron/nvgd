@@ -49,24 +49,15 @@ compile nvgd by your self. Please check next section to build from source.
 
 ### Build from source
 
-Nvgd uses `replace` directives. So it couldn't be installed with `go install`
-for now.
-
 Requirements to build:
 
 * Go 1.23.0 or above (1.24.2 is recommended)
-* Git
-* C compiler (gcc or clang) for CGO
+    * CGO enabled
+
+How to install or upgrade
 
 ```console
-# Check out source.
-$ git clone -b v1.14.4 --depth 1 https://github.com/koron/nvgd.git nvgd
-
-# Change current working directory.
-$ cd nvgd
-
-# Build and install.
-$ go install
+$ go install github.com/koron/nvgd@latest
 ```
 
 See also: [How to build on CentOS 7](doc/build-centos7.md)
