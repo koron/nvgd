@@ -14,18 +14,18 @@ formatting, and visualization before serving the results to clients.
 
 Index:
 
-  * [How to use](#how-to-use)
-  * [Acceptable path](#acceptable-path)
+* [How to use](#how-to-use)
+* [Acceptable path](#acceptable-path)
     * [Protocols](#protocols)
-  * [Configuration file](#configuration-file)
+* [Configuration file](#configuration-file)
     * [File Protocol Handler](#file-protocol-handler)
     * [Command Protocol Handlers](#command-protocol-handlers)
     * [S3 Protocol Handlers](#config-s3-protocol-handlers)
     * [Config DB Protocol Handler](#config-db-protocol-handler)
     * [Configure filters](#configure-filters)
     * [Default Filters](#default-filters)
-  * [Filters](#filters)
-  * [Prefix Aliases](#prefix-aliases)
+* [Filters](#filters)
+* [Prefix Aliases](#prefix-aliases)
 
 ## How to use
 
@@ -81,19 +81,19 @@ Nvgd accepts path in these like format:
 
 Nvgd supports these `protocol`s:
 
-  * `file` - `/file:///path/to/source`
+* `file` - `/file:///path/to/source`
     * support [glob][globspec] like `*`
 
         ```
         /files:///var/log/access*.log
         ```
 
-  * `command` - result of pre-defined commands
-  * `s3obj`
+* `command` - result of pre-defined commands
+* `s3obj`
     * get object: `/s3obj://bucket-name/key/to/object`
-  * `s3list`
+* `s3list`
     * list common prefixes and objects: `/s3list://bucket-name/prefix/of/key`
-  * `db` - query pre-defined databases
+* `db` - query pre-defined databases
     * query `id` and `email` form users in `db_pq`:
 
         ```
@@ -115,72 +115,72 @@ Nvgd supports these `protocol`s:
         /db://db_pq/
         ```
 
-  * `db-dump` - dump tables to XLSX.
+* `db-dump` - dump tables to XLSX.
 
-      ```console
-      curl http://127.0.0.1:9280/db-dump://mysql/ -o dst.xlsx
-      ```
+    ```console
+    curl http://127.0.0.1:9280/db-dump://mysql/ -o dst.xlsx
+    ```
 
-      Or access `http://127.0.0.1:9280/db-dump://mysql/` by web browser.
-      Then start to download a excel file.
+    Or access `http://127.0.0.1:9280/db-dump://mysql/` by web browser.
+    Then start to download a excel file.
 
-  * `db-restore` - restore (clear all and import) tables from XLSX.
+* `db-restore` - restore (clear all and import) tables from XLSX.
 
-      ```console
-      curl http://127.0.0.1:9280/db-restore://mysql/ -X POST \
-        -H 'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' \
-        --data-binary @src.xlsx
-      ```
+    ```console
+    curl http://127.0.0.1:9280/db-restore://mysql/ -X POST \
+      -H 'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' \
+      --data-binary @src.xlsx
+    ```
 
-      Or access `http://127.0.0.1:9280/db-dump://mysql/` by web browser.
-      You can upload a excel file from the form.
+    Or access `http://127.0.0.1:9280/db-dump://mysql/` by web browser.
+    You can upload a excel file from the form.
 
-  * `db-update` - update tables by XLSX (upsert)
+* `db-update` - update tables by XLSX (upsert)
 
-      ```console
-      curl http://127.0.0.1:9280/db-update://mysql/ -X POST \
-        -H 'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' \
-        --data-binary @src.xlsx
-      ```
+    ```console
+    curl http://127.0.0.1:9280/db-update://mysql/ -X POST \
+      -H 'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' \
+      --data-binary @src.xlsx
+    ```
 
-      Or access `http://127.0.0.1:9280/db-dump://mysql/` by web browser.
-      You can upload a excel file from the form.
+    Or access `http://127.0.0.1:9280/db-dump://mysql/` by web browser.
+    You can upload a excel file from the form.
 
-  * `redis` - access to redis.
+* `redis` - access to redis.
 
-      [See document for details](doc/protocol-redis.md).
+    [See document for details](doc/protocol-redis.md).
 
-  * `trdsql` - TRDSQL query editor
+* `trdsql` - TRDSQL query editor
 
-      [See docuemnt for detail](doc/filter-trdsql.md).
+    [See docuemnt for detail](doc/filter-trdsql.md).
 
-  * `echarts` - ECharts query editor
+* `echarts` - ECharts query editor
 
-      [See docuemnt for detail](doc/filter-echarts.md).
+    [See docuemnt for detail](doc/filter-echarts.md).
 
-  * `examples` - Example files to use demo/document of filters
+* `examples` - Example files to use demo/document of filters
 
-  * `config` - current nvgd's configuration
+* `config` - current nvgd's configuration
 
-      `/config://` or `/config/` (alias)
+    `/config://` or `/config/` (alias)
 
-  * `help` - show help (README.md) of nvgd.
+* `help` - show help (README.md) of nvgd.
 
-      `/help://` or `/help/` (alias)
+    `/help://` or `/help/` (alias)
 
-      It would be better that combining with `markdown` filter.
+    It would be better that combining with `markdown` filter.
 
-      ```
-      /help/?markdown
-      ```
+    ```
+    /help/?markdown
+    ```
 
-  * `version` - show nvgd's version
+* `version` - show nvgd's version
 
-      Path is `/version://` or `/version/` (alias)
+    Path is `/version://` or `/version/` (alias)
 
 See also:
 
-  * [Filters](#filters)
+* [Filters](#filters)
 
 
 ## Configuration file
@@ -294,8 +294,8 @@ command:
 
 This enables two resources under `command` protocol.
 
-  * `/command://df`
-  * `/command://lstmp`
+* `/command://df`
+* `/command://lstmp`
 
 You could add filters of course, like: `/command://df?grep=re:foo`
 
@@ -480,23 +480,23 @@ Default filters are ignored for directories source of file protocols.
 
 Nvgd supports these filters:
 
-  * [Grep filter](#grep-filter)
-  * [Head filter](#head-filter)
-  * [Tail filter](#tail-filter)
-  * [Cut filter](#cut-filter)
-  * [Pager filter](#pager-filter)
-  * [Hash filter](#hash-filter)
-  * [LTSV filter](#ltsv-filter)
-  * [JSONArray filter](#jsonarray-filter)
-  * [Index HTML filter](#index-html-filter)
-  * [HTML Table filter](#html-table-filter)
-  * [Text Table filter](#text-table-filter)
-  * [Markdown filter](#markdown-filter)
-  * [Refresh filter](#refresh-filter)
-  * [Download filter](#download-filter)
-  * [TRDSQL filter](#trdsql-filter)
-  * [Echarts filter](#echarts-filter)
-  * [All (pseudo) filter](#all-pseudo-filter)
+* [Grep filter](#grep-filter)
+* [Head filter](#head-filter)
+* [Tail filter](#tail-filter)
+* [Cut filter](#cut-filter)
+* [Pager filter](#pager-filter)
+* [Hash filter](#hash-filter)
+* [LTSV filter](#ltsv-filter)
+* [JSONArray filter](#jsonarray-filter)
+* [Index HTML filter](#index-html-filter)
+* [HTML Table filter](#html-table-filter)
+* [Text Table filter](#text-table-filter)
+* [Markdown filter](#markdown-filter)
+* [Refresh filter](#refresh-filter)
+* [Download filter](#download-filter)
+* [TRDSQL filter](#trdsql-filter)
+* [Echarts filter](#echarts-filter)
+* [All (pseudo) filter](#all-pseudo-filter)
 
 ### Filter Spec
 
@@ -528,17 +528,17 @@ given, then matching is made for specified a field, which is splitted by
 
 `grep` command equivalent.
 
-  * filter\_name: `grep`
-  * options
+* filter\_name: `grep`
+* options
     * `re` - regular expression used for match.
     * `match` - output when match or not match.  default is true.
     * `field` - a match target N'th field counted from 1.
-      default is none (whole line).
+        default is none (whole line).
     * `delim` - field delimiter string (default: TAB character).
     * `context` - show a few lines before and after the matched line.
-      default is `0` (no contexts).
+        default is `0` (no contexts).
     * `number` - prefix each line of output with the 1-based line number.
-      when `true`
+        when `true`
 
 ### Head filter
 
@@ -546,8 +546,8 @@ Output the first N lines.
 
 `head` command equivalent.
 
-  * filter\_name: `head`
-  * options
+* filter\_name: `head`
+* options
     * `start` - start line number for output.  default is 0.
     * `limit` - line number for output.  default is 10.
 
@@ -557,8 +557,8 @@ Output the last N lines.
 
 `tail` command equivalent.
 
-  * filter\_name: `tail`
-  * options
+* filter\_name: `tail`
+* options
     * `limit` - line number for output.  default is 10.
 
 ### Cut filter
@@ -567,34 +567,34 @@ Output selected fields of lines.
 
 `cut` command equivalent.
 
-  * filter\_name: `cut`
-  * options:
+* filter\_name: `cut`
+* options:
     * `delim` - field delimiter string (default: TAB character).
     * `white` - use consecutive whites as one single field separator (default: false)
     * `list` - selected fields, combinable by comma `,`.
-      * `N` - N'th field counted from 1.
-      * `N-M` - from N'th, to M'th field (included).
-      * `N-` - from N'th field, to end of line.
-      * `-N` - from first, to N'th field.
+        * `N` - N'th field counted from 1.
+        * `N-M` - from N'th, to M'th field (included).
+        * `N-` - from N'th field, to end of line.
+        * `-N` - from first, to N'th field.
 
 ### Pager filter
 
 `pager` is a filter that divides the input stream into pages by lines that
 match the specified pattern.
 
-  * filter\_name: `pager`
-  * options:
+* filter\_name: `pager`
+* options:
     * `eop`: Regular expression that matches page separator lines.
     * `pages`: Page number to output (1-based number)
 
-      You can specify multiple pages separated by commas. Examples
+        You can specify multiple pages separated by commas. Examples
 
-      * `1`: First page only
-      * `2,4,6`: Page 2, 4, and 6
-      * `-1`: Last page
-      * `-3`: 3rd page from the end
-      * `1,-1`: First and last pages
-      * `10-12`: Pages 10 to 12
+        * `1`: First page only
+        * `2,4,6`: Page 2, 4, and 6
+        * `-1`: Last page
+        * `-3`: 3rd page from the end
+        * `1,-1`: First and last pages
+        * `10-12`: Pages 10 to 12
 
     * `num`: Boolean. Output a page number at the top of the page.
 
@@ -604,8 +604,8 @@ match the specified pattern.
 
 Output hash value.
 
-  * filter\_name: `hash`
-  * options:
+* filter\_name: `hash`
+* options:
     * `algorithm` - one of `md5` (default), `sha1`, `sha256` or `sha512`
     * `encoding` - one of `hex` (default), `base64` or `binary`
 
@@ -613,16 +613,16 @@ Output hash value.
 
 Count lines.
 
-  * filter\_name: `count`
-  * options: (none)
+* filter\_name: `count`
+* options: (none)
 
 ### LTSV filter
 
 A filter that outputs only the specified labels from the rows of LTSV that
 match the another specified label value.
 
-  * filter\_name: `ltsv`
-  * options:
+* filter\_name: `ltsv`
+* options:
     * `grep` - match parameter: `{label},{pattern}`
     * `match` - output when match or not match.  default is true.
     * `cut` - selected labels, combinable by comma `,`.
@@ -631,16 +631,16 @@ match the another specified label value.
 
 Convert each line as a string of JSON array.
 
-  * filter\_name: `jsonarray`
-  * options: (none)
+* filter\_name: `jsonarray`
+* options: (none)
 
 ### Index HTML filter
 
 Convert LTSV to Index HTML.
 (limited for s3list and files (dir) source for now)
 
-  * filter\_name: `indexhtml`
-  * options:
+* filter\_name: `indexhtml`
+* options:
     * `timefmt`: Time layout for "Modified At" or so. default is `RFC1123`.
       Possible values are, case insensitive: `ANSIC`, `UNIX`, `RUBY`, `RFC822`,
       `RFC822Z`, `RFC850`, `RFC1123`, `RFC1123Z`, `RFC3339`, `RFC3339NANO`,
@@ -648,7 +648,7 @@ Convert LTSV to Index HTML.
     * `nouplink`: Hide the "Up" link to navigate back through the directory
       hierarchy, when its value is `true`. Default is `false`: show the "Up"
       link.
-  * configurations:
+* configurations:
     * `custom_css_urls`: list of URLs to link as CSS.
 
 Example: list objects in S3 bucket "foo" with Index HTML.
@@ -661,10 +661,10 @@ This filter should be the last of filters.
 
 Convert LTSV to HTML table.
 
-  * filter\_name: `htmltable`
-  * options:
+* filter\_name: `htmltable`
+* options:
     * `linefeed` - boolean: expand all `\n` as linefeed.
-  * configurations:
+* configurations:
     * `custom_css_urls`: list of URLs to link as CSS.
 
 Example: query id and email column from users table on mine database.
@@ -677,8 +677,8 @@ This filter should be the last of filters.
 
 Convert LTSV to plain text table.
 
-  * filter\_name: `texttable`
-  * options: (none)
+* filter\_name: `texttable`
+* options: (none)
 
 Example: query id and email column from users table on mine database.
 
@@ -699,9 +699,9 @@ This filter should be the last of filters.
 
 Convert markdown text to HTML.
 
-  * filter\_name: `markdown`
-  * options: (none)
-  * configurations:
+* filter\_name: `markdown`
+* options: (none)
+* configurations:
     * `custom_css_urls`: list of URLs to link as CSS.
 
 Example: show help in HTML.
@@ -713,8 +713,8 @@ Example: show help in HTML.
 
 Add "Refresh" header with specified time (sec).
 
-  * filter\_name: `refresh`
-  * options: interval seconds to refresh.  0 for disable.
+* filter\_name: `refresh`
+* options: interval seconds to refresh.  0 for disable.
 
 Example: Open below URL using WEB browser, it refresh in each 5 seconds
 automatically.
@@ -726,8 +726,8 @@ automatically.
 Add "Content-Disposition: attachment" header to the response.  It make the
 browser to download the resource instead of showing in it.
 
-  * filter\_name: `download`
-  * options: (none)
+* filter\_name: `download`
+* options: (none)
 
 Example: download the file "messages" and would be saved as file.
 
@@ -747,8 +747,8 @@ Echarts filter provides drawing charts feature.
 
 Ignore [default filters](#default-filters)
 
-  * filter\_name: `all`
-  * options: (none)
+* filter\_name: `all`
+* options: (none)
 
 Example: if specified some default filters for `file:///var/`, this ignore
 those.
@@ -802,7 +802,7 @@ path.
 
 ## References
 
-  * [koron/night][night] previous implementation which written in NodeJS.
+* [koron/night][night] previous implementation which written in NodeJS.
 
 [night]:https://github.com/koron/night
 [globspec]:https://golang.org/pkg/path/filepath/#Match
