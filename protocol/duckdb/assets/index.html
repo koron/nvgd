@@ -26,8 +26,8 @@ body {
 
 <script type="module">
 
-import * as duckdb from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.29.1-dev132.0/+esm';
-import * as shell from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm-shell@1.29.1-dev132.0/+esm';
+import * as duckdb from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@{{ .constant.version }}/+esm';
+import * as shell from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm-shell@{{ .constant.version }}/+esm';
 
 // Create a container element  
 const shellDiv = document.getElementById('shell-container');  
@@ -39,7 +39,7 @@ const shellDiv = document.getElementById('shell-container');
 // However, due to a bug, dist/ is duplicated, resulting in an incorrect URL, so we specify it ourselves.
 // Problem area: https://github.com/duckdb/duckdb-wasm/blob/de7382ee418b5cac6b268124f5daa83a80fdf8e7/packages/duckdb-wasm-shell/src/platform.ts#L4-L5
 //
-const shellModule = new URL('https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm-shell@1.29.1-dev132.0/dist/shell_bg.wasm');
+const shellModule = new URL('https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm-shell@{{ .constant.version }}/dist/shell_bg.wasm');
 
 // Embed the shell  
 await shell.embed({  
