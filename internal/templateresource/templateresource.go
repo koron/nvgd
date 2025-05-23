@@ -49,6 +49,7 @@ func (res *TemplateResource) Open(u *url.URL) (*resource.Resource, error) {
 	if res.constData != nil {
 		data["constant"] = res.constData
 	}
+	data["query"] = u.Query()
 
 	tmpl := res.tmpl.Lookup(path)
 	if tmpl == nil {

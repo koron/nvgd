@@ -6,6 +6,9 @@ const (
 
 	// Filename is for header.
 	Filename = "File-Name"
+
+	// SkipFilters is a special tag to prevent filters.
+	SkipFilters = "Skip-Filters"
 )
 
 // Options holds option properties of Resource.

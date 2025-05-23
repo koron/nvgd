@@ -145,7 +145,7 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 			e.QueryLink = qlink
 		}
 		if _, ok := supportDuckDB(name); ok {
-			link := "/duckdb/"
+			link := "/duckdb/?"
 			link += "f=" + url.PathEscape(pathPrefix(s.GetFirst("link")))
 			e.DuckDBLink = link
 		}

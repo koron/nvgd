@@ -186,6 +186,23 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 		rsrc = rewritten
 	}
 
+	if v, ok := rsrc.Bool(resource.SkipFilters); ok && v {
+		// Prevent to apply filters, compose and return the response directly.
+		if fn, ok := rsrc.String(resource.Filename); ok {
+			res.Header().Set("Content-Disposition",
+				fmt.Sprintf(`attachment; filename="%s"`, fn))
+		}
+		if ct, ok := rsrc.String(resource.ContentType); ok {
+			res.Header().Set("Content-Type", ct)
+		}
+		res.WriteHeader(http.StatusOK)
+		_, err = io.Copy(res, rsrc)
+		if err != nil {
+			s.errorLog.Printf("failed to copy body content: %s", err)
+		}
+		return nil
+	}
+
 	// Respond to preflight requests only when the resource exists.
 	if req.Method == http.MethodOptions {
 		res.Header().Set("Content-Length", "0")
