@@ -166,7 +166,7 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 	if err := tmpl.Execute(buf, d); err != nil {
 		return nil, err
 	}
-	return r.Wrap(io.NopCloser(buf)), nil
+	return r.Wrap(io.NopCloser(buf)).PutContentType("text/html"), nil
 }
 
 // supportQuery checks filename, which is supported format as query target.

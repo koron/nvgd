@@ -264,8 +264,6 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 	// Set "Content-Type" header if required.
 	if ct, ok := r.String(resource.ContentType); ok {
 		res.Header().Set("Content-Type", ct)
-	} else if s.isHTML(qp) {
-		res.Header().Set("Content-Type", "text/html")
 	}
 
 	// Output the headers and the body to ResponseWriter.
@@ -352,13 +350,4 @@ func (s *Server) parseParams(q string) (map[string]string, error) {
 		p[k] = v
 	}
 	return p, nil
-}
-
-func (s *Server) isHTML(qp qparams) bool {
-	if len(qp) == 0 {
-		return false
-	}
-	item := qp[len(qp)-1]
-	return item.name == "htmltable" || item.name == "indexhtml" ||
-		item.name == "markdown"
 }
