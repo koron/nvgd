@@ -73,7 +73,9 @@ func pathPrefix(s string) string {
 	if s == "" {
 		return ""
 	}
-	return path.Join(config.Root().PathPrefix, s)
+	// path.Join cleans "//" at "/". it break some links. so we can't use it.
+	//return path.Join(config.Root().PathPrefix, s)
+	return strings.TrimRight(config.Root().PathPrefix, "/") + "/" + strings.TrimLeft(s, "/")
 }
 
 func chooseTimeLayout(name string) string {
