@@ -7,8 +7,7 @@ type RangeReader struct {
 	c io.Closer
 }
 
-var _ io.Reader = (*RangeReader)(nil)
-var _ io.Closer = (*RangeReader)(nil)
+var _ io.ReadCloser = (*RangeReader)(nil)
 
 func New(base io.Reader, start, end, limit int) (*RangeReader, error) {
 	r := base

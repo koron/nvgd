@@ -304,10 +304,10 @@ func (f *File) OpenRange(u *url.URL, start, end int) (*resource.Resource, error)
 	if err != nil {
 		return nil, err
 	}
-	rc, err = rangereader.New(io.Reader(rc), start, end, sz)
+	rr, err := rangereader.New(rc, start, end, sz)
 	if err != nil {
 		return nil, err
 	}
 
-	return resource.New(rc), nil
+	return resource.New(rr), nil
 }
