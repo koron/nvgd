@@ -188,6 +188,7 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 
 	if v, ok := rsrc.Bool(resource.SkipFilters); ok && v {
 		// Prevent to apply filters, compose and return the response directly.
+		status := http.StatusOK
 		if fn, ok := rsrc.String(resource.Filename); ok {
 			res.Header().Set("Content-Disposition",
 				fmt.Sprintf(`attachment; filename="%s"`, fn))
@@ -195,7 +196,17 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 		if ct, ok := rsrc.String(resource.ContentType); ok {
 			res.Header().Set("Content-Type", ct)
 		}
-		res.WriteHeader(http.StatusOK)
+		if v, ok := rsrc.Int(resource.ContentLength); ok {
+			res.Header().Set("Content-Length", strconv.Itoa(v))
+		}
+		if v, ok := rsrc.String(resource.ContentRange); ok {
+			res.Header().Set("Content-Range", v)
+			status = http.StatusPartialContent
+		}
+		if v, ok := rsrc.String(resource.AcceptRanges); ok {
+			res.Header().Set("Accept-Ranges", v)
+		}
+		res.WriteHeader(status)
 		_, err = io.Copy(res, rsrc)
 		if err != nil {
 			s.errorLog.Printf("failed to copy body content: %s", err)
@@ -205,7 +216,11 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 
 	// Respond to preflight requests only when the resource exists.
 	if req.Method == http.MethodOptions {
-		res.Header().Set("Content-Length", "0")
+		if v, ok := rsrc.Int(resource.ContentLength); ok {
+			res.Header().Set("Content-Length", strconv.Itoa(v))
+		} else {
+			res.Header().Set("Content-Length", "0")
+		}
 		res.WriteHeader(http.StatusOK)
 		return nil
 	}
@@ -265,13 +280,24 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 	if ct, ok := r.String(resource.ContentType); ok {
 		res.Header().Set("Content-Type", ct)
 	}
+	if v, ok := rsrc.Int(resource.ContentLength); ok {
+		res.Header().Set("Content-Length", strconv.Itoa(v))
+	}
+	if v, ok := rsrc.String(resource.ContentRange); ok {
+		res.Header().Set("Content-Range", v)
+	}
+	if v, ok := rsrc.String(resource.AcceptRanges); ok {
+		res.Header().Set("Accept-Ranges", v)
+	}
 
-	// Output the headers and the body to ResponseWriter.
+	// Output the headers.
 	res.WriteHeader(http.StatusOK)
+	// Output the body.
 	_, err = io.Copy(res, r)
 	if err != nil {
 		s.errorLog.Printf("failed to copy body content: %s", err)
 	}
+
 	return nil
 }
 

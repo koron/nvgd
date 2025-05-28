@@ -9,6 +9,7 @@ import (
 	"io"
 	"io/fs"
 	"log"
+	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -19,7 +20,9 @@ import (
 
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/internal/commonconst"
+	"github.com/koron/nvgd/internal/httperror"
 	"github.com/koron/nvgd/internal/ltsv"
+	"github.com/koron/nvgd/internal/rangereader"
 	"github.com/koron/nvgd/protocol"
 	"github.com/koron/nvgd/resource"
 	"github.com/pierrec/lz4/v4"
@@ -28,6 +31,8 @@ import (
 // File is file protocol handler.
 type File struct {
 }
+
+var _ protocol.Rangeable = (*File)(nil)
 
 // FileConfig provides configuration for file protocol.
 type FileConfig struct {
@@ -265,4 +270,44 @@ func (mrc *multiRC) Close() error {
 	}
 	mrc.rcs = nil
 	return nil
+}
+
+func (f *File) Size(u *url.URL) (int, error) {
+	name := u.Path
+	if !fc.isAccessible(name) {
+		return 0, fs.ErrPermission
+	}
+	fi, err := os.Lstat(name)
+	if err != nil {
+		return 0, err
+	}
+	return int(fi.Size()), nil
+}
+
+func (f *File) OpenRange(u *url.URL, start, end int) (*resource.Resource, error) {
+	name := u.Path
+	if !fc.isAccessible(name) {
+		return nil, fs.ErrPermission
+	}
+	fi, err := os.Lstat(name)
+	if err != nil {
+		return nil, err
+	}
+	// Check range in size.
+	sz := int(fi.Size())
+	if !(start >= 0 && start <= end && end < sz) {
+		// FIXME: replace with better error. hand translate it to HTTP status code in another layer.
+		return nil, httperror.New(http.StatusRequestedRangeNotSatisfiable)
+	}
+
+	rc, err := fileOpen(name)
+	if err != nil {
+		return nil, err
+	}
+	rc, err = rangereader.New(io.Reader(rc), start, end, sz)
+	if err != nil {
+		return nil, err
+	}
+
+	return resource.New(rc), nil
 }

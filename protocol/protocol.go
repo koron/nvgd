@@ -7,7 +7,10 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
+	"strconv"
 
+	"github.com/koron/nvgd/internal/httperror"
 	"github.com/koron/nvgd/resource"
 )
 
@@ -28,6 +31,12 @@ func (f ProtocolFunc) Open(u *url.URL) (*resource.Resource, error) {
 type Postable interface {
 	Protocol
 	Post(u *url.URL, r io.Reader) (*resource.Resource, error)
+}
+
+type Rangeable interface {
+	Protocol
+	Size(u *url.URL) (int, error)
+	OpenRange(u *url.URL, start, end int) (*resource.Resource, error)
 }
 
 var protocols = map[string]Protocol{}
@@ -66,6 +75,14 @@ func Open(u *url.URL, req *http.Request) (*resource.Resource, error) {
 	if post, ok := p.(Postable); ok && req != nil && req.Method == http.MethodPost {
 		return openPost(post, u, req)
 	}
+	if rangeable, ok := p.(Rangeable); ok && req != nil {
+		if req.Method == http.MethodHead {
+			return openRangeHead(rangeable, u, req)
+		}
+		if req.Method == http.MethodGet {
+			return openRangeBody(rangeable, u, req)
+		}
+	}
 	return p.Open(u)
 }
 
@@ -90,4 +107,54 @@ func openPost(p Postable, u *url.URL, req *http.Request) (*resource.Resource, er
 		return nil, err
 	}
 	return p.Post(u, data)
+}
+
+func openRangeHead(rangeable Rangeable, u *url.URL, req *http.Request) (*resource.Resource, error) {
+	sz, err := rangeable.Size(u)
+	if err != nil {
+		// TODO: Return better error.
+		return nil, fmt.Errorf("failed to fetch size: %w", err)
+	}
+	// TODO: Prepare better resource.
+	r, err := rangeable.Open(u)
+	if err != nil {
+		return nil, err
+	}
+	// Add headers to accept range request.
+	r.Put(resource.SkipFilters, true)
+	r.Put(resource.AcceptRanges, "bytes")
+	r.Put(resource.ContentLength, sz)
+	return r, nil
+}
+
+var rxBytesRange = regexp.MustCompile(`^bytes=(\d+)-(\d+)$`)
+
+func openRangeBody(rangeable Rangeable, u *url.URL, req *http.Request) (*resource.Resource, error) {
+	// Parse and extract "Range" header.
+	rangeHeader := req.Header.Get("Range")
+	if rangeHeader == "" {
+		return rangeable.Open(u)
+	}
+	m := rxBytesRange.FindStringSubmatch(rangeHeader)
+	if m == nil {
+		return nil, httperror.New(http.StatusBadRequest)
+	}
+	start, _ := strconv.Atoi(m[1])
+	end, _ := strconv.Atoi(m[2])
+
+	// TODO: Check if in range.
+	sz, err := rangeable.Size(u)
+	if err != nil {
+		// TODO: Return better error.
+		return nil, fmt.Errorf("failed to fetch size: %w", err)
+	}
+
+	r, err := rangeable.OpenRange(u, start, end)
+	if err != nil {
+		return nil, err
+	}
+	r.Put(resource.SkipFilters, true)
+	r.Put(resource.ContentLength, end-start+1)
+	r.Put(resource.ContentRange, fmt.Sprintf("bytes %d-%d/%d", start, end, sz))
+	return r, nil
 }
