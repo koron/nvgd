@@ -147,8 +147,8 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 			e.QueryLink = qlink
 		}
 		if _, ok := supportDuckDB(name); ok {
-			link := "/duckdb/?"
-			link += "f=" + url.PathEscape(pathPrefix(s.GetFirst("link")))
+			link := "/duckdb/show-as-view?"
+			link += "t=" + url.PathEscape(pathPrefix(s.GetFirst("link")))
 			e.DuckDBLink = link
 		}
 		// detect UNIX time, and convert it to specified time layout (default is RFC1123).

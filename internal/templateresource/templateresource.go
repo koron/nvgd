@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/fs"
 	"net/url"
+	"path"
 
 	"github.com/koron/nvgd/resource"
 )
@@ -19,7 +20,7 @@ type TemplateResource struct {
 }
 
 func New(fs fs.FS, opts ...Option) (*TemplateResource, error) {
-	tmpl, err := template.ParseFS(fs, "**/*")
+	tmpl, err := template.ParseFS(fs, "*/*")
 	if err != nil {
 		return nil, err
 	}
@@ -38,9 +39,9 @@ func (res *TemplateResource) Open(u *url.URL) (*resource.Resource, error) {
 		u.Path = "/"
 		return resource.NewRedirect(u.String()), nil
 	}
-	path := u.Path
-	if path == "/" {
-		path = "index.html"
+	p := u.Path[1:]
+	if p == "" {
+		p = "index.html"
 	}
 	bb := &bytes.Buffer{}
 
@@ -51,21 +52,33 @@ func (res *TemplateResource) Open(u *url.URL) (*resource.Resource, error) {
 	}
 	data["query"] = u.Query()
 
-	tmpl := res.tmpl.Lookup(path)
-	if tmpl == nil {
-		if res.fallback == "" {
-			return nil, fmt.Errorf("not found: %s", path)
-		}
-		tmpl = res.tmpl.Lookup(res.fallback)
-		if tmpl == nil {
-			return nil, fmt.Errorf("not found: %s and %s", path, res.fallback)
+	// Lookup a template.
+	var (
+		candidates []string
+		tmpl       *template.Template
+	)
+	candidates = append(candidates, p)
+	if path.Ext(p) == "" {
+		candidates = append(candidates, p+".html")
+	}
+	if res.fallback != "" {
+		candidates = append(candidates, res.fallback)
+	}
+	for _, path := range candidates {
+		tmpl = res.tmpl.Lookup(path)
+		if tmpl != nil {
+			break
 		}
 	}
-	err := res.tmpl.Execute(bb, data)
+	if tmpl == nil {
+		return nil, fmt.Errorf("not found any of: %+s", candidates)
+	}
+
+	err := tmpl.Execute(bb, data)
 	if err != nil {
 		return nil, err
 	}
-	return resource.New(io.NopCloser(bb)).GuessContentType(path), nil
+	return resource.New(io.NopCloser(bb)).GuessContentType(p), nil
 }
 
 type Option interface {

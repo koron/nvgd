@@ -55,16 +55,8 @@ await shell.embed({
     const db = new duckdb.AsyncDuckDB(new duckdb.ConsoleLogger(), worker);  
     await db.instantiate(bundle.mainModule, bundle.pthreadWorker, progress);  
 
-    // Reveke the worker URL.
+    // Revoke the worker URL.
     URL.revokeObjectURL(worker_url);
-
-    {{ if .query.f }}
-    // Load provided resource.
-    const c = await db.connect();
-    const f = (new URL(document.URL)).origin + {{ index .query.f 0 }};
-    await c.query(`CREATE TABLE f AS SELECT * FROM '${f}'`);
-    await c.close();
-    {{ end }}
 
     return db;
   }  
