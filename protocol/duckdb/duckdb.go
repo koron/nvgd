@@ -14,7 +14,7 @@ import (
 //go:embed assets
 var assetFS embed.FS
 
-const Version = "1.29.1-dev132.0"
+const Version = "1.29.1-dev207.0"
 
 var tmplRsrc *templateresource.TemplateResource
 
