@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta name="referrer" content="no-referrer">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.min.css">
+
+<style>
+html {
+  width: 100vw;
+  height: 100vh;
+}
+body {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 8px;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(51, 51, 51);
+}
+#shell-container {
+  width: 100%;
+  height:100%;
+}
+</style>
+
+<script type="module">
+
+import * as duckdb from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@{{ .constant.version }}/+esm';
+import * as shell from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm-shell@{{ .constant.version }}/+esm';
+
+// Create a container element  
+const shellDiv = document.getElementById('shell-container');  
+
+// Actually, I want to use shell.getJsDelivrModule() like this:
+//
+//    const shellModule = shell.getJsDelivrModule();
+//
+// However, due to a bug, dist/ is duplicated, resulting in an incorrect URL, so we specify it ourselves.
+// Problem area: https://github.com/duckdb/duckdb-wasm/blob/de7382ee418b5cac6b268124f5daa83a80fdf8e7/packages/duckdb-wasm-shell/src/platform.ts#L4-L5
+//
+const shellModule = new URL('https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm-shell@{{ .constant.version }}/dist/shell_bg.wasm');
+
+// Embed the shell  
+await shell.embed({  
+  container: shellDiv,  
+  shellModule: shellModule,
+  resolveDatabase: async (progress) => {  
+    // Select the bundle and load the worker.
+    const bundle = await duckdb.selectBundle(duckdb.getJsDelivrBundles());  
+    const worker_url = URL.createObjectURL(new Blob([`importScripts("${bundle.mainWorker}");`], {type: 'text/javascript'}));
+
+    // Create a worker and instantiate the database  
+    const worker = new Worker(worker_url);
+    const db = new duckdb.AsyncDuckDB(new duckdb.ConsoleLogger(), worker);  
+    await db.instantiate(bundle.mainModule, bundle.pthreadWorker, progress);  
+
+    // Revoke the worker URL.
+    URL.revokeObjectURL(worker_url);
+
+    return db;
+  }  
+});
+
+</script>
+
+<div id="shell-container" />

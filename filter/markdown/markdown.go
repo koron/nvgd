@@ -67,5 +67,5 @@ func filterMarkdown(r *resource.Resource, p filter.Params) (*resource.Resource, 
 		return nil, err
 	}
 	r2 := io.NopCloser(io.MultiReader(head, bytes.NewReader(bodyBytes)))
-	return r.Wrap(r2), nil
+	return r.Wrap(r2).PutContentType("text/html"), nil
 }

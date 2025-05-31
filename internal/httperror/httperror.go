@@ -2,12 +2,19 @@
 // and message.
 package httperror
 
-import "fmt"
+import (
+	"fmt"
+	"net/http"
+)
 
 type httpErr struct {
 	status int
 	format string
 	args   []interface{}
+}
+
+func New(status int) error {
+	return Newf(status, http.StatusText(status))
 }
 
 func Newf(status int, format string, args ...interface{}) error {

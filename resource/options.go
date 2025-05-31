@@ -6,6 +6,18 @@ const (
 
 	// Filename is for header.
 	Filename = "File-Name"
+
+	// SkipFilters is a special tag to prevent filters.
+	SkipFilters = "Skip-Filters"
+
+	// AcceptRanges tag for "Accept-Ranges" header.
+	AcceptRanges = "Accept-Ranges"
+
+	// ContentRange tag for partial response.
+	ContentRange = "Content-Range"
+
+	// ContentLength tag for "Content-Length" header.
+	ContentLength = "Content-Length"
 )
 
 // Options holds option properties of Resource.
