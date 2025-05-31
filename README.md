@@ -144,11 +144,11 @@ Nvgd supports these `protocol`s:
 
 * `trdsql` - TRDSQL query editor
 
-    [See docuemnt for detail](doc/filter-trdsql.md).
+    [See document for detail](doc/filter-trdsql.md).
 
 * `echarts` - ECharts query editor
 
-    [See docuemnt for detail](doc/filter-echarts.md).
+    [See document for detail](doc/filter-echarts.md).
 
 * `examples` - Example files to use demo/document of filters
 
@@ -476,6 +476,7 @@ Nvgd supports these filters:
 * [Head filter](#head-filter)
 * [Tail filter](#tail-filter)
 * [Cut filter](#cut-filter)
+* [Cutline filter](#cutline-filter)
 * [Pager filter](#pager-filter)
 * [Hash filter](#hash-filter)
 * [LTSV filter](#ltsv-filter)
@@ -568,6 +569,11 @@ Output selected fields of lines.
         * `N-M` - from N'th, to M'th field (included).
         * `N-` - from N'th field, to end of line.
         * `-N` - from first, to N'th field.
+
+### Cutline filter
+
+Cutlines extracts specific range of lines with regular expressions.
+[See document for details](doc/filter-cutline.md).
 
 ### Pager filter
 
@@ -728,12 +734,12 @@ Example: download the file "messages" and would be saved as file.
 ### TRDSQL filter
 
 TRDSQL filter provides SQL on CSV.
-[See docuemnt for detail](doc/filter-trdsql.md).
+[See document for detail](doc/filter-trdsql.md).
 
 ### Echarts filter
 
 Echarts filter provides drawing charts feature.
-[See docuemnt for detail](doc/filter-echarts.md).
+[See document for detail](doc/filter-echarts.md).
 
 ### All (pseudo) filter
 
