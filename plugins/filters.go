@@ -3,6 +3,7 @@ package plugins
 import (
 	_ "github.com/koron/nvgd/filter/count"
 	_ "github.com/koron/nvgd/filter/cut"
+	_ "github.com/koron/nvgd/filter/cutline"
 	_ "github.com/koron/nvgd/filter/echarts"
 	_ "github.com/koron/nvgd/filter/grep"
 	_ "github.com/koron/nvgd/filter/hash"
