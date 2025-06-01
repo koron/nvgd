@@ -1,5 +1,3 @@
----
-
 **NVGD DuckDB Protocol Documentation**
 
 **1. Introduction**
@@ -154,5 +152,3 @@ You can also use 'Show as View' to directly load data from public URLs that host
     ```
 
 These examples demonstrate the flexibility of the NVGD DuckDB protocol for both direct interaction and quick loading of various data sources directly into your browser.
-
----
