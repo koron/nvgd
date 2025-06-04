@@ -9,6 +9,8 @@ There are two main ways to use the NVGD DuckDB protocol:
 *   **Interactive Shell:** A command-line like interface in your browser for running SQL queries.
 *   **'Show as View' Utility:** A quick way to load data from a link, such as the `indexhtml` filter, directly into the interactive shell for inspection and querying.
 
+For more information about DuckDB WASM, see: <https://duckdb.org/docs/stable/clients/wasm/overview.html>
+
 ## Accessing the Interactive Shell
 
 The NVGD DuckDB protocol provides a powerful interactive SQL shell that runs entirely within your web browser, powered by DuckDB-WASM. This allows you to directly query data sources accessible to your NVGD instance and perform complex data analysis without needing to install DuckDB locally.
