@@ -51,7 +51,7 @@ func (cc CustomConfig) UnmarshalYAML(unmarshal func(any) error) error {
 	}
 	for _, item := range m {
 		k, ok := item.Key.(string)
-		if !ok {
+		if !ok || item.Value == nil {
 			continue
 		}
 		v, ok := cc[k]
