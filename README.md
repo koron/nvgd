@@ -52,7 +52,7 @@ compile nvgd by your self. Please check next section to build from source.
 
 Requirements to build:
 
-* Go 1.23.0 or above (1.24.2 is recommended)
+* Go 1.24.0 or above (1.24.3 is recommended)
     * CGO enabled
 
 How to install or upgrade
