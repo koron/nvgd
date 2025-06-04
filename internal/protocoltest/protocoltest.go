@@ -40,7 +40,7 @@ func GetRegistered[T any](t *testing.T, name string) T {
 	}
 	p, ok := got.(T)
 	if !ok {
-		t.Fatalf("%s: registered protocol is not %T", name, zero)
+		t.Fatalf("%s: registered protocol is not %T (got %T)", name, zero, got)
 	}
 	return p
 }
