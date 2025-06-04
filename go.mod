@@ -5,10 +5,10 @@ go 1.23.0
 require (
 	github.com/alicebob/miniredis/v2 v2.34.0
 	github.com/aws/aws-sdk-go v1.55.7
-	github.com/go-echarts/go-echarts/v2 v2.5.3
+	github.com/go-echarts/go-echarts/v2 v2.5.4
 	github.com/go-redis/redis/v7 v7.4.1
 	github.com/go-sql-driver/mysql v1.9.2
-	github.com/goccy/go-yaml v1.17.1
+	github.com/goccy/go-yaml v1.18.0
 	github.com/gomarkdown/markdown v0.0.0-20250311123330-531bef5e742b
 	github.com/google/go-cmp v0.7.0
 	github.com/koron-go/ringbuf v1.0.0
