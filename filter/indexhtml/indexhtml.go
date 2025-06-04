@@ -37,6 +37,7 @@ var tmpl = template.Must(template.New("indexhtml").Parse(`<!DOCTYPE html>
 	<td>
 		{{if .Download}}<a href="{{.Download}}">DL</a>{{end}}
 		{{if .QueryLink}}<a href="{{.QueryLink}}">Query</a>{{end}}
+		{{if .DuckDBLink}}<a href="{{.DuckDBLink}}">DuckDB</a>{{end}}
 	</td>
   </tr>
   {{end}}
@@ -57,8 +58,9 @@ type entry struct {
 	ModifiedAt string
 	Link       string
 
-	Download  string
-	QueryLink string
+	Download   string
+	QueryLink  string
+	DuckDBLink string
 }
 
 type Config struct {
@@ -71,7 +73,9 @@ func pathPrefix(s string) string {
 	if s == "" {
 		return ""
 	}
-	return path.Join(config.Root().PathPrefix, s)
+	// path.Join cleans "//" at "/". it break some links. so we can't use it.
+	//return path.Join(config.Root().PathPrefix, s)
+	return strings.TrimRight(config.Root().PathPrefix, "/") + "/" + strings.TrimLeft(s, "/")
 }
 
 func chooseTimeLayout(name string) string {
@@ -142,6 +146,11 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 			qlink += "&ih=false"
 			e.QueryLink = qlink
 		}
+		if _, ok := supportDuckDB(name); ok {
+			link := "/duckdb/show-as-view?"
+			link += "t=" + url.PathEscape(pathPrefix(s.GetFirst("link")))
+			e.DuckDBLink = link
+		}
 		// detect UNIX time, and convert it to specified time layout (default is RFC1123).
 		if sec, err := strconv.ParseInt(e.ModifiedAt, 10, 64); err == nil {
 			e.ModifiedAt = time.Unix(sec, 0).Format(timeLayout)
@@ -159,7 +168,7 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 	if err := tmpl.Execute(buf, d); err != nil {
 		return nil, err
 	}
-	return r.Wrap(io.NopCloser(buf)), nil
+	return r.Wrap(io.NopCloser(buf)).PutContentType("text/html"), nil
 }
 
 // supportQuery checks filename, which is supported format as query target.
@@ -167,6 +176,19 @@ func supportQuery(name string) (string, bool) {
 	ext := strings.ToLower(path.Ext(name))
 	switch ext {
 	case ".csv", ".ltsv", ".tsv":
+		return strings.ToUpper(ext[1:]), true
+	default:
+		return "", false
+	}
+}
+
+// supportDuckDB checks filename, which is supported by DuckDB.
+func supportDuckDB(name string) (string, bool) {
+	ext := strings.ToLower(path.Ext(name))
+	switch ext {
+	case ".csv", ".xlsx", ".json", ".parquet":
+		// supported file formats came from:
+		// https://duckdb.org/docs/stable/guides/file_formats/overview
 		return strings.ToUpper(ext[1:]), true
 	default:
 		return "", false

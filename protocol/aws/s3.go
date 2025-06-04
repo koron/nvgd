@@ -52,25 +52,62 @@ type S3ObjHandler struct {
 	Config *S3Config
 }
 
-// Open opens a S3 URL.
-func (ph *S3ObjHandler) Open(u *url.URL) (*resource.Resource, error) {
-	var (
-		bucket = u.Host
-		key    = u.Path
-	)
+var _ protocol.Rangeable = (*S3ObjHandler)(nil)
+
+func (ph *S3ObjHandler) newS3(u *url.URL) (svc *s3.S3, bucket, key string, err error) {
+	bucket = u.Host
+	key = u.Path
 	conf := ph.Config.bucketConfig(bucket).awsConfig()
 	sess, err := session.NewSession(conf)
 	if err != nil {
-		return nil, err
+		return nil, "", "", err
 	}
-	svc := s3.New(sess)
-	return ph.getObject(svc, bucket, key)
+	return s3.New(sess), bucket, key, nil
 }
 
-func (ph *S3ObjHandler) getObject(svc *s3.S3, bucket, key string) (*resource.Resource, error) {
+// Open opens a S3 URL.
+func (ph *S3ObjHandler) Open(u *url.URL) (*resource.Resource, error) {
+	svc, bucket, key, err := ph.newS3(u)
+	if err != nil {
+		return nil, err
+	}
 	out, err := svc.GetObject(&s3.GetObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return resource.New(out.Body), nil
+}
+
+func (ph *S3ObjHandler) Size(u *url.URL) (int, error) {
+	svc, bucket, key, err := ph.newS3(u)
+	if err != nil {
+		return 0, err
+	}
+	out, err := svc.HeadObject(&s3.HeadObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		return 0, err
+	}
+	if out.ContentLength == nil {
+		return 0, fmt.Errorf("failed to get size of the object: bucket=%s key=%s", bucket, key)
+	}
+	return int(*out.ContentLength), nil
+}
+
+func (ph *S3ObjHandler) OpenRange(u *url.URL, start, end int) (*resource.Resource, error) {
+	svc, bucket, key, err := ph.newS3(u)
+	if err != nil {
+		return nil, err
+	}
+	out, err := svc.GetObject(&s3.GetObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(key),
+		Range:  aws.String(fmt.Sprintf("bytes=%d-%d", start, end)),
 	})
 	if err != nil {
 		return nil, err
@@ -82,6 +119,8 @@ func (ph *S3ObjHandler) getObject(svc *s3.S3, bucket, key string) (*resource.Res
 type S3ListHandler struct {
 	Config *S3Config
 }
+
+var _ protocol.Protocol = (*S3ListHandler)(nil)
 
 // Open opens a S3 URL.
 func (ph *S3ListHandler) Open(u *url.URL) (*resource.Resource, error) {

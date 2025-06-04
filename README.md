@@ -150,6 +150,10 @@ Nvgd supports these `protocol`s:
 
     [See document for detail](doc/filter-echarts.md).
 
+* `duckdb` - DockDB WASM Shell
+
+    [See docuemnt for detail](doc/protocol-duckdb.md).
+
 * `examples` - Example files to use demo/document of filters
 
 * `config` - current nvgd's configuration

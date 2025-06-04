@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<meta name="referrer" content="no-referrer">
+
+{{ if .query.t }}<script>
+function swapchars(str) {
+  let newStr = '';
+  for (let i = 0; i < str.length; i++) {
+    const char = str[i];
+    switch (char) {
+      case ' ':
+        newStr += '-';
+        break;
+      case '-':
+        newStr += ' ';
+        break;
+      case ';':
+        newStr += '~';
+        break;
+      case '~':
+        newStr += ';';
+        break;
+      default:
+        newStr += char;
+    }
+  }
+  return newStr;
+}
+
+function makehash(queries) {
+  return queries.map(swapchars).join(',');
+}
+
+// Compose the URL for DuckDB WASM Shell
+const ft = origin + {{ index .query.t 0 }};
+const queries = [
+  `CREATE VIEW t AS SELECT * FROM '${ft}';`,
+  `SHOW t;`,
+];
+const url = `${origin}/duckdb/#,${makehash(queries)}`;
+
+// Redirect!
+window.location.replace(url);
+</script>{{ end }}
+
+<h1>SHOW AS VIEW in DuckDB </h1>
+
+<section id="info">
+  Cannot show it because parameter "t" is missing
+</section>
