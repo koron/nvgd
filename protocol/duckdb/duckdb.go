@@ -3,8 +3,9 @@ package duckdb
 
 import (
 	"embed"
-	"log"
+	"io/fs"
 	"net/url"
+	"sync"
 
 	"github.com/koron/nvgd/internal/devfs"
 	"github.com/koron/nvgd/internal/templateresource"
@@ -17,27 +18,29 @@ var embedFS embed.FS
 
 var assetFS = devfs.New(embedFS, "protocol/duckdb", "")
 
+// Version of duckdb/duckdb-wasm.
+// See https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm/ for newer version.
 const Version = "1.29.1-dev208.0"
 
-var tmplRsrc *templateresource.TemplateResource
+var getRsrc = sync.OnceValues(func() (*templateresource.TemplateResource, error) {
+	fsys, err := fs.Sub(assetFS, "assets")
+	if err != nil {
+		return nil, err
+	}
+	return templateresource.New(fsys, templateresource.WithConstant(map[string]any{
+		"version": Version,
+	}))
+})
 
 func init() {
-	// TODO: Package templateresource loads the file at the time of this
-	// init(), and even if you switch it with devfs as a startup option, it
-	// will not be reflected. I would like a mechanism to delay loading and
-	// discard the cache when updating.
-	r, err := templateresource.New(assetFS,
-		templateresource.WithConstant(map[string]any{
-			"version": Version,
-		}))
-	if err != nil {
-		log.Fatalf("failed to initialize protocol/duckdb: %s", err)
-	}
-	tmplRsrc = r
 	protocol.MustRegister("duckdb", protocol.ProtocolFunc(open))
 }
 
 func open(u *url.URL) (*resource.Resource, error) {
+	tmplRsrc, err := getRsrc()
+	if err != nil {
+		return nil, err
+	}
 	r, err := tmplRsrc.Open(u)
 	if err != nil {
 		return nil, err
