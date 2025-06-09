@@ -2,6 +2,7 @@ package templateresource
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"html/template"
 	"io"
@@ -9,23 +10,20 @@ import (
 	"net/url"
 	"path"
 
+	"github.com/koron/nvgd/internal/templatefs"
 	"github.com/koron/nvgd/resource"
 )
 
 type TemplateResource struct {
-	tmpl *template.Template
+	fs *templatefs.FS
 
 	fallback  string
 	constData any
 }
 
-func New(fs fs.FS, opts ...Option) (*TemplateResource, error) {
-	tmpl, err := template.ParseFS(fs, "*/*")
-	if err != nil {
-		return nil, err
-	}
+func New(fsys fs.FS, opts ...Option) (*TemplateResource, error) {
 	r := &TemplateResource{
-		tmpl:     tmpl,
+		fs:       templatefs.New(fsys),
 		fallback: "index.html",
 	}
 	for _, opt := range opts {
@@ -43,7 +41,6 @@ func (res *TemplateResource) Open(u *url.URL) (*resource.Resource, error) {
 	if p == "" {
 		p = "index.html"
 	}
-	bb := &bytes.Buffer{}
 
 	// compose data for template
 	data := map[string]any{}
@@ -64,16 +61,21 @@ func (res *TemplateResource) Open(u *url.URL) (*resource.Resource, error) {
 	if res.fallback != "" {
 		candidates = append(candidates, res.fallback)
 	}
-	for _, path := range candidates {
-		tmpl = res.tmpl.Lookup(path)
-		if tmpl != nil {
+	for _, name := range candidates {
+		var err error
+		tmpl, err = res.fs.Template(name)
+		if err == nil {
 			break
+		}
+		if !errors.Is(err, fs.ErrNotExist) {
+			return nil, err
 		}
 	}
 	if tmpl == nil {
 		return nil, fmt.Errorf("not found any of: %+s", candidates)
 	}
 
+	bb := &bytes.Buffer{}
 	err := tmpl.Execute(bb, data)
 	if err != nil {
 		return nil, err

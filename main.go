@@ -10,6 +10,7 @@ import (
 
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/core"
+	"github.com/koron/nvgd/internal/devfs"
 	"github.com/koron/nvgd/internal/version"
 	_ "github.com/koron/nvgd/plugins"
 	"github.com/koron/nvgd/protocol/help"
@@ -19,6 +20,7 @@ var (
 	configOpt = flag.String("c", "nvgd.conf.yml", "configuration file")
 	pprofAddr = flag.String("pprofaddr", "", "address for pprof server")
 	verFlag   = flag.Bool("version", false, "show version")
+	devfsRoot = flag.String("devfs.root", "", "root directory for development of embedded resources")
 )
 
 //go:embed README.md
@@ -33,6 +35,9 @@ func main() {
 	if *verFlag {
 		fmt.Println(version.Version)
 		return
+	}
+	if *devfsRoot != "" {
+		devfs.Root(*devfsRoot)
 	}
 	c, err := config.LoadConfig(*configOpt)
 	if err != nil {
