@@ -15,8 +15,13 @@ jobs:
 
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
-        arch: [ amd64, arm64 ]
+        os:
+        - ubuntu-latest
+        - macos-latest
+        - windows-latest
+        arch:
+        - amd64
+        - arm64
         exclude:
         - os: windows-latest
           arch: arm64
@@ -114,7 +119,7 @@ jobs:
       with: { name: windows_amd64 }
     - run: ls -lafR
     - name: Release
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 # v2.2.2
       with:
         draft: true
         prerelease: ${{ contains(github.ref_name, '-alpha.') || contains(github.ref_name, '-beta.') }}
