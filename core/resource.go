@@ -6,6 +6,8 @@ import (
 	"io/fs"
 	"net/http"
 	"strings"
+
+	"github.com/koron/nvgd/internal/devfs"
 )
 
 //go:embed assets
@@ -17,7 +19,7 @@ type resourceServer struct {
 }
 
 func newResourceServer() (*resourceServer, error) {
-	stripFS, err := fs.Sub(assetsFS, "assets")
+	stripFS, err := fs.Sub(devfs.New(assetsFS, "core", ""), "assets")
 	if err != nil {
 		return nil, err
 	}
