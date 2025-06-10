@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPFS</title>
+
+<style>
+section {
+  margin: 1ex 0;
+}
+
+a {
+  color: blue;
+  text-decoration: underline;
+  text-underline-offset: .2rem;
+  cursor: pointer;
+}
+</style>
+
+<script src="https://unpkg.com/mithril/mithril.js"></script>
+
+</head>
+
+<body>
+  <section id="header"></section>
+  <section id="main">
+    <table border="1">
+       <tr><th>Name</th><th>Type</th><th>Size</th><th>Modified At</th><th>Actions</th></tr>
+    </table>
+  </section>
+  <section id="footer">
+    <div><input></input><button onclick="console.log('mkdir!')">Create a dir</button></div>
+    <div><input></input><button>Create a file</button></div>
+  </section>
+
+  <script src="/opfs/main.js"></script>
+</body>
