@@ -22,11 +22,11 @@ const opfs = {
 
   // up moves to the parent directory of the current directory.
   async up(n = 1) {
-    while (n) {
-      if (this.dirs.length == 1) {
-        alert('No parent directory');
-        return;
-      }
+    if (this.dirs.length <= n) {
+      alert('No parent directory');
+      return;
+    }
+    while (n > 0) {
       this.dirs.pop();
       n--;
     }
@@ -134,7 +134,7 @@ const opfs = {
 
 async function init() {
   const root = await navigator.storage.getDirectory();
-  opfs.pushDir(root, '(root)');
+  opfs.pushDir(root, '(Root)');
   opfs.render();
 }
 
