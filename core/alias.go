@@ -69,6 +69,7 @@ var defaultAliases = aliases{
 	{"duckdb/", "duckdb:/"},
 	{"echarts/", "echarts:/"},
 	{"examples/", "examples:/"},
+	{"opfs/", "opfs:/"},
 	{"version/", "version://"},
 }
 

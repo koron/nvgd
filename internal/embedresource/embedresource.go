@@ -11,9 +11,10 @@ import (
 )
 
 type EmbedResource struct {
-	fs       fs.FS
-	prefix   string
-	fallback string
+	fs         fs.FS
+	prefix     string
+	fallback   string
+	skipFilter bool
 }
 
 func New(fs fs.FS, opts ...Option) *EmbedResource {
@@ -49,5 +50,9 @@ func (res *EmbedResource) Open(u *url.URL) (*resource.Resource, error) {
 		}
 		return nil, err
 	}
-	return resource.New(f).GuessContentType(reqPath), nil
+	rsrc := resource.New(f).GuessContentType(reqPath)
+	if res.skipFilter {
+		rsrc.Put(resource.SkipFilters, true)
+	}
+	return rsrc, nil
 }

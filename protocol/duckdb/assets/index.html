@@ -23,7 +23,6 @@ body {
   height:100%;
 }
 </style>
-<title>foobar</title>
 
 <script type="module">
 
@@ -55,6 +54,16 @@ await shell.embed({
     const worker = new Worker(worker_url);
     const db = new duckdb.AsyncDuckDB(new duckdb.ConsoleLogger(), worker);  
     await db.instantiate(bundle.mainModule, bundle.pthreadWorker, progress);  
+
+    // Register a file in OPFS if available.
+    {{ if .query.opfs }}
+    for (let path of {{ .query.opfs }}) {
+      if (!path.startsWith('opfs://')) {
+        path = 'opfs://' + path;
+      }
+      db.registerOPFSFileName(path);
+    }
+    {{ end }}
 
     // Revoke the worker URL.
     URL.revokeObjectURL(worker_url);
