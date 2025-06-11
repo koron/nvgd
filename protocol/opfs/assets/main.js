@@ -160,8 +160,13 @@ const opfs = {
   },
 
   async actSave(name) {
-    // TODO:
-    console.log('actSave', name);
+    const dst = await window.showSaveFilePicker({suggestedName: name})
+    const fileHandle = await this.currDir.getFileHandle(name);
+    const file = await fileHandle.getFile();
+    const writable = await dst.createWritable();
+    await writable.write(file);
+    await writable.close();
+    alert(`File ${name} in OPFS is saved as ${dst.name} in local successfully.`);
   },
 
   async actDuckDB(name) {
