@@ -33,6 +33,15 @@ const opfs = {
     await this.render();
   },
 
+  async ls() {
+    const entries = [];
+    for await (const [name, handle] of this.currDir.entries()) {
+      entries.push([name, handle]);
+    }
+    entries.sort((a, b) => a[0].localeCompare(b[0], undefined, { numeric: true, sensitivity: 'base' }));
+    return entries;
+  },
+
   // cd moves to a child directory in the current directory.
   async cd(name) {
     if (name == '..') {
@@ -47,7 +56,7 @@ const opfs = {
     }
   },
 
-  // touch creates a new file or updates "Modified At" of the existing file,
+  // touch creates a new file or updates 'Modified At' of the existing file,
   // and append the contents to the file.
   async touch(name, contents) {
     try {
@@ -108,29 +117,106 @@ const opfs = {
         m('th', 'Actions'),
     )];
     for await (const [name, handle] of this.currDir.entries()) {
+      const cols = [];
+      const acts = [];
       if (handle instanceof FileSystemFileHandle) {
         const file = await handle.getFile();
-        rows.push(m('tr',
+        cols.push(
           m('td', name),
           m('td', 'file'),
           m('td', file.size),
           m('td', new Date(file.lastModified).toLocaleString()),
-          m('td', ''), // TODO: Actions
-        ));
+        );
+        // Compose actions for file
+        acts.push(
+          m('a', { onclick: () => this.actRm(name, false) }, 'Remove'),
+          ' ',
+          m('a', { onclick: () => this.actSave(name) }, 'Save as'),
+        );
+        if (supportedByDuckDB(name)) {
+          acts.push(' ', m('a', { onclick: () => this.actDuckDB(name) }, 'DuckDB'));
+        }
       } else {
-        rows.push(m('tr',
+        cols.push(
           m('td',
             m('a', { onclick: () => this.cd(name), }, name + '/')),
           m('td', 'dir'),
           m('td', '(N/A)'),
           m('td', '(N/A)'),
-          m('td', ''), // TODO: Actions
-        ));
+        );
+        // Compose actions for directory
+        acts.push(m('a', { onclick: () => this.actRm(name, true) }, 'Remove'));
       }
+      cols.push(m('td', acts));
+      rows.push(m('tr', cols));
     }
     m.render(document.querySelector('#main > table'), rows);
   },
-};
+
+  async actRm(name, recursive) {
+    if (confirm(`Are you sure you want to delete the following file/directory and its contents?\n\n${name}`)) {
+      this.rm(name, recursive);
+    }
+  },
+
+  async actSave(name) {
+    // TODO:
+    console.log('actSave', name);
+  },
+
+  async actDuckDB(name) {
+    const dirs = this.dirs.slice(1).map((e) => e.name)
+    dirs.push(name);
+    openWithDuckDB(dirs.join('/'));
+  },
+}
+
+function swapchars(str) {
+  let newStr = '';
+  for (let i = 0; i < str.length; i++) {
+    const char = str[i];
+    switch (char) {
+      case ' ':
+        newStr += '-';
+        break;
+      case '-':
+        newStr += ' ';
+        break;
+      case ';':
+        newStr += '~';
+        break;
+      case '~':
+        newStr += ';';
+        break;
+      default:
+        newStr += char;
+    }
+  }
+  return newStr;
+}
+
+function makehash(queries) {
+  return queries.map(swapchars).join(',');
+}
+
+function openWithDuckDB(path) {
+  const queries = [
+    `CREATE VIEW opfs AS SELECT * FROM 'opfs://${path}';`,
+    `SHOW opfs;`,
+  ];
+  const url = `${origin}/duckdb/?opfs=${path}#,${makehash(queries)}`;
+  window.open(url, '_blank');
+}
+
+function supportedByDuckDB(name) {
+  const supportedExtensions = ['.csv', '.xlsx', '.json', '.parquet'];
+  const lastDotIndex = name.lastIndexOf('.');
+  if (lastDotIndex === -1) {
+    return false;
+  }
+  const ext = name.substring(lastDotIndex).toLowerCase();
+  return supportedExtensions.includes(ext);
+}
 
 async function init() {
   const root = await navigator.storage.getDirectory();
