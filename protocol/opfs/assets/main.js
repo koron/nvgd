@@ -16,6 +16,7 @@ const opfs = {
 
   // mkdir creates a new directory into the current directory.
   async mkdir(name) {
+    console.log('mkdir', name);
     await this.currDir.getDirectoryHandle(name, { create: true });
     await this.render();
   },
@@ -56,6 +57,41 @@ const opfs = {
     }
   },
 
+  async loadAs(name, file) {
+    if (await this.exist(name)) {
+      if (!confirm(`Are you sure to overwrite a file with the same name, "${name}"?`)) {
+        return false;
+      }
+    }
+    const fileHandle = await this.currDir.getFileHandle(name, { create: true });
+    const writable = await fileHandle.createWritable();
+    await writable.write(file);
+    await writable.close();
+    await this.render();
+    alert(`Uploaded "${file.name}" as "${name}" to OPFS successfully.`);
+    return true;
+  },
+
+  async exist(name) {
+    try {
+      const handle = await this.currDir.getDirectoryHandle(name);
+      return true;
+    } catch (err) {
+      if (!err instanceof DOMException && !['TypeMismatchError', 'NotFoundError'].includes(err.name)) {
+        throw err;
+      }
+    }
+    try {
+      const handle = await this.currDir.getFileHandle(name);
+      return true;
+    } catch (err) {
+      if (!err instanceof DOMException && err.name != 'NotFoundError') {
+        throw err;
+      }
+    }
+    return false;
+  },
+
   // touch creates a new file or updates 'Modified At' of the existing file,
   // and append the contents to the file.
   async touch(name, contents) {
@@ -64,10 +100,7 @@ const opfs = {
       const file = await fileHandle.getFile();
       const writable = await fileHandle.createWritable();
       if (contents) {
-        await writable.seek(file.size);
         await writable.write(contents ? contents : '');
-      } else {
-        await writable.truncate(file.size);
       }
       await writable.close();
       await this.render();
@@ -133,6 +166,9 @@ const opfs = {
           ' ',
           m('a', { onclick: () => this.actSave(name) }, 'Save as'),
         );
+        if (file.size < 64*1024) {
+          acts.push(' ', m('a', { onclick: () => this.actEdit(name) }, 'Edit'));
+        }
         if (supportedByDuckDB(name)) {
           acts.push(' ', m('a', { onclick: () => this.actDuckDB(name) }, 'DuckDB'));
         }
@@ -167,6 +203,16 @@ const opfs = {
     await writable.write(file);
     await writable.close();
     alert(`File ${name} in OPFS is saved as ${dst.name} in local successfully.`);
+  },
+
+  async actEdit(name) {
+    const fileHandle = await this.currDir.getFileHandle(name);
+    const file = await fileHandle.getFile();
+    const el0 = document.querySelector('#touch-name');
+    const el1 = document.querySelector('#touch-body');
+    el0.value = name;
+    el1.value = await file.text();
+
   },
 
   async actDuckDB(name) {
