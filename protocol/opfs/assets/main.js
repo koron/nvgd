@@ -244,6 +244,7 @@ const opfs = {
     for (const checkbox of document.querySelectorAll('input.selectedFile')) {
       checkbox.checked = toggle.checked;
     }
+    await this.selectionChanged()
   },
 
   async actDuckDBWithSelectedFiles() {
