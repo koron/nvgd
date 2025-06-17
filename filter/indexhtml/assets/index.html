@@ -71,10 +71,10 @@ a {
     <td>{{.Size}}</td>
     <td>{{.ModifiedAt}}</td>
     <td>
-      {{if .Download}}<a href="{{.Download}}">DL</a>{{end}}
-      {{if .QueryLink}}<a href="{{.QueryLink}}">Query</a>{{end}}
-      {{if .DuckDBLink}}<a href="{{.DuckDBLink}}">DuckDB</a>{{end}}
-      {{if .OPFSUpload}}<a onclick="uploadToOPFS({{.OPFSUpload}}, {{.Name}})">OPFS</a>{{end}}
+      {{if .Download}}<a href="{{.Download}}" title="Download">DL</a>{{end}}
+      {{if .QueryLink}}<a href="{{.QueryLink}}" title="Open with TRDSQL">Query</a>{{end}}
+      {{if .DuckDBLink}}<a href="{{.DuckDBLink}}" title="Open with DuckDB Shell">DuckDB</a>{{end}}
+      {{if .OPFSUpload}}<a onclick="uploadToOPFS({{.OPFSUpload}}, {{.Name}})" title="Upload to OPFS (Origin Private File System)">OPFS</a>{{end}}
     </td>
   </tr>
   {{end}}
