@@ -21,6 +21,22 @@ a {
 #footer div {
   margin: 1.5ex 0;
 }
+
+#main table {
+  tr:nth-child(1) > th:nth-child(1) {
+    display: flex;
+    > input[type='checkbox'] {
+      flex: 0 0 auto;
+    }
+    > * {
+      flex: 1 0 auto;
+    }
+  }
+
+  tr > td:nth-child(3) {
+    text-align: right;
+  }
+}
 </style>
 
 <script src="https://unpkg.com/mithril/mithril.js"></script>
@@ -85,6 +101,14 @@ a {
   async function uiClearAll() {
     await opfs.clearAll();
   }
+
+  async function uiReload() {
+    await opfs.renderEntries();
+  }
+
+  async function uiDuckDBMultiple() {
+    await opfs.actDuckDBWithSelectedFiles();
+  }
 </script>
 
 </head>
@@ -95,6 +119,7 @@ a {
     <table border="1"></table>
   </section>
   <section id="footer">
+    <div><button onclick="uiReload()">Reload</button></div>
     <div>
       <b>Make directory</b><br>
       <input id="mkdir-name"></input>
@@ -113,6 +138,10 @@ a {
       <input type="file" id="upload-file" onchange="uiUploadChange()"></file>
       Upload as: <input id="upload-name"></input>
       <button onclick="uiUpload()">Upload</button>
+    </div>
+    <div>
+      <b>Acitons for multiple files</b><br>
+      <button id="multiple-duckdb" disabled="true" onclick="uiDuckDBMultiple()">Open multiple files with DuckDB</button><br>
     </div>
     <div>
       <b>Delete all contents</b><br>

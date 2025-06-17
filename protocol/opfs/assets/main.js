@@ -20,7 +20,6 @@ const opfs = {
 
   // mkdir creates a new directory into the current directory.
   async mkdir(name) {
-    console.log('mkdir', name);
     await this.currDir.getDirectoryHandle(name, { create: true });
     await this.render();
   },
@@ -163,7 +162,13 @@ const opfs = {
 
   async renderEntries() {
     const rows = [ m('tr',
-        m('th', 'Name'),
+        m('th',
+          m('input', {
+            type: 'checkbox',
+            id: 'toggle-selection-all',
+            onclick: () => this.selectionToggleAll(),
+          }),
+          m('span', 'Name')),
         m('th', 'Type'),
         m('th', 'Size'),
         m('th', 'Modified At'),
@@ -175,7 +180,15 @@ const opfs = {
       if (handle instanceof FileSystemFileHandle) {
         const file = await handle.getFile();
         cols.push(
-          m('td', name),
+          m('td',
+            m('label',
+              m('input', {
+                type: 'checkbox',
+                class: 'selectedFile',
+                name: name,
+                onchange: () => this.selectionChanged(),
+              }),
+              name)),
           m('td', 'file'),
           m('td', file.size),
           m('td', new Date(file.lastModified).toLocaleString()),
@@ -209,6 +222,35 @@ const opfs = {
     m.render(document.querySelector('#main > table'), rows);
   },
 
+  async selectionChanged() {
+    const all = document.querySelectorAll('input.selectedFile');
+    const selected = document.querySelectorAll('input.selectedFile:checked');
+    let filesDuckDB = [];
+    for (const file of selected) {
+      if (supportedByDuckDB(file.name)) {
+        filesDuckDB.push(file.name);
+      }
+    }
+    // Enable/Disable "open multiple files with DuckDB" button.
+    document.querySelector('#multiple-duckdb').disabled = !(filesDuckDB.length >= 2 && filesDuckDB.length == selected.length);
+
+    const toggle = document.querySelector('#toggle-selection-all');
+    toggle.checked = selected.length > 0 && selected.length == all.length;
+    toggle.indeterminate = selected.length > 0 && selected.length < all.length
+  },
+
+  async selectionToggleAll() {
+    const toggle = document.querySelector('#toggle-selection-all');
+    for (const checkbox of document.querySelectorAll('input.selectedFile')) {
+      checkbox.checked = toggle.checked;
+    }
+  },
+
+  async actDuckDBWithSelectedFiles() {
+    const files = Array.from(document.querySelectorAll('input.selectedFile:checked')).map(e => e.name);
+    this.actDuckDB(files);
+  },
+
   async actRm(name, recursive) {
     if (confirm(`Are you sure you want to delete the following file/directory and its contents?\n\n${name}`)) {
       this.rm(name, recursive);
@@ -235,10 +277,14 @@ const opfs = {
 
   },
 
-  async actDuckDB(name) {
-    const dirs = this.dirs.slice(1).map((e) => e.name)
-    dirs.push(name);
-    openWithDuckDB(dirs.join('/'));
+  async actDuckDB(names) {
+    const dir = this.dirs.length < 2 ? '' : this.dirs.slice(1).map((e) => e.name).join('/') + '/';
+    if (!(names instanceof Array)) {
+      openWithDuckDB(dir + names);
+      return;
+    }
+    const paths = names.map(e => dir + e);
+    openWithDuckDB(paths);
   },
 }
 
@@ -270,12 +316,23 @@ function makehash(queries) {
   return queries.map(swapchars).join(',');
 }
 
-function openWithDuckDB(path) {
-  const queries = [
-    `CREATE VIEW opfs AS SELECT * FROM 'opfs://${path}';`,
-    `SHOW opfs;`,
-  ];
-  const url = `${origin}/duckdb/?opfs=${path}#,${makehash(queries)}`;
+function openWithDuckDB(paths) {
+  if (!(paths instanceof Array)) {
+    const path = paths;
+    const queries = [
+      `CREATE VIEW opfs AS SELECT * FROM 'opfs://${path}';`,
+      `SHOW opfs;`,
+    ];
+    const url = `${origin}/duckdb/?opfs=${path}#,${makehash(queries)}`;
+    window.open(url, '_blank');
+    return;
+  }
+
+  // Open multiple files with DuckDB
+  const queries = paths.map((v, i) => `CREATE VIEW opfs${i} AS SELECT * FROM 'opfs://${v}';`);
+  queries.push('SHOW TABLES;');
+  const qparams = paths.map(v => 'opfs=' + encodeURIComponent(v)).join('&');
+  const url = `${origin}/duckdb/?${qparams}#,${makehash(queries)}`;
   window.open(url, '_blank');
 }
 
