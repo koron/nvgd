@@ -15,5 +15,6 @@ var embedFS embed.FS
 var assetFS = devfs.New(embedFS, "protocol/echarts", "")
 
 func init() {
-	protocol.MustRegister("echarts", embedresource.New(assetFS))
+	p := embedresource.New(assetFS)
+	protocol.MustRegister("echarts", p)
 }

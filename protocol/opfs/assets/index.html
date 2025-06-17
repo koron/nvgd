@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPFS</title>
+
+<style>
+section {
+  margin: 1ex 0;
+}
+
+a {
+  color: blue;
+  text-decoration: underline;
+  text-underline-offset: .2rem;
+  cursor: pointer;
+}
+
+#footer div {
+  margin: 1.5ex 0;
+}
+
+#main table {
+  tr:nth-child(1) > th:nth-child(1) {
+    display: flex;
+    > input[type='checkbox'] {
+      flex: 0 0 auto;
+    }
+    > * {
+      flex: 1 0 auto;
+    }
+  }
+
+  tr > td:nth-child(3) {
+    text-align: right;
+  }
+}
+</style>
+
+<script src="https://unpkg.com/mithril/mithril.js"></script>
+<script>
+  async function uiMkdir() {
+    try {
+      const el = document.querySelector('#mkdir-name');
+      const name = el.value;
+      if (name == '') {
+        alert('Need directory name');
+        return;
+      }
+      await opfs.mkdir(name);
+      el.value = '';
+      alert(`"${name}" directory created successfully.`);
+    } catch (err) {
+      alert(`Failed to create "${name}" directory, because of:\n\n${err}`);
+    }
+  }
+
+  async function uiTouch() {
+    try {
+      const el0 = document.querySelector('#touch-name');
+      const el1 = document.querySelector('#touch-body');
+      const name = el0.value;
+      const body = el1.value;
+      if (name == '') {
+        alert('Need file name');
+        return;
+      }
+      await opfs.touch(name, body);
+      el0.value = '';
+      el1.value = '';
+    } catch (err) {
+      alert(`Failed to create "${name}" file, because of:\n\n${err}`);
+    }
+  }
+
+  async function uiTouchClear() {
+    document.querySelector('#touch-name').value = '';
+    document.querySelector('#touch-body').value = '';
+  }
+
+  async function uiUploadChange() {
+    const elFile = document.querySelector('#upload-file');
+    const name = elFile.files[0].name;
+    const elName = document.querySelector('#upload-name');
+    elName.value = name;
+  }
+
+  async function uiUpload() {
+    const elName = document.querySelector('#upload-name');
+    const name = elName.value;
+    const elFile = document.querySelector('#upload-file');
+    const file = elFile.files[0];
+    if (await opfs.loadAs(name, file)) {
+      elName.value = '';
+      elFile.value = '';
+    }
+  }
+
+  async function uiClearAll() {
+    await opfs.clearAll();
+  }
+
+  async function uiReload() {
+    await opfs.renderEntries();
+  }
+
+  async function uiDuckDBMultiple() {
+    await opfs.actDuckDBWithSelectedFiles();
+  }
+</script>
+
+</head>
+
+<body>
+  <section id="header"></section>
+  <section id="main">
+    <table border="1"></table>
+  </section>
+  <section id="footer">
+    <div><button onclick="uiReload()">Reload</button></div>
+    <div>
+      <b>Make directory</b><br>
+      <input id="mkdir-name"></input>
+      <button onclick="uiMkdir()">Create a directory</button>
+    </div>
+    <div>
+      <b>Editor</b> (Load a file smaller than 64KiB with "Edit" action)<br>
+      Name: <input id="touch-name"></input>
+      <button onclick="uiTouch()">Create or update a file</button>
+      <button onclick="uiTouchClear()">Clear</button>
+      <br>
+      <textarea id="touch-body" style="margin-top: 0.2em; width: 100%; max-width: 100%; min-width: 100%; min-height: 10em;"></textarea><br>
+    </div>
+    <div>
+      <b>Upload a local file</b><br>
+      <input type="file" id="upload-file" onchange="uiUploadChange()"></file>
+      Upload as: <input id="upload-name"></input>
+      <button onclick="uiUpload()">Upload</button>
+    </div>
+    <div>
+      <b>Acitons for multiple files</b><br>
+      <button id="multiple-duckdb" disabled="true" onclick="uiDuckDBMultiple()">Open selected files with DuckDB</button><br>
+    </div>
+    <div>
+      <b>Delete all contents</b><br>
+      <button onclick="uiClearAll()">Delete all contents in this direcotry</button>
+    </div>
+  </section>
+
+  <script src="/opfs/main.js"></script>
+</body>

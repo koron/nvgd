@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+{{range .Config.CustomCSSURLs}}{{if .}}<link rel="stylesheet" href="{{.}}" type="text/css" />
+{{end}}{{end}}
+
+<style>
+a {
+  color: blue;
+  text-decoration: underline;
+  text-underline-offset: .2rem;
+  cursor: pointer;
+}
+</style>
+
+<script>
+  async function uploadToOPFS(path, name) {
+    rawpath = path.replace(/\?.*$/, '');
+    const fileName = prompt(`Enter the name to save ${origin}${rawpath} to OPFS`, name);
+    if (fileName === null) {
+      return;
+    }
+    try {
+      const response = await fetch(path);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch data from ${path}: ${response.statusText}`);
+      }
+      const dataBlob = await response.blob();
+      const rootDirHandle = await navigator.storage.getDirectory();
+
+      // TODO: Create directories if necessary
+      let dirHandle = rootDirHandle;
+      let targetName = fileName;
+      while (true) {
+        const index = targetName.indexOf('/');
+        if (index < 0) {
+          break;
+        }
+        let dir = targetName.slice(0, index);
+        targetName = targetName.slice(index+1);
+        dirHandle = await dirHandle.getDirectoryHandle(dir, { create: true });
+      }
+
+      const fileHandle = await dirHandle.getFileHandle(targetName, { create: true });
+      const writable = await fileHandle.createWritable();
+      await writable.write(dataBlob);
+      await writable.close();
+      alert(`Saved as opfs://${fileName} successfully`);
+    } catch (err) {
+      alert(`There was a problem saving the data: ${err.message}`);
+      throw err;
+    }
+  }
+</script>
+</head>
+
+<body>
+<div>
+  {{if .UpLink}}<a href="{{.UpLink}}">Up</a>{{end}}
+  {{if .NextLink}}<a href="{{.NextLink}}">Next</a>{{end}}
+</div>
+<table border="1">
+  <tr><th>Name</th><th>Type</th><th>Size</th><th>Modified At</th><th>Actions</th></tr>
+  {{range .Entries}}
+  <tr>
+    <td><a href="{{.Link}}">{{.Name}}</a></td>
+    <td>{{.Type}}</td>
+    <td>{{.Size}}</td>
+    <td>{{.ModifiedAt}}</td>
+    <td>
+      {{if .Download}}<a href="{{.Download}}" title="Download">DL</a>{{end}}
+      {{if .QueryLink}}<a href="{{.QueryLink}}" title="Open with TRDSQL">Query</a>{{end}}
+      {{if .DuckDBLink}}<a href="{{.DuckDBLink}}" title="Open with DuckDB Shell">DuckDB</a>{{end}}
+      {{if .OPFSUpload}}<a onclick="uploadToOPFS({{.OPFSUpload}}, {{.Name}})" title="Upload to OPFS (Origin Private File System)">OPFS</a>{{end}}
+    </td>
+  </tr>
+  {{end}}
+</table>
+</body>

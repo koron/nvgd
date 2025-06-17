@@ -3,6 +3,7 @@ package indexhtml
 
 import (
 	"bytes"
+	"embed"
 	"html/template"
 	"io"
 	"net/url"
@@ -14,34 +15,15 @@ import (
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/internal/commonconst"
+	"github.com/koron/nvgd/internal/devfs"
 	"github.com/koron/nvgd/internal/filterbase"
 	"github.com/koron/nvgd/resource"
 )
 
-var tmpl = template.Must(template.New("indexhtml").Parse(`<!DOCTYPE html>
-<meta charset="UTF-8">
-{{range .Config.CustomCSSURLs}}{{if .}}<link rel="stylesheet" href="{{.}}" type="text/css" />
-{{end}}{{end}}
-<div>
-  {{if .UpLink}}<a href="{{.UpLink}}">Up</a>{{end}}
-  {{if .NextLink}}<a href="{{.NextLink}}">Next</a>{{end}}
-</div>
-<table border="1">
-  <tr><th>Name</th><th>Type</th><th>Size</th><th>Modified At</th><th>Actions</th></tr>
-  {{range .Entries}}
-  <tr>
-    <td><a href="{{.Link}}">{{.Name}}</a></td>
-    <td>{{.Type}}</td>
-    <td>{{.Size}}</td>
-    <td>{{.ModifiedAt}}</td>
-	<td>
-		{{if .Download}}<a href="{{.Download}}">DL</a>{{end}}
-		{{if .QueryLink}}<a href="{{.QueryLink}}">Query</a>{{end}}
-		{{if .DuckDBLink}}<a href="{{.DuckDBLink}}">DuckDB</a>{{end}}
-	</td>
-  </tr>
-  {{end}}
-</table>`))
+//go:embed assets
+var embedFS embed.FS
+
+var assetFS = devfs.New(embedFS, "filter/indexhtml", "")
 
 type doc struct {
 	Entries  []entry
@@ -61,6 +43,7 @@ type entry struct {
 	Download   string
 	QueryLink  string
 	DuckDBLink string
+	OPFSUpload string
 }
 
 type Config struct {
@@ -110,6 +93,11 @@ func chooseTimeLayout(name string) string {
 }
 
 func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
+	tmpl, err := template.ParseFS(assetFS, "assets/index.html")
+	if err != nil {
+		return nil, err
+	}
+
 	timeLayout := chooseTimeLayout(p.String("timefmt", "RFC1123"))
 	noUpLink := p.Bool("nouplink", false)
 	// compose document.
@@ -151,6 +139,8 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 			link += "t=" + url.PathEscape(pathPrefix(s.GetFirst("link")))
 			e.DuckDBLink = link
 		}
+		// Downloadable entry can be upload to OPFS too.
+		e.OPFSUpload = e.Download
 		// detect UNIX time, and convert it to specified time layout (default is RFC1123).
 		if sec, err := strconv.ParseInt(e.ModifiedAt, 10, 64); err == nil {
 			e.ModifiedAt = time.Unix(sec, 0).Format(timeLayout)
@@ -163,6 +153,7 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 	if link, ok := r.String(commonconst.NextLink); ok {
 		d.NextLink = pathPrefix(link)
 	}
+
 	// execute template.
 	buf := new(bytes.Buffer)
 	if err := tmpl.Execute(buf, d); err != nil {

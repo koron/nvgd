@@ -21,3 +21,9 @@ func WithFallback(fallback string) Option {
 		res.fallback = fallback
 	})
 }
+
+func WithSkipFilter() Option {
+	return optionFunc(func(res *EmbedResource) {
+		res.skipFilter = true
+	})
+}
