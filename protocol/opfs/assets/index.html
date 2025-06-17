@@ -134,18 +134,18 @@ a {
       <textarea id="touch-body" style="margin-top: 0.2em; width: 100%; max-width: 100%; min-width: 100%; min-height: 10em;"></textarea><br>
     </div>
     <div>
-      <b>Upload local files</b><br>
+      <b>Upload a local file</b><br>
       <input type="file" id="upload-file" onchange="uiUploadChange()"></file>
       Upload as: <input id="upload-name"></input>
       <button onclick="uiUpload()">Upload</button>
     </div>
     <div>
       <b>Acitons for multiple files</b><br>
-      <button id="multiple-duckdb" disabled="true" onclick="uiDuckDBMultiple()">Open multiple files with DuckDB</button><br>
+      <button id="multiple-duckdb" disabled="true" onclick="uiDuckDBMultiple()">Open selected files with DuckDB</button><br>
     </div>
     <div>
       <b>Delete all contents</b><br>
-      <button onclick="uiClearAll()">Delete all contents from the current direcotry</button>
+      <button onclick="uiClearAll()">Delete all contents in this direcotry</button>
     </div>
   </section>
 
