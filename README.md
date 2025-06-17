@@ -155,6 +155,7 @@ Nvgd supports these `protocol`s:
     [See docuemnt for detail](doc/protocol-duckdb.md).
 
 * `opfs` - Operate with OPFS (Origin Private File System)
+
     [See document for detail](doc/protocol-opfs.md).
 
 * `examples` - Example files to use demo/document of filters
