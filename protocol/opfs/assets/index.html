@@ -81,6 +81,10 @@ a {
       elFile.value = '';
     }
   }
+
+  async function uiClearAll() {
+    await opfs.clearAll();
+  }
 </script>
 
 </head>
@@ -109,6 +113,10 @@ a {
       <input type="file" id="upload-file" onchange="uiUploadChange()"></file>
       Upload as: <input id="upload-name"></input>
       <button onclick="uiUpload()">Upload</button>
+    </div>
+    <div>
+      <b>Delete all contents</b><br>
+      <button onclick="uiClearAll()">Delete all contents from the current direcotry</button>
     </div>
   </section>
 

@@ -14,6 +14,10 @@ const opfs = {
     return this.dirs[this.dirs.length - 1].dir;
   },
 
+  get currPath() {
+    return this.dirs.map((d) => d.name).join('/');
+  },
+
   // mkdir creates a new directory into the current directory.
   async mkdir(name) {
     console.log('mkdir', name);
@@ -113,6 +117,22 @@ const opfs = {
   async rm(name, recursive = false) {
     try {
       await this.currDir.removeEntry(name, { recursive: recursive });
+      await this.render();
+    } catch (err) {
+      alert(err);
+    }
+  },
+
+  // clearAll deletes all entries from the current directory.
+  async clearAll() {
+    try {
+      path = this.currPath
+      if (!confirm(`Are you sure to delete all contents in the current direcotry?\n\n${path}`)) {
+        return;
+      }
+      for await (const [name, handle] of this.currDir.entries()) {
+        await this.currDir.removeEntry(name, { recursive: true });
+      }
       await this.render();
     } catch (err) {
       alert(err);
