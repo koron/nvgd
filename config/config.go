@@ -14,6 +14,9 @@ import (
 type Config struct {
 	Addr string `yaml:"addr"`
 
+	// "TLS" is a setting to enable TLS (HTTPS).
+	TLS *TLSConfig `yaml:"tls,omitempty"`
+
 	PathPrefix string `yaml:"path_prefix"`
 
 	// ErrorLogPath specify path of access log. default is "(stderr)".
@@ -40,6 +43,11 @@ type Config struct {
 	// The header is not put when this is empty string.
 	// Default value is empty.
 	AccessControlAllowOrigin string `yaml:"access_control_allow_origin,omitempty"`
+}
+
+type TLSConfig struct {
+	CertFile string `yaml:"cert_file"`
+	KeyFile  string `yaml:"key_file"`
 }
 
 type CustomConfig map[string]any
