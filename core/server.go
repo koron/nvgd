@@ -25,12 +25,15 @@ import (
 
 // Server represents NVGD server.
 type Server struct {
-	httpd          *http.Server
-	accessLog      *log.Logger
-	errorLog       *log.Logger
-	defaultFilters *Filters
+	httpd *http.Server
+	tls   *config.TLSConfig
 
-	aliases                  aliases
+	accessLog *log.Logger
+	errorLog  *log.Logger
+
+	defaultFilters *Filters
+	aliases        aliases
+
 	accessControlAllowOrigin string
 	rootContentsFile         string
 
@@ -56,6 +59,7 @@ func New(c *config.Config) (*Server, error) {
 	// FIXME: should not be global.
 	configp.Config = *c
 	s := &Server{
+		tls:                      c.TLS,
 		accessLog:                alog,
 		errorLog:                 elog,
 		defaultFilters:           &Filters{descs: c.DefaultFilters},
@@ -74,6 +78,9 @@ func New(c *config.Config) (*Server, error) {
 
 // Run runs NGVD server.
 func (s *Server) Run() error {
+	if s.tls != nil {
+		return s.httpd.ListenAndServeTLS(s.tls.CertFile, s.tls.KeyFile)
+	}
 	return s.httpd.ListenAndServe()
 }
 

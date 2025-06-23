@@ -194,6 +194,9 @@ current directory or given file with `-c` option is loaded at start.
 # Listen IP address and port (OPTIONAL, default is "127.0.0.1:9280")
 addr: "0.0.0.0:8080"
 
+# Enable TLS (HTTPS) to serve. See doc/secure-contexts.md for details.
+tls: (...sniped...)
+    
 # Path prefix for absolute links, use for sub-path multiple tenancy
 path_prefix: /tenant_name/
 
@@ -278,6 +281,7 @@ path in `locations`.
 If the value of `use_unixtime` property is set to true, UNIX time will be used
 instead of RFC1123 for all time expressions: `modified_at` or so.
 
+For TLS (HTTPS) enablement, please refer to the documentation: [Secure Contexts](doc/secure-contexts.md).
 
 ### Command Protocol Handlers
 
