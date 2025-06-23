@@ -68,34 +68,21 @@ openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
 This command takes the CSR (`server.csr`) and the private key (`server.key`), signs the request with the key, and outputs a self-signed certificate (`server.crt`) valid for 365 days.
 
 You should now have two essential files:
+
 *   `server.key`: Your private key. **Keep this file secure.**
 *   `server.crt`: Your self-signed certificate.
 
 ### 2. Configure and Start NVGD in TLS Mode
 
 NVGD needs to be configured to use the generated `server.crt` (certificate file) and `server.key` (key file).
-
-The exact method for configuring TLS in NVGD will depend on its command-line flags or configuration file format. Typically, you would specify paths to the certificate and key files.
-
-Example (hypothetical command-line flags):
-
-```bash
-nvgd --tls-cert /path/to/your/server.crt --tls-key /path/to/your/server.key
-```
-
-Or, if NVGD uses a configuration file (e.g., `config.yml`):
+Specifically, add the following block to your configuration file (`nvgd.conf.yml`):
 
 ```yaml
-# Example config.yml snippet
-server:
-  tls:
-    enabled: true
-    cert_file: "/path/to/your/server.crt"
-    key_file: "/path/to/your/server.key"
-  # ... other server configurations
+# Example nvgd.conf.yml snippet
+tls:
+  cert_file: "/path/to/your/server.crt"
+  key_file: "/path/to/your/server.key"
 ```
-
-**Consult the NVGD documentation for the precise command-line arguments or configuration file options related to TLS.**
 
 Once configured, start NVGD. It should now be serving HTTPS requests on its configured port.
 
@@ -106,7 +93,8 @@ When you try to access NVGD over HTTPS using a browser or other client, you will
 **a. For Browsers:**
 
 Most browsers will allow you to add an exception for the self-signed certificate. The steps vary by browser:
-*   You might see an "Advanced" button on the warning page, leading to an option like "Proceed to [hostname] (unsafe)" or "Accept the Risk and Continue."
+
+*   You might see an "Advanced" button on the warning page, leading to an option like "Proceed to hostname (unsafe)" or "Accept the Risk and Continue."
 *   Alternatively, you might need to import `server.crt` into your browser's certificate trust store. Search for your browser's documentation on "importing trusted root certificates" or "managing SSL certificates."
 
 **b. For Command-Line Tools (e.g., `curl`):**
