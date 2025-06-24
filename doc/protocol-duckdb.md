@@ -159,3 +159,8 @@ duckdb> COPY (SELECT * FROM t) TO 'opfs://output.parquet';
 **WARINNG** If you omit or type the wrong `opfs://` when doing `.files register`, the DuckDB shell will hang. You will then need to reload your browser.
 
 NVGD does not have the ability to browse OPFS currently, but there are plans to add this in the future. In the meantime, you can use the [Chrome extension: OPFS Explorer](https://chromewebstore.google.com/detail/opfs-explorer/acndjpgkpaclldomagafnognkcgjignd) to manage OPFS.
+
+### Can't open files on OPFS
+
+OPFS files in use are locked, so you cannot use the same file across multiple tabs at the same time.
+If you can't access an OPFS file in your DuckDB Shell, check if another DuckDB Shell tab is using it. Close the extra tab and reopen the file.

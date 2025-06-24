@@ -112,13 +112,21 @@ const opfs = {
     }
   },
 
+  async alertErr(err) {
+    if (err instanceof DOMException && err.name === 'NoModificationAllowedError') {
+      alert('FILE MAY BE LOCKED.\n\nIt looks like the file is open somewhere else and locked. Try closing any tabs that might be using it, like the DuckDB Shell.');
+    } else {
+      alert(err);
+    }
+  },
+
   // rm removes an entry from the current directory.
   async rm(name, recursive = false) {
     try {
       await this.currDir.removeEntry(name, { recursive: recursive });
       await this.render();
     } catch (err) {
-      alert(err);
+      this.alertErr(err);
     }
   },
 
@@ -134,7 +142,7 @@ const opfs = {
       }
       await this.render();
     } catch (err) {
-      alert(err);
+      this.alertErr(err);
     }
   },
 
