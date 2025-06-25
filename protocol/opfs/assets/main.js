@@ -9,6 +9,14 @@ const opfs = {
     this.dirs.push({name: name ? name : dir.name, dir: dir});
   },
 
+  popDir(n) {
+    if (this.dirs.length <= n) {
+      alert('No parent directory');
+      return;
+    }
+    this.dirs.splice(this.dirs.length - n, n);
+  },
+
   // Get current direcotry (FileSystemDirectoryHandle)
   get currDir() {
     return this.dirs[this.dirs.length - 1].dir;
@@ -18,22 +26,32 @@ const opfs = {
     return this.dirs.map((d) => d.name).join('/');
   },
 
+  async setCurrPath(path) {
+    this.dirs.splice(0);
+    const root = await navigator.storage.getDirectory();
+    this.pushDir(root, '(Root)');
+    if (path && path != '/') {
+      const entries = path.replace(/^\/|\/$/g, '').split('/');
+      for (const entry of entries) {
+        const dir = await this.currDir.getDirectoryHandle(entry);
+        this.pushDir(dir);
+      }
+    }
+  },
+
+  updateHistory(push) {
+    const path = this.dirs.map(d => d.dir.name).join('/') + '/';
+    const url = path === '/' ? '.' : `#${path}`;
+    if (push) {
+      window.history.pushState(path, '', url);
+    } else {
+      window.history.replaceState(path, '', url);
+    }
+  },
+
   // mkdir creates a new directory into the current directory.
   async mkdir(name) {
     await this.currDir.getDirectoryHandle(name, { create: true });
-    await this.render();
-  },
-
-  // up moves to the parent directory of the current directory.
-  async up(n = 1) {
-    if (this.dirs.length <= n) {
-      alert('No parent directory');
-      return;
-    }
-    while (n > 0) {
-      this.dirs.pop();
-      n--;
-    }
     await this.render();
   },
 
@@ -48,12 +66,14 @@ const opfs = {
 
   // cd moves to a child directory in the current directory.
   async cd(name) {
-    if (name == '..') {
-      return await this.up();
-    }
     try {
-      const dir = await this.currDir.getDirectoryHandle(name);
-      this.pushDir(dir);
+      if (name == '..') {
+        this.popDir(1);
+      } else {
+        const dir = await this.currDir.getDirectoryHandle(name);
+        this.pushDir(dir);
+      }
+      this.updateHistory(false);
       await this.render();
     } catch (err) {
       alert(err);
@@ -148,6 +168,8 @@ const opfs = {
 
   // Update screen
   async render() {
+    const path = this.dirs.map(d => d.dir.name).join('/') + '/';
+    document.querySelector('title').innerText = 'OPFS: ' + path;
     await this.renderHeader();
     await this.renderEntries();
   },
@@ -163,7 +185,7 @@ const opfs = {
       const n = last - i;
       breadcrumbs.push(n == 0 ?
         m('span', dir.name) :
-        m('a', { onclick: () => this.up(n) }, dir.name));
+        m('a', { onclick: () => this.uiCd(n) }, dir.name));
     }
     m.render(document.querySelector('#header'), breadcrumbs);
   },
@@ -216,7 +238,7 @@ const opfs = {
       } else {
         cols.push(
           m('td',
-            m('a', { onclick: () => this.cd(name), }, name + '/')),
+            m('a', { onclick: () => this.uiCd(name), }, name + '/')),
           m('td', 'dir'),
           m('td', '(N/A)'),
           m('td', '(N/A)'),
@@ -264,6 +286,17 @@ const opfs = {
     if (confirm(`Are you sure you want to delete the following file/directory and its contents?\n\n${name}`)) {
       this.rm(name, recursive);
     }
+  },
+
+  async uiCd(nameOrCount) {
+    if (typeof nameOrCount === 'number') {
+      this.popDir(nameOrCount);
+    } else {
+      const dir = await this.currDir.getDirectoryHandle(nameOrCount);
+      this.pushDir(dir);
+    }
+    this.updateHistory(true);
+    await this.render();
   },
 
   async actSave(name) {
@@ -356,9 +389,16 @@ function supportedByDuckDB(name) {
 }
 
 async function init() {
-  const root = await navigator.storage.getDirectory();
-  opfs.pushDir(root, '(Root)');
-  opfs.render();
+  onpopstate = async (ev) => {
+    await opfs.setCurrPath(ev.state);
+    await opfs.render();
+  };
+
+  const path = window.location.hash.substring(1);
+  await opfs.setCurrPath(path);
+  opfs.updateHistory(false);
+
+  await opfs.render();
 }
 
 init();
