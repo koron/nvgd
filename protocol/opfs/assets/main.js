@@ -394,9 +394,6 @@ async function init() {
     await opfs.render();
   };
 
-  const root = await navigator.storage.getDirectory();
-  opfs.pushDir(root, '(Root)');
-
   const path = window.location.hash.substring(1);
   await opfs.setCurrPath(path);
   opfs.updateHistory(false);
