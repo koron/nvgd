@@ -116,6 +116,14 @@ button > .material-symbols-outlined {
   async function uiReload() {
     await opfs.renderEntries();
   }
+
+  class MaterialSymbol extends HTMLElement {
+    constructor() { super(); }
+    connectedCallback() {
+      this.innerHTML = `<span class="material-symbols-outlined">${this.getAttribute('name')}</span>`;
+    }
+  }
+  customElements.define('material-symbol', MaterialSymbol);
 </script>
 
 </head>
@@ -128,29 +136,29 @@ button > .material-symbols-outlined {
   </section>
   <section id="footer">
     <div class="horizontal-menu">
-      <button onclick="uiReload()"><span class="material-symbols-outlined">refresh</span> Reload</button>
+      <button onclick="uiReload()"><material-symbol name="refresh"> Reload</button>
       &nbsp;
-      <button id="multiple-delete" disabled="true" onclick="opfs.actDeleteSelectedFiles()"><span class="material-symbols-outlined">delete</span> Delete</button>
+      <button id="multiple-delete" disabled="true" onclick="opfs.actDeleteSelectedFiles()"><material-symbol name="delete"> Delete</button>
       &nbsp; &nbsp;
       <span class="small">Open with ...</span>
-      <button id="multiple-duckdb" disabled="true" onclick="opfs.actDuckDBWithSelectedFiles()"><span class="material-symbols-outlined">database</span> DuckDB</button>
+      <button id="multiple-duckdb" disabled="true" onclick="opfs.actDuckDBWithSelectedFiles()"><material-symbol name="database"> DuckDB</button>
     </div>
     <div>
       <b>Make directory</b><br>
       <input id="mkdir-name"></input>
-      <button onclick="uiMkdir()"><span class="material-symbols-outlined">create_new_folder</span> Create new directory</button>
+      <button onclick="uiMkdir()"><material-symbol name="create_new_folder"> Create new directory</button>
     </div>
     <div>
       <b>Upload a local file</b><br>
       <input type="file" id="upload-file" onchange="uiUploadChange()"></file>
       Upload as: <input id="upload-name"></input>
-      <button onclick="uiUpload()"><span class="material-symbols-outlined">upload</span> Upload</button>
+      <button onclick="uiUpload()"><material-symbol name="upload"> Upload</button>
     </div>
     <div>
       <b>Editor</b> (Load a file smaller than 64KiB with "Edit" action)<br>
       Name: <input id="touch-name"></input>
-      <button onclick="uiTouch()"><span class="material-symbols-outlined">save_as</span> Create or update a file</button>
-      <button onclick="uiTouchClear()"><span class="material-symbols-outlined">close</span> Clear</button>
+      <button onclick="uiTouch()"><material-symbol name="save_as"> Create or update a file</button>
+      <button onclick="uiTouchClear()"><material-symbol name="close"> Clear</button>
       <br>
       <textarea id="touch-body" style="margin-top: 0.2em; width: 100%; max-width: 100%; min-width: 100%; min-height: 10em;"></textarea><br>
     </div>
