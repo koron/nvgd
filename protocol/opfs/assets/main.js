@@ -232,9 +232,7 @@ const opfs = {
         if (file.size < 64*1024) {
           acts.push(' ', m('a', { onclick: () => this.actEdit(name) }, 'Edit'));
         }
-        if (supportedByDuckDB(name)) {
-          acts.push(' ', m('a', { onclick: () => this.actDuckDB(name) }, 'DuckDB'));
-        }
+        acts.push(' ', m('a', { onclick: () => this.actDuckDB(name) }, 'DuckDB'));
       } else {
         cols.push(
           m('td',
@@ -255,14 +253,9 @@ const opfs = {
   async selectionChanged() {
     const all = document.querySelectorAll('input.selectedFile');
     const selected = document.querySelectorAll('input.selectedFile:checked');
-    let filesDuckDB = [];
-    for (const file of selected) {
-      if (supportedByDuckDB(file.name)) {
-        filesDuckDB.push(file.name);
-      }
-    }
+
     // Enable/Disable "open multiple files with DuckDB" button.
-    document.querySelector('#multiple-duckdb').disabled = !(filesDuckDB.length >= 2 && filesDuckDB.length == selected.length);
+    document.querySelector('#multiple-duckdb').disabled = selected.length == 0;
 
     const toggle = document.querySelector('#toggle-selection-all');
     toggle.checked = selected.length > 0 && selected.length == all.length;
@@ -277,8 +270,21 @@ const opfs = {
     await this.selectionChanged()
   },
 
+  async unselectAll() {
+    for (const checkbox of document.querySelectorAll('input.selectedFile')) {
+      checkbox.checked = false;
+    }
+    const toggle = document.querySelector('#toggle-selection-all');
+    toggle.checked = false;
+    toggle.indeterminate = false;
+  },
+
+  async selectedFiles() {
+    return Array.from(document.querySelectorAll('input.selectedFile:checked')).map(e => e.name);
+  }
+
   async actDuckDBWithSelectedFiles() {
-    const files = Array.from(document.querySelectorAll('input.selectedFile:checked')).map(e => e.name);
+    const files = await selectedFiles();
     this.actDuckDB(files);
   },
 
@@ -289,6 +295,7 @@ const opfs = {
   },
 
   async uiCd(nameOrCount) {
+    await this.unselectAll();
     if (typeof nameOrCount === 'number') {
       this.popDir(nameOrCount);
     } else {
@@ -360,26 +367,23 @@ function makehash(queries) {
 
 function openWithDuckDB(paths) {
   if (!(paths instanceof Array)) {
-    const path = paths;
-    const queries = [
-      `CREATE VIEW opfs AS SELECT * FROM 'opfs://${path}';`,
-      `SHOW opfs;`,
-    ];
-    const url = `${origin}/duckdb/?opfs=${path}#,${makehash(queries)}`;
-    window.open(url, '_blank');
-    return;
+    paths = [ paths ];
   }
-
-  // Open multiple files with DuckDB
-  const queries = paths.map((v, i) => `CREATE VIEW opfs${i} AS SELECT * FROM 'opfs://${v}';`);
-  queries.push('SHOW TABLES;');
   const qparams = paths.map(v => 'opfs=' + encodeURIComponent(v)).join('&');
+  const queries = paths.filter(v => supportedByDuckDB(v)).map((v, i) => `CREATE VIEW opfs${i} AS SELECT * FROM 'opfs://${v}';`);
+  queries.push('SHOW TABLES;');
   const url = `${origin}/duckdb/?${qparams}#,${makehash(queries)}`;
   window.open(url, '_blank');
 }
 
 function supportedByDuckDB(name) {
-  const supportedExtensions = ['.csv', '.xlsx', '.json', '.parquet'];
+  const supportedExtensions = [
+    '.csv', '.csv.gz', '.csv.zst',
+    '.tsv', '.tsv.gz', '.tsv.zst',
+    '.xlsx',
+    '.json',
+    '.parquet',
+  ];
   const lastDotIndex = name.lastIndexOf('.');
   if (lastDotIndex === -1) {
     return false;
