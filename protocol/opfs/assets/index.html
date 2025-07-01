@@ -6,6 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OPFS</title>
 
+<link rel="stylesheet" type="text/css" href="/default.css">
+
 <style>
 section {
   margin: 1ex 0;
@@ -20,6 +22,37 @@ a {
 
 #footer div {
   margin: 1.5ex 0;
+}
+
+.grid-table.directory {
+  grid-template-columns: 1fr auto auto auto auto;
+
+  > div:nth-child(1) > div:nth-child(1) {
+    display: flex;
+    > input[type='checkbox'] {
+      flex: 0 0 auto;
+    }
+    > * {
+      flex: 1 0 auto;
+    }
+  }
+
+  > .grid-row > * {
+    &.name:hover {
+      background-color: var(--anchor-hover-background-color);
+    }
+    label {
+      display: inline-block;
+      width: stretch;
+    }
+    &.modifiedAt {
+      min-width: 20ex;
+    }
+    &.size {
+      text-align: right;
+      min-width: 14ex;
+    }
+  }
 }
 
 #main table {
@@ -37,7 +70,23 @@ a {
     text-align: right;
   }
 }
+
+span.material-symbols-outlined {
+  font-size: 1rem;
+  vertical-align: middle;
+}
+button .material-symbols-outlined {
+  vertical-align: text-bottom;
+}
+
+.horizontal-menu {
+  span.small {
+    font-size: 0.8rem;
+  }
+}
 </style>
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
 
 <script src="https://unpkg.com/mithril/mithril.js"></script>
 <script>
@@ -51,7 +100,6 @@ a {
       }
       await opfs.mkdir(name);
       el.value = '';
-      alert(`"${name}" directory created successfully.`);
     } catch (err) {
       alert(`Failed to create "${name}" directory, because of:\n\n${err}`);
     }
@@ -98,17 +146,17 @@ a {
     }
   }
 
-  async function uiClearAll() {
-    await opfs.clearAll();
-  }
-
   async function uiReload() {
     await opfs.renderEntries();
   }
 
-  async function uiDuckDBMultiple() {
-    await opfs.actDuckDBWithSelectedFiles();
+  class MaterialSymbol extends HTMLElement {
+    constructor() { super(); }
+    connectedCallback() {
+      this.innerHTML = `<span class="material-symbols-outlined">${this.getAttribute('name')}</span>`;
+    }
   }
+  customElements.define('material-symbol', MaterialSymbol);
 </script>
 
 </head>
@@ -117,38 +165,47 @@ a {
   <h1>OPFS: Origin Private File System</h1>
   <section id="header"></section>
   <section id="main">
-    <table border="1"></table>
+    <div class="grid-table directory"></div>
   </section>
   <section id="footer">
-    <div><button onclick="uiReload()">Reload</button></div>
+    <div class="horizontal-menu">
+      <button onclick="uiReload()"><material-symbol name="refresh"> Reload</button>
+      &nbsp;
+      <button id="multiple-delete" disabled="true" onclick="opfs.actDeleteSelectedFiles()"><material-symbol name="delete"> Delete</button>
+      &nbsp; &nbsp;
+      <span class="small">Open with ...</span>
+      <button id="multiple-duckdb" disabled="true" onclick="opfs.actDuckDBWithSelectedFiles()"><material-symbol name="database"> DuckDB</button>
+    </div>
     <div>
       <b>Make directory</b><br>
       <input id="mkdir-name"></input>
-      <button onclick="uiMkdir()">Create a directory</button>
-    </div>
-    <div>
-      <b>Editor</b> (Load a file smaller than 64KiB with "Edit" action)<br>
-      Name: <input id="touch-name"></input>
-      <button onclick="uiTouch()">Create or update a file</button>
-      <button onclick="uiTouchClear()">Clear</button>
-      <br>
-      <textarea id="touch-body" style="margin-top: 0.2em; width: 100%; max-width: 100%; min-width: 100%; min-height: 10em;"></textarea><br>
+      <button onclick="uiMkdir()"><material-symbol name="create_new_folder"> Create new directory</button>
     </div>
     <div>
       <b>Upload a local file</b><br>
       <input type="file" id="upload-file" onchange="uiUploadChange()"></file>
       Upload as: <input id="upload-name"></input>
-      <button onclick="uiUpload()">Upload</button>
+      <button onclick="uiUpload()"><material-symbol name="upload"> Upload</button>
     </div>
     <div>
-      <b>Acitons for multiple files</b><br>
-      <button id="multiple-duckdb" disabled="true" onclick="uiDuckDBMultiple()">Open selected files with DuckDB</button><br>
-    </div>
-    <div>
-      <b>Delete all contents</b><br>
-      <button onclick="uiClearAll()">Delete all contents in this direcotry</button>
+      <b>Editor</b> (Load a file smaller than 64KiB with "Edit" action)<br>
+      Name: <input id="touch-name"></input>
+      <button onclick="uiTouch()"><material-symbol name="save_as"> Create or update a file</button>
+      <button onclick="uiTouchClear()"><material-symbol name="close"> Clear</button>
+      <br>
+      <textarea id="touch-body" style="margin-top: 0.2em; width: 100%; max-width: 100%; min-width: 100%; min-height: 10em;"></textarea><br>
     </div>
   </section>
 
   <script src="/opfs/main.js"></script>
 </body>
+
+<script>
+  // Pressing the Tab key inserts a tab character.
+  document.querySelector('#touch-body').onkeydown = e => {
+    if (e.keyCode == 9) {
+      e.preventDefault();
+      document.execCommand('insertText', false, '\t');
+    }
+  }
+</script>

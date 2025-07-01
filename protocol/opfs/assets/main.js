@@ -128,7 +128,7 @@ const opfs = {
       await writable.close();
       await this.render();
     } catch (err) {
-      alert(err);
+      this.alertErr(err);
     }
   },
 
@@ -185,24 +185,24 @@ const opfs = {
       const n = last - i;
       breadcrumbs.push(n == 0 ?
         m('span', dir.name) :
-        m('a', { onclick: () => this.uiCd(n) }, dir.name));
+        m('a', { onclick: () => this.actCd(n) }, dir.name));
     }
     m.render(document.querySelector('#header'), breadcrumbs);
   },
 
   async renderEntries() {
-    const rows = [ m('tr',
-        m('th',
+    const rows = [ m('div.grid-header',
+        m('div',
           m('input', {
             type: 'checkbox',
             id: 'toggle-selection-all',
             onclick: () => this.selectionToggleAll(),
           }),
           m('span', 'Name')),
-        m('th', 'Type'),
-        m('th', 'Size'),
-        m('th', 'Modified At'),
-        m('th', 'Actions'),
+        m('div', 'Type'),
+        m('div', 'Size'),
+        m('div', 'Modified At'),
+        m('div', 'Actions'),
     )];
     for await (const [name, handle] of this.currDir.entries()) {
       const cols = [];
@@ -210,51 +210,47 @@ const opfs = {
       if (handle instanceof FileSystemFileHandle) {
         const file = await handle.getFile();
         cols.push(
-          m('td',
+          m('div.name',
             m('label',
-              m('input', {
+              m('input.selectedFile', {
                 type: 'checkbox',
-                class: 'selectedFile',
                 name: name,
                 onchange: () => this.selectionChanged(),
-              }),
+              }), ' ',
               name)),
-          m('td', 'file'),
-          m('td', file.size),
-          m('td', new Date(file.lastModified).toLocaleString()),
+          m('div', 'file'),
+          m('div.size', file.size),
+          m('div', new Date(file.lastModified).toLocaleString()),
         );
         // Compose actions for file
         acts.push(
-          m('a', { onclick: () => this.actRm(name, false) }, 'Remove'),
-          ' ',
-          m('a', { onclick: () => this.actSave(name) }, 'Save as'),
+          m('a', { onclick: () => this.actSave(name) }, icon('download'), 'Save as'),
         );
         if (file.size < 64*1024) {
-          acts.push(' ', m('a', { onclick: () => this.actEdit(name) }, 'Edit'));
+          acts.push(' ', m('a', { onclick: () => this.actEdit(name) }, icon('edit'), 'Edit'));
         }
-        acts.push(' ', m('a', { onclick: () => this.actDuckDB(name) }, 'DuckDB'));
       } else {
+        const displayName = name + '/';
         cols.push(
-          m('td',
+          m('div.name',
             m('label',
-              m('input', {
+              m('input.selectedFile', {
                 type: 'checkbox',
-                class: 'selectedFile',
-                name: name,
+                name: displayName,
                 onchange: () => this.selectionChanged(),
-              }),
-              m('a', { onclick: () => this.uiCd(name), }, name + '/'))),
-          m('td', 'dir'),
-          m('td', '(N/A)'),
-          m('td', '(N/A)'),
+              }), ' ',
+              m('a', {
+                onclick: (e) => { e.preventDefault(); this.actCd(name) },
+              }, displayName))),
+          m('div', 'dir'),
+          m('div.size', '(N/A)'),
+          m('div', '(N/A)'),
         );
-        // Compose actions for directory
-        acts.push(m('a', { onclick: () => this.actRm(name, true) }, 'Remove'));
       }
-      cols.push(m('td', acts));
-      rows.push(m('tr', cols));
+      cols.push(m('div', acts));
+      rows.push(m('div.grid-row', cols));
     }
-    m.render(document.querySelector('#main > table'), rows);
+    m.render(document.querySelector('#main > .directory'), rows);
   },
 
   // Selection
@@ -267,8 +263,12 @@ const opfs = {
     const all = document.querySelectorAll('input.selectedFile');
     const selected = await this.selectedFiles();
 
-    // Enable/Disable "open multiple files with DuckDB" button.
-    document.querySelector('#multiple-duckdb').disabled = selected.length == 0;
+    // Enable/Disable action buttons.
+    for (const sel of ['#multiple-duckdb', '#multiple-delete']) {
+      //document.querySelector('#multiple-duckdb').disabled = selected.length == 0;
+      //document.querySelector('#multiple-delete').disabled = selected.length == 0;
+      document.querySelector(sel).disabled = selected.length == 0;
+    }
 
     const toggle = document.querySelector('#toggle-selection-all');
     toggle.checked = selected.length > 0 && selected.length == all.length;
@@ -294,19 +294,35 @@ const opfs = {
 
   // Actions
 
+  async actDeleteSelectedFiles() {
+    const files = await this.selectedFiles();
+    if (!confirm(`Are you sure you want to delete the following files/directories and its contents?\n\n- ${files.join('\n- ')}`)) {
+      return;
+    }
+    try {
+      for (const name of files) {
+        if (name.endsWith('/')) {
+          await this.currDir.removeEntry(name.slice(0, name.length - 1), { recursive: true });
+        } else {
+          await this.currDir.removeEntry(name, { recursive: false });
+        };
+      }
+      await this.unselectAll();
+    } catch (err) {
+      this.alertErr(err);
+    }
+    await this.render()
+  },
+
   async actDuckDBWithSelectedFiles() {
     const files = await this.selectedFiles();
+    const dir = this.dirs.length < 2 ? '' : this.dirs.slice(1).map((e) => e.name).join('/') + '/';
     // TODO: expand directories recursively (issue:141)
-    this.actDuckDB(files);
+    const paths = files.map(e => dir + e);
+    openWithDuckDB(paths);
   },
 
-  async actRm(name, recursive) {
-    if (confirm(`Are you sure you want to delete the following file/directory and its contents?\n\n${name}`)) {
-      this.rm(name, recursive);
-    }
-  },
-
-  async uiCd(nameOrCount) {
+  async actCd(nameOrCount) {
     await this.unselectAll();
     if (typeof nameOrCount === 'number') {
       this.popDir(nameOrCount);
@@ -319,13 +335,21 @@ const opfs = {
   },
 
   async actSave(name) {
-    const dst = await window.showSaveFilePicker({suggestedName: name})
-    const fileHandle = await this.currDir.getFileHandle(name);
-    const file = await fileHandle.getFile();
-    const writable = await dst.createWritable();
-    await writable.write(file);
-    await writable.close();
-    alert(`File ${name} in OPFS is saved as ${dst.name} in local successfully.`);
+    try {
+      const dst = await window.showSaveFilePicker({suggestedName: name})
+      const fileHandle = await this.currDir.getFileHandle(name);
+      const file = await fileHandle.getFile();
+      const writable = await dst.createWritable();
+      await writable.write(file);
+      await writable.close();
+      alert(`File ${name} in OPFS is saved as ${dst.name} in local successfully.`);
+    } catch (err) {
+      // Ignore file picker's cancellation.
+      if (err instanceof DOMException && err.name == 'AbortError') {
+        return;
+      }
+      this.alertErr(err);
+    }
   },
 
   async actEdit(name) {
@@ -336,16 +360,6 @@ const opfs = {
     el0.value = name;
     el1.value = await file.text();
 
-  },
-
-  async actDuckDB(names) {
-    const dir = this.dirs.length < 2 ? '' : this.dirs.slice(1).map((e) => e.name).join('/') + '/';
-    if (!(names instanceof Array)) {
-      openWithDuckDB(dir + names);
-      return;
-    }
-    const paths = names.map(e => dir + e);
-    openWithDuckDB(paths);
   },
 }
 
@@ -371,6 +385,10 @@ function swapchars(str) {
     }
   }
   return newStr;
+}
+
+function icon(name) {
+  return m('span.material-symbols-outlined', name);
 }
 
 function makehash(queries) {
