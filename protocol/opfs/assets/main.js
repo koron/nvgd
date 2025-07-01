@@ -128,7 +128,7 @@ const opfs = {
       await writable.close();
       await this.render();
     } catch (err) {
-      alert(err);
+      this.alertErr(err);
     }
   },
 
@@ -335,13 +335,21 @@ const opfs = {
   },
 
   async actSave(name) {
-    const dst = await window.showSaveFilePicker({suggestedName: name})
-    const fileHandle = await this.currDir.getFileHandle(name);
-    const file = await fileHandle.getFile();
-    const writable = await dst.createWritable();
-    await writable.write(file);
-    await writable.close();
-    alert(`File ${name} in OPFS is saved as ${dst.name} in local successfully.`);
+    try {
+      const dst = await window.showSaveFilePicker({suggestedName: name})
+      const fileHandle = await this.currDir.getFileHandle(name);
+      const file = await fileHandle.getFile();
+      const writable = await dst.createWritable();
+      await writable.write(file);
+      await writable.close();
+      alert(`File ${name} in OPFS is saved as ${dst.name} in local successfully.`);
+    } catch (err) {
+      // Ignore file picker's cancellation.
+      if (err instanceof DOMException && err.name == 'AbortError') {
+        return;
+      }
+      this.alertErr(err);
+    }
   },
 
   async actEdit(name) {

@@ -158,3 +158,13 @@ button > .material-symbols-outlined {
 
   <script src="/opfs/main.js"></script>
 </body>
+
+<script>
+  // Pressing the Tab key inserts a tab character.
+  document.querySelector('#touch-body').onkeydown = e => {
+    if (e.keyCode == 9) {
+      e.preventDefault();
+      document.execCommand('insertText', false, '\t');
+    }
+  }
+</script>
