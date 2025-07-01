@@ -191,18 +191,18 @@ const opfs = {
   },
 
   async renderEntries() {
-    const rows = [ m('tr',
-        m('th',
+    const rows = [ m('div.grid-header',
+        m('div',
           m('input', {
             type: 'checkbox',
             id: 'toggle-selection-all',
             onclick: () => this.selectionToggleAll(),
           }),
           m('span', 'Name')),
-        m('th', 'Type'),
-        m('th', 'Size'),
-        m('th', 'Modified At'),
-        m('th', 'Actions'),
+        m('div', 'Type'),
+        m('div', 'Size'),
+        m('div', 'Modified At'),
+        m('div', 'Actions'),
     )];
     for await (const [name, handle] of this.currDir.entries()) {
       const cols = [];
@@ -210,18 +210,18 @@ const opfs = {
       if (handle instanceof FileSystemFileHandle) {
         const file = await handle.getFile();
         cols.push(
-          m('td',
+          m('div.name',
             m('label',
               m('input', {
                 type: 'checkbox',
                 class: 'selectedFile',
                 name: name,
                 onchange: () => this.selectionChanged(),
-              }),
+              }), ' ',
               name)),
-          m('td', 'file'),
-          m('td', file.size),
-          m('td', new Date(file.lastModified).toLocaleString()),
+          m('div', 'file'),
+          m('div.size', file.size),
+          m('div', new Date(file.lastModified).toLocaleString()),
         );
         // Compose actions for file
         acts.push(
@@ -233,24 +233,24 @@ const opfs = {
       } else {
         const displayName = name + '/';
         cols.push(
-          m('td',
+          m('div.name',
             m('label',
               m('input', {
                 type: 'checkbox',
                 class: 'selectedFile',
                 name: displayName,
                 onchange: () => this.selectionChanged(),
-              }),
+              }), ' ',
               m('a', { onclick: () => this.actCd(name), }, displayName))),
-          m('td', 'dir'),
-          m('td', '(N/A)'),
-          m('td', '(N/A)'),
+          m('div', 'dir'),
+          m('div.size', '(N/A)'),
+          m('div', '(N/A)'),
         );
       }
-      cols.push(m('td', acts));
-      rows.push(m('tr', cols));
+      cols.push(m('div', acts));
+      rows.push(m('div.grid-row', cols));
     }
-    m.render(document.querySelector('#main > table'), rows);
+    m.render(document.querySelector('#main > .directory'), rows);
   },
 
   // Selection

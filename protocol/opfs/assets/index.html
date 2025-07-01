@@ -6,6 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OPFS</title>
 
+<link rel="stylesheet" type="text/css" href="/default.css">
+
 <style>
 section {
   margin: 1ex 0;
@@ -20,6 +22,37 @@ a {
 
 #footer div {
   margin: 1.5ex 0;
+}
+
+.grid-table.directory {
+  grid-template-columns: 1fr auto auto auto auto;
+
+  > div:nth-child(1) > div:nth-child(1) {
+    display: flex;
+    > input[type='checkbox'] {
+      flex: 0 0 auto;
+    }
+    > * {
+      flex: 1 0 auto;
+    }
+  }
+
+  > .grid-row > * {
+    &.name:hover {
+      background-color: var(--anchor-hover-background-color);
+    }
+    label {
+      display: inline-block;
+      width: stretch;
+    }
+    &.modifiedAt {
+      min-width: 20ex;
+    }
+    &.size {
+      text-align: right;
+      min-width: 14ex;
+    }
+  }
 }
 
 #main table {
@@ -42,7 +75,7 @@ span.material-symbols-outlined {
   font-size: 1rem;
   vertical-align: middle;
 }
-button > .material-symbols-outlined {
+button .material-symbols-outlined {
   vertical-align: text-bottom;
 }
 
@@ -132,7 +165,7 @@ button > .material-symbols-outlined {
   <h1>OPFS: Origin Private File System</h1>
   <section id="header"></section>
   <section id="main">
-    <table border="1"></table>
+    <div class="grid-table directory"></div>
   </section>
   <section id="footer">
     <div class="horizontal-menu">
