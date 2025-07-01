@@ -1,6 +1,4 @@
 const opfs = {
-  // OPFS root directory handler (FileSystemDirectoryHandle)
-  root: undefined,
   // Current directory level ([FileSystemDirectoryHandle])
   dirs: [],
 
@@ -39,6 +37,27 @@ const opfs = {
     }
   },
 
+  absPath(path='.') {
+    if (path.startsWith('/')) {
+      return path;
+    }
+    if (path.startsWith('..')) {
+      let count = 0;
+      while (path.startsWith('..')) {
+        path = path.replace(/\.\.\/?/, '');
+        count++;
+      }
+      if (count >= this.dirs.length) {
+        return '/' + path;
+      }
+      return this.dirs.slice(0, this.dirs.length - count).map(d => d.dir.name).join('/') + '/' + path;
+    }
+    if (path.startsWith('.')) {
+      return this.dirs.map(d => d.dir.name).join('/');
+    }
+    return this.absPath('.') + '/' + path;
+  },
+
   updateHistory(push) {
     const path = this.dirs.map(d => d.dir.name).join('/') + '/';
     const url = path === '/' ? '.' : `#${path}`;
@@ -47,6 +66,10 @@ const opfs = {
     } else {
       window.history.replaceState(path, '', url);
     }
+  },
+
+  async enumFiles(path='.') {
+    return await enumFiles(this.absPath(path));
   },
 
   // mkdir creates a new directory into the current directory.
@@ -255,13 +278,13 @@ const opfs = {
 
   // Selection
 
-  async selectedFiles() {
+  selectedFiles() {
     return Array.from(document.querySelectorAll('input.selectedFile:checked')).map(e => e.name);
   },
 
-  async selectionChanged() {
+  selectionChanged() {
     const all = document.querySelectorAll('input.selectedFile');
-    const selected = await this.selectedFiles();
+    const selected = this.selectedFiles();
 
     // Enable/Disable action buttons.
     for (const sel of ['#multiple-duckdb', '#multiple-delete']) {
@@ -280,7 +303,7 @@ const opfs = {
     for (const checkbox of document.querySelectorAll('input.selectedFile')) {
       checkbox.checked = toggle.checked;
     }
-    await this.selectionChanged()
+    this.selectionChanged()
   },
 
   async unselectAll() {
@@ -290,12 +313,13 @@ const opfs = {
     const toggle = document.querySelector('#toggle-selection-all');
     toggle.checked = false;
     toggle.indeterminate = false;
+    this.selectionChanged()
   },
 
   // Actions
 
   async actDeleteSelectedFiles() {
-    const files = await this.selectedFiles();
+    const files = this.selectedFiles();
     if (!confirm(`Are you sure you want to delete the following files/directories and its contents?\n\n- ${files.join('\n- ')}`)) {
       return;
     }
@@ -315,10 +339,17 @@ const opfs = {
   },
 
   async actDuckDBWithSelectedFiles() {
-    const files = await this.selectedFiles();
-    const dir = this.dirs.length < 2 ? '' : this.dirs.slice(1).map((e) => e.name).join('/') + '/';
-    // TODO: expand directories recursively (issue:141)
-    const paths = files.map(e => dir + e);
+    const files = this.selectedFiles();
+    let paths = [];
+    for (const file of files) {
+      if (file.endsWith('/')) {
+        paths = paths.concat(await this.enumFiles(file));
+      } else {
+        paths.push(this.absPath(file));
+      }
+    }
+    // Strip a leading '/' slash from all paths.
+    paths = paths.map(e => e.slice(1));
     openWithDuckDB(paths);
   },
 
@@ -396,9 +427,6 @@ function makehash(queries) {
 }
 
 function openWithDuckDB(paths) {
-  if (!(paths instanceof Array)) {
-    paths = [ paths ];
-  }
   const qparams = paths.map(v => 'opfs=' + encodeURIComponent(v)).join('&');
   const queries = paths.filter(v => supportedByDuckDB(v)).map((v, i) => `CREATE VIEW opfs${i} AS SELECT * FROM 'opfs://${v}';`);
   queries.push('SHOW TABLES;');
@@ -420,6 +448,30 @@ function supportedByDuckDB(name) {
   }
   const ext = name.substring(lastDotIndex).toLowerCase();
   return supportedExtensions.includes(ext);
+}
+
+async function openDir(path='/') {
+  let dir = await navigator.storage.getDirectory();
+  const entries = path.replace(/^\/|\/$/g, '').split('/').filter(e => e !== '');
+  for (const entry of entries) {
+    dir = await dir.getDirectoryHandle(entry);
+  }
+  return dir
+}
+
+async function enumFiles(root='/') {
+  root = root.replace(/\/+$/, '');
+  const dir = await openDir(root);
+  let files = [];
+  for await (const [name, handle] of dir.entries()) {
+    const path = root + '/' + name;
+    if (handle instanceof FileSystemDirectoryHandle) {
+      files = files.concat(await enumFiles(path));
+    } else {
+      files.push(path)
+    }
+  }
+  return files;
 }
 
 async function init() {
