@@ -212,9 +212,8 @@ const opfs = {
         cols.push(
           m('div.name',
             m('label',
-              m('input', {
+              m('input.selectedFile', {
                 type: 'checkbox',
-                class: 'selectedFile',
                 name: name,
                 onchange: () => this.selectionChanged(),
               }), ' ',
@@ -235,13 +234,14 @@ const opfs = {
         cols.push(
           m('div.name',
             m('label',
-              m('input', {
+              m('input.selectedFile', {
                 type: 'checkbox',
-                class: 'selectedFile',
                 name: displayName,
                 onchange: () => this.selectionChanged(),
               }), ' ',
-              m('a', { onclick: () => this.actCd(name), }, displayName))),
+              m('a', {
+                onclick: (e) => { e.preventDefault(); this.actCd(name) },
+              }, displayName))),
           m('div', 'dir'),
           m('div.size', '(N/A)'),
           m('div', '(N/A)'),
@@ -388,7 +388,7 @@ function swapchars(str) {
 }
 
 function icon(name) {
-  return m('span', { class: 'material-symbols-outlined' }, name);
+  return m('span.material-symbols-outlined', name);
 }
 
 function makehash(queries) {
