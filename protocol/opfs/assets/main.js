@@ -236,7 +236,14 @@ const opfs = {
       } else {
         cols.push(
           m('td',
-            m('a', { onclick: () => this.uiCd(name), }, name + '/')),
+            m('label',
+              m('input', {
+                type: 'checkbox',
+                class: 'selectedFile',
+                name: name,
+                onchange: () => this.selectionChanged(),
+              }),
+              m('a', { onclick: () => this.uiCd(name), }, name + '/'))),
           m('td', 'dir'),
           m('td', '(N/A)'),
           m('td', '(N/A)'),
@@ -250,9 +257,15 @@ const opfs = {
     m.render(document.querySelector('#main > table'), rows);
   },
 
+  // Selection
+
+  async selectedFiles() {
+    return Array.from(document.querySelectorAll('input.selectedFile:checked')).map(e => e.name);
+  },
+
   async selectionChanged() {
     const all = document.querySelectorAll('input.selectedFile');
-    const selected = document.querySelectorAll('input.selectedFile:checked');
+    const selected = await this.selectedFiles();
 
     // Enable/Disable "open multiple files with DuckDB" button.
     document.querySelector('#multiple-duckdb').disabled = selected.length == 0;
@@ -279,12 +292,11 @@ const opfs = {
     toggle.indeterminate = false;
   },
 
-  async selectedFiles() {
-    return Array.from(document.querySelectorAll('input.selectedFile:checked')).map(e => e.name);
-  }
+  // Actions
 
   async actDuckDBWithSelectedFiles() {
-    const files = await selectedFiles();
+    const files = await this.selectedFiles();
+    // TODO: expand directories recursively (issue:141)
     this.actDuckDB(files);
   },
 
