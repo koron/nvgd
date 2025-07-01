@@ -37,7 +37,23 @@ a {
     text-align: right;
   }
 }
+
+span.material-symbols-outlined {
+  font-size: 1rem;
+  vertical-align: middle;
+}
+button > .material-symbols-outlined {
+  vertical-align: text-bottom;
+}
+
+.horizontal-menu {
+  span.small {
+    font-size: 0.8rem;
+  }
+}
 </style>
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
 
 <script src="https://unpkg.com/mithril/mithril.js"></script>
 <script>
@@ -51,7 +67,6 @@ a {
       }
       await opfs.mkdir(name);
       el.value = '';
-      alert(`"${name}" directory created successfully.`);
     } catch (err) {
       alert(`Failed to create "${name}" directory, because of:\n\n${err}`);
     }
@@ -98,16 +113,8 @@ a {
     }
   }
 
-  async function uiClearAll() {
-    await opfs.clearAll();
-  }
-
   async function uiReload() {
     await opfs.renderEntries();
-  }
-
-  async function uiDuckDBMultiple() {
-    await opfs.actDuckDBWithSelectedFiles();
   }
 </script>
 
@@ -120,33 +127,32 @@ a {
     <table border="1"></table>
   </section>
   <section id="footer">
-    <div><button onclick="uiReload()">Reload</button></div>
+    <div class="horizontal-menu">
+      <button onclick="uiReload()"><span class="material-symbols-outlined">refresh</span> Reload</button>
+      &nbsp;
+      <button id="multiple-delete" disabled="true" onclick="opfs.actDeleteSelectedFiles()"><span class="material-symbols-outlined">delete</span> Delete</button>
+      &nbsp; &nbsp;
+      <span class="small">Open with ...</span>
+      <button id="multiple-duckdb" disabled="true" onclick="opfs.actDuckDBWithSelectedFiles()"><span class="material-symbols-outlined">database</span> DuckDB</button>
+    </div>
     <div>
       <b>Make directory</b><br>
       <input id="mkdir-name"></input>
-      <button onclick="uiMkdir()">Create a directory</button>
-    </div>
-    <div>
-      <b>Editor</b> (Load a file smaller than 64KiB with "Edit" action)<br>
-      Name: <input id="touch-name"></input>
-      <button onclick="uiTouch()">Create or update a file</button>
-      <button onclick="uiTouchClear()">Clear</button>
-      <br>
-      <textarea id="touch-body" style="margin-top: 0.2em; width: 100%; max-width: 100%; min-width: 100%; min-height: 10em;"></textarea><br>
+      <button onclick="uiMkdir()"><span class="material-symbols-outlined">create_new_folder</span> Create new directory</button>
     </div>
     <div>
       <b>Upload a local file</b><br>
       <input type="file" id="upload-file" onchange="uiUploadChange()"></file>
       Upload as: <input id="upload-name"></input>
-      <button onclick="uiUpload()">Upload</button>
+      <button onclick="uiUpload()"><span class="material-symbols-outlined">upload</span> Upload</button>
     </div>
     <div>
-      <b>Acitons for multiple files</b><br>
-      <button id="multiple-duckdb" disabled="true" onclick="uiDuckDBMultiple()">Open selected files with DuckDB</button><br>
-    </div>
-    <div>
-      <b>Delete all contents</b><br>
-      <button onclick="uiClearAll()">Delete all contents in this direcotry</button>
+      <b>Editor</b> (Load a file smaller than 64KiB with "Edit" action)<br>
+      Name: <input id="touch-name"></input>
+      <button onclick="uiTouch()"><span class="material-symbols-outlined">save_as</span> Create or update a file</button>
+      <button onclick="uiTouchClear()"><span class="material-symbols-outlined">close</span> Clear</button>
+      <br>
+      <textarea id="touch-body" style="margin-top: 0.2em; width: 100%; max-width: 100%; min-width: 100%; min-height: 10em;"></textarea><br>
     </div>
   </section>
 
