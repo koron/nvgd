@@ -233,14 +233,13 @@ const opfs = {
       if (handle instanceof FileSystemFileHandle) {
         const file = await handle.getFile();
         cols.push(
-          m('div.name',
-            m('label',
-              m('input.selectedFile', {
-                type: 'checkbox',
-                name: name,
-                onchange: () => this.selectionChanged(),
-              }), ' ',
-              name)),
+          m('label.name',
+            m('input.selectedFile', {
+              type: 'checkbox',
+              name: name,
+              onchange: () => this.selectionChanged(),
+            }), ' ',
+            name),
           m('div', 'file'),
           m('div.size', file.size),
           m('div', new Date(file.lastModified).toLocaleString()),
@@ -255,16 +254,15 @@ const opfs = {
       } else {
         const displayName = name + '/';
         cols.push(
-          m('div.name',
-            m('label',
-              m('input.selectedFile', {
-                type: 'checkbox',
-                name: displayName,
-                onchange: () => this.selectionChanged(),
-              }), ' ',
-              m('a', {
-                onclick: (e) => { e.preventDefault(); this.actCd(name) },
-              }, displayName))),
+          m('label.name',
+            m('input.selectedFile', {
+              type: 'checkbox',
+              name: displayName,
+              onchange: () => this.selectionChanged(),
+            }), ' ',
+            m('a', {
+              onclick: (e) => { e.preventDefault(); this.actCd(name) },
+            }, displayName)),
           m('div', 'dir'),
           m('div.size', '(N/A)'),
           m('div', '(N/A)'),
@@ -442,12 +440,12 @@ function supportedByDuckDB(name) {
     '.json',
     '.parquet',
   ];
-  const lastDotIndex = name.lastIndexOf('.');
-  if (lastDotIndex === -1) {
-    return false;
+  for (const ext of supportedExtensions) {
+    if (name.endsWith(ext)) {
+      return true;
+    }
   }
-  const ext = name.substring(lastDotIndex).toLowerCase();
-  return supportedExtensions.includes(ext);
+  return false;
 }
 
 async function openDir(path='/') {
@@ -477,6 +475,7 @@ async function enumFiles(root='/') {
 async function init() {
   onpopstate = async (ev) => {
     await opfs.setCurrPath(ev.state);
+    await opfs.unselectAll();
     await opfs.render();
   };
 
