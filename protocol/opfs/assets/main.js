@@ -233,14 +233,13 @@ const opfs = {
       if (handle instanceof FileSystemFileHandle) {
         const file = await handle.getFile();
         cols.push(
-          m('div.name',
-            m('label',
-              m('input.selectedFile', {
-                type: 'checkbox',
-                name: name,
-                onchange: () => this.selectionChanged(),
-              }), ' ',
-              name)),
+          m('label.name',
+            m('input.selectedFile', {
+              type: 'checkbox',
+              name: name,
+              onchange: () => this.selectionChanged(),
+            }), ' ',
+            name),
           m('div', 'file'),
           m('div.size', file.size),
           m('div', new Date(file.lastModified).toLocaleString()),
@@ -255,16 +254,15 @@ const opfs = {
       } else {
         const displayName = name + '/';
         cols.push(
-          m('div.name',
-            m('label',
-              m('input.selectedFile', {
-                type: 'checkbox',
-                name: displayName,
-                onchange: () => this.selectionChanged(),
-              }), ' ',
-              m('a', {
-                onclick: (e) => { e.preventDefault(); this.actCd(name) },
-              }, displayName))),
+          m('label.name',
+            m('input.selectedFile', {
+              type: 'checkbox',
+              name: displayName,
+              onchange: () => this.selectionChanged(),
+            }), ' ',
+            m('a', {
+              onclick: (e) => { e.preventDefault(); this.actCd(name) },
+            }, displayName)),
           m('div', 'dir'),
           m('div.size', '(N/A)'),
           m('div', '(N/A)'),
