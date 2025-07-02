@@ -440,12 +440,12 @@ function supportedByDuckDB(name) {
     '.json',
     '.parquet',
   ];
-  const lastDotIndex = name.lastIndexOf('.');
-  if (lastDotIndex === -1) {
-    return false;
+  for (const ext of supportedExtensions) {
+    if (name.endsWith(ext)) {
+      return true;
+    }
   }
-  const ext = name.substring(lastDotIndex).toLowerCase();
-  return supportedExtensions.includes(ext);
+  return false;
 }
 
 async function openDir(path='/') {
