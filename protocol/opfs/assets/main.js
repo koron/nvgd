@@ -475,6 +475,7 @@ async function enumFiles(root='/') {
 async function init() {
   onpopstate = async (ev) => {
     await opfs.setCurrPath(ev.state);
+    await opfs.unselectAll();
     await opfs.render();
   };
 
