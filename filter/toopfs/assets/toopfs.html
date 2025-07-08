@@ -8,6 +8,7 @@
 <style>
 {{ template "toopfs.css" . -}}
 </style>
+<script src="/htmx.min.js"></script>
 </head>
 
 <body>
@@ -16,7 +17,13 @@
     <label><input id="select-all" type="checkbox" checked></input><b>Select/unselect all</b></label>
     <ul class="file-selection">
       {{- range .Downloads }}
-      <li><label><input type="checkbox" checked data-size="{{.Size}}" data-link="{{ .Link }}"></input><a href="{{ .Link }}">{{ .Name }}</a> ({{ .Size }} bytes)</label></li>
+      {{- if .IsDir }}
+      <li><label><input name="{{ .Name }}" type="checkbox" checked data-size="0" data-link="{{ .Link }}" data-isfile="false"></input><a href="{{ .Link }}?toopfs">{{ .Name }}/</a></label>
+        <ul hx-get="{{ .Link }}?toopfs" hx-trigger="load" hx-swap="outerHTML" hx-select="ul.file-selection"></ul>
+      </li>
+      {{- else }}
+      <li><label><input name="{{ .Name }}" type="checkbox" checked data-size="{{.Size}}" data-link="{{ .Link }}" data-isfile="true"></input><a href="{{ .Link }}">{{ .Name }}</a> ({{ .Size }} bytes)</label></li>
+      {{- end }}
       {{- end }}
     </ul>
     <b>Total size:</b> <span id="total-size">0</span> bytes
@@ -39,12 +46,6 @@
       <progress id="download-progress"></progress>
     </div>
   </div>
-  <!--
-  <br><hr>
-  <section id="output-section">
-    <h2>Progress</h22>
-  </section>
-  -->
 </body>
 
 <script>

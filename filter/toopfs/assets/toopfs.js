@@ -11,23 +11,27 @@ async function sleep(msec) {
   await new Promise((resolve) => setTimeout(resolve, msec));
 }
 
-function files() {
-  return document.querySelectorAll('.file-selection input[type="checkbox"]');
+function dirsAll(base=document) {
+  return base.querySelectorAll('input[type="checkbox"][data-isfile="false"]');
 }
 
-function selectedFiles() {
-  return document.querySelectorAll('.file-selection input:checked');
+function filesAll(base=document) {
+  return base.querySelectorAll('input[type="checkbox"][data-isfile="true"]');
 }
 
-function updatedCheckboxes() {
-  const selected = selectedFiles();
+function selectedFilesAll(base=document) {
+  return base.querySelectorAll('input[type="checkbox"][data-isfile="true"]:checked');
+}
+
+function updateTotalSize() {
+  const selected = selectedFilesAll();
   let totalSize = 0;
   selected.forEach((e, i) => {
     totalSize += e.dataset.size - 0;
   });
   elTotalSize.innerText = totalSize;
 
-  const count = files().length;
+  const count = filesAll().length;
   elSelectAll.checked = selected.length > 0 && selected.length == count;
   elSelectAll.indeterminate = selected.length > 0 && selected.length < count;
 
@@ -59,7 +63,7 @@ async function downloadFiles() {
   if (destdir !== '') {
     destdir = destdir.replace(/(^\/+|\/+$)/, '') + '/';
   }
-  const targets = selectedFiles()
+  const targets = selectedFilesAll()
   const count = targets.length;
   let step = 0;
   elDownloadProgress.max = count * 2;
@@ -85,8 +89,8 @@ async function downloadFiles() {
 
 function on_change_selectAll(ev) {
   const v = ev.target.checked;
-  files().forEach((e, i) => e.checked = v);
-  updatedCheckboxes();
+  filesAll().forEach((e, i) => e.checked = v);
+  updateTotalSize();
 }
 
 function on_click_cleanDestdir() {
@@ -95,14 +99,14 @@ function on_click_cleanDestdir() {
 }
 
 function on_change_fileSelection() {
-  updatedCheckboxes();
+  updateTotalSize();
 }
 
 async function on_click_download() {
   elDownloadCover.style.display = '';
   try {
-    const links = selectedFiles()
-    if (!confirm(`Download ${selectedFiles().length} files, total size ${elTotalSize.innerText} bytes?`)) {
+    const links = selectedFilesAll()
+    if (!confirm(`Download ${selectedFilesAll().length} files, total size ${elTotalSize.innerText} bytes?`)) {
       return;
     }
     await downloadFiles();
@@ -125,14 +129,17 @@ async function on_click_download() {
   }
 }
 
-function init() {
-  updatedCheckboxes();
-}
-
 // Events
+
 elSelectAll.addEventListener('change', on_change_selectAll);
 elClearDestdir.addEventListener('click', on_click_cleanDestdir);
-selectedFiles().forEach((e) => e.addEventListener('change', on_change_fileSelection));
 elDownload.addEventListener('click', on_click_download);
 
-init();
+document.body.addEventListener('htmx:afterSwap', ev => {
+  console.log(ev.target);
+  filesAll(ev.target).forEach(e => e.addEventListener('change', on_change_fileSelection));
+  updateTotalSize();
+});
+
+filesAll().forEach((e) => e.addEventListener('change', on_change_fileSelection));
+updateTotalSize();
