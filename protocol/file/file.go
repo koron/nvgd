@@ -144,7 +144,7 @@ func fileOpenDir(name string) (*resource.Resource, error) {
 		var t, link, download string
 		if fi.IsDir() {
 			t = "dir"
-			link = fmt.Sprintf("/file://%s/%s/?indexhtml", path, n)
+			link = fmt.Sprintf("/file://%s/%s/", path, n)
 		} else {
 			t = "file"
 			link = fmt.Sprintf("/file://%s/%s", path, n)

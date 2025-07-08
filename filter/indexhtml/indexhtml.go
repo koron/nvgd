@@ -126,6 +126,9 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 			Link:       pathPrefix(s.GetFirst("link")),
 			Download:   pathPrefix(s.GetFirst("download")),
 		}
+		if e.Type == "dir" || e.Type == "prefix" {
+			e.Link += "?indexhtml"
+		}
 		if fmt, ok := supportQuery(name); ok {
 			qlink := "/trdsql/"
 			qlink += "s=" + url.PathEscape(pathPrefix(s.GetFirst("link")))
@@ -151,7 +154,7 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 		d.UpLink = pathPrefix(link)
 	}
 	if link, ok := r.String(commonconst.NextLink); ok {
-		d.NextLink = pathPrefix(link)
+		d.NextLink = pathPrefix(link + "&indexhtml")
 	}
 
 	// execute template.
