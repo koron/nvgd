@@ -348,6 +348,9 @@ func (s *Server) applyFilters(qp qparams, r *resource.Resource) (*resource.Resou
 			return r, err
 		}
 		r = r2
+		if v, ok := r.Bool(resource.SkipFilters); ok && v {
+			break
+		}
 	}
 	return r, nil
 }
