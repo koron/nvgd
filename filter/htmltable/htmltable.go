@@ -3,7 +3,6 @@ package htmltable
 
 import (
 	"bytes"
-	"errors"
 	"html/template"
 	"io"
 	"strings"
@@ -160,19 +159,11 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 		Linefeed: p.Bool(commonconst.Linefeed, false),
 		Config:   &cfg,
 	}
-	lr := filterbase.NewLTSVReader(r)
 	first := true
-	for {
-		s, err := lr.Read()
+	for s, err := range filterbase.NewLTSVReader(r).Iter() {
 		if err != nil {
 			r.Close()
-			if !errors.Is(err, io.EOF) {
-				return nil, err
-			}
-			break
-		}
-		if s.Empty() {
-			continue
+			return nil, err
 		}
 		if first {
 			d.initHeader(s.Properties)

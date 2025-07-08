@@ -104,18 +104,10 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 	d := &doc{
 		Config: &cfg,
 	}
-	lr := filterbase.NewLTSVReader(r)
-	for {
-		s, err := lr.Read()
+	for s, err := range filterbase.NewLTSVReader(r).Iter() {
 		if err != nil {
 			r.Close()
-			if err != io.EOF {
-				return nil, err
-			}
-			break
-		}
-		if s.Empty() {
-			continue
+			return nil, err
 		}
 		name := s.GetFirst("name")
 		e := entry{
