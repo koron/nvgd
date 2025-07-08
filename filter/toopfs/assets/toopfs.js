@@ -30,6 +30,8 @@ function updatedCheckboxes() {
   const count = files().length;
   elSelectAll.checked = selected.length > 0 && selected.length == count;
   elSelectAll.indeterminate = selected.length > 0 && selected.length < count;
+
+  elDownload.disabled = selected.length == 0;
 }
 
 async function uploadOPFS(name, blob) {

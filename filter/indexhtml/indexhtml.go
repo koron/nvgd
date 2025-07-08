@@ -30,6 +30,8 @@ type doc struct {
 	UpLink   string
 	NextLink string
 
+	OPFSUploader string
+
 	Config *Config
 }
 
@@ -100,6 +102,7 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 
 	timeLayout := chooseTimeLayout(p.String("timefmt", "RFC1123"))
 	noUpLink := p.Bool("nouplink", false)
+	noOPFS := p.Bool("noopfs", false);
 	// compose document.
 	d := &doc{
 		Config: &cfg,
@@ -119,6 +122,9 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 			Download:   pathPrefix(s.GetFirst("download")),
 		}
 		if e.Type == "dir" || e.Type == "prefix" {
+			if !noOPFS {
+				e.OPFSUpload = e.Link + "?toopfs"
+			}
 			e.Link += "?indexhtml"
 		}
 		if fmt, ok := supportQuery(name); ok {
@@ -134,8 +140,6 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 			link += "t=" + url.PathEscape(pathPrefix(s.GetFirst("link")))
 			e.DuckDBLink = link
 		}
-		// Downloadable entry can be upload to OPFS too.
-		e.OPFSUpload = e.Download
 		// detect UNIX time, and convert it to specified time layout (default is RFC1123).
 		if sec, err := strconv.ParseInt(e.ModifiedAt, 10, 64); err == nil {
 			e.ModifiedAt = time.Unix(sec, 0).Format(timeLayout)
@@ -147,6 +151,9 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 	}
 	if link, ok := r.String(commonconst.NextLink); ok {
 		d.NextLink = pathPrefix(link + "&indexhtml")
+	}
+	if !noOPFS {
+		d.OPFSUploader = "?toopfs"
 	}
 
 	// execute template.

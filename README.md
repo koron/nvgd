@@ -659,6 +659,8 @@ Convert LTSV to Index HTML.
     * `nouplink`: Hide the "Up" link to navigate back through the directory
       hierarchy, when its value is `true`. Default is `false`: show the "Up"
       link.
+    * `noopfs`: Hide links to OPFS uploader, when its value is `true`. Default
+      is `false` show links to OPFS uploader.
 * configurations:
     * `custom_css_urls`: list of URLs to link as CSS.
 
