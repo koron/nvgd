@@ -12,6 +12,7 @@ import (
 	_ "github.com/koron/nvgd/filter/indexhtml"
 	_ "github.com/koron/nvgd/filter/jsonarray"
 	_ "github.com/koron/nvgd/filter/ltsv"
+	_ "github.com/koron/nvgd/filter/ltsvconv"
 	_ "github.com/koron/nvgd/filter/markdown"
 	_ "github.com/koron/nvgd/filter/pager"
 	_ "github.com/koron/nvgd/filter/tail"

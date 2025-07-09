@@ -45,9 +45,7 @@ func (l *LTSV) readNext(buf *bytes.Buffer) error {
 		if l.isMatch(row) != l.match {
 			continue
 		}
-		if err = ltsv.Write(buf, l.filter(row).Properties); err != nil {
-			return err
-		}
+		return ltsv.Write(buf, l.filter(row).Properties)
 	}
 }
 
@@ -115,5 +113,5 @@ func parseCut(p filter.Params) []string {
 }
 
 func init() {
-	filter.MustRegister("lstv", newLTSV)
+	filter.MustRegister("ltsv", newLTSV)
 }

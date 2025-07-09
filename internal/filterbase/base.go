@@ -51,7 +51,7 @@ func (b *Base) Read(buf []byte) (int, error) {
 		// read next data to b.buf
 		b.buf.Reset()
 		err := b.rn(&b.buf)
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			b.Close()
 		} else if err != nil {
 			return 0, err
