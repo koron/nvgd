@@ -64,7 +64,7 @@ async function downloadFiles() {
     const dst = destdir + src.slice(window.location.pathname.length);
     // Download a file
     elDownloadMessage.innerText = `#${step+1}/${count*2} downloading from ${src} ...`;
-    const response = await fetch(src);
+    const response = await fetch(src + '?keepcompress');
     if (!response.ok) {
       throw new Error(`Failed to fetch data from ${src}: ${response.statusText}`);
     }

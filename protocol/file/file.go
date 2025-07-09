@@ -28,6 +28,10 @@ import (
 	"github.com/pierrec/lz4/v4"
 )
 
+const (
+	KeepCompress = "keepcompress"
+)
+
 // File is file protocol handler.
 type File struct {
 }
@@ -72,6 +76,19 @@ func init() {
 
 // Open opens a URL as file.
 func (f *File) Open(u *url.URL) (*resource.Resource, error) {
+	var keepCompress bool
+	if _, ok := u.Query()[KeepCompress]; ok {
+		keepCompress = true
+	}
+
+	r, err := f.actualOpen(u, keepCompress)
+	if err != nil {
+		return nil, err
+	}
+	return r.Put(commonconst.ParsedKeys, []string{KeepCompress}), nil
+}
+
+func (f *File) actualOpen(u *url.URL, keepCompress bool) (*resource.Resource, error) {
 	name := u.Path
 	m, err := filepath.Glob(name)
 	if err != nil {
@@ -79,12 +96,12 @@ func (f *File) Open(u *url.URL) (*resource.Resource, error) {
 	}
 	switch len(m) {
 	case 0, 1:
-		return f.openOne(name)
+		return f.openOne(name, keepCompress)
 	}
-	return f.openMulti(m, name)
+	return f.openMulti(m, name, keepCompress)
 }
 
-func (f *File) openOne(name string) (*resource.Resource, error) {
+func (f *File) openOne(name string, keepCompress bool) (*resource.Resource, error) {
 	// TODO: consider relative path.
 	if !fc.isAccessible(name) {
 		return nil, fs.ErrPermission
@@ -96,20 +113,20 @@ func (f *File) openOne(name string) (*resource.Resource, error) {
 	if fi.IsDir() {
 		return fileOpenDir(name)
 	}
-	rc, err := fileOpen(name)
+	rc, err := fileOpen(name, keepCompress)
 	if err != nil {
 		return nil, err
 	}
 	return resource.New(rc), nil
 }
 
-func (f *File) openMulti(names []string, pattern string) (*resource.Resource, error) {
+func (f *File) openMulti(names []string, pattern string, keepCompress bool) (*resource.Resource, error) {
 	readers := make([]io.Reader, 0, len(names))
 	for _, n := range names {
 		if !fc.isAccessible(n) {
 			continue
 		}
-		readers = append(readers, newDelayFile(n))
+		readers = append(readers, newDelayFile(n, keepCompress))
 	}
 	if len(readers) == 0 {
 		return nil, fmt.Errorf("no matches: %s", pattern)
@@ -176,10 +193,13 @@ var (
 	rxLastComponent = regexp.MustCompile(`[^/]+/?$`)
 )
 
-func fileOpen(name string) (io.ReadCloser, error) {
+func fileOpen(name string, keepCompress bool) (io.ReadCloser, error) {
 	r, err := os.Open(name)
 	if err != nil {
 		return nil, err
+	}
+	if keepCompress {
+		return r, nil
 	}
 	// Apply decompress filter.
 	if rxGz.MatchString(name) {
@@ -214,10 +234,15 @@ type delayFile struct {
 	rc  io.ReadCloser
 	n   string
 	err error
+
+	keepCompress bool
 }
 
-func newDelayFile(name string) *delayFile {
-	return &delayFile{n: name}
+func newDelayFile(name string, keepCompress bool) *delayFile {
+	return &delayFile{
+		n:            name,
+		keepCompress: keepCompress,
+	}
 }
 
 func (d *delayFile) Read(b []byte) (int, error) {
@@ -225,7 +250,7 @@ func (d *delayFile) Read(b []byte) (int, error) {
 		return 0, d.err
 	}
 	if d.rc == nil {
-		d.rc, d.err = fileOpen(d.n)
+		d.rc, d.err = fileOpen(d.n, d.keepCompress)
 		if d.err != nil {
 			return 0, d.err
 		}
@@ -300,7 +325,12 @@ func (f *File) OpenRange(u *url.URL, start, end int) (*resource.Resource, error)
 		return nil, httperror.New(http.StatusRequestedRangeNotSatisfiable)
 	}
 
-	rc, err := fileOpen(name)
+	var keepCompress bool
+	if _, ok := u.Query()[KeepCompress]; ok {
+		keepCompress = true
+	}
+
+	rc, err := fileOpen(name, keepCompress)
 	if err != nil {
 		return nil, err
 	}
@@ -309,5 +339,5 @@ func (f *File) OpenRange(u *url.URL, start, end int) (*resource.Resource, error)
 		return nil, err
 	}
 
-	return resource.New(rr), nil
+	return resource.New(rr).Put(commonconst.ParsedKeys, []string{KeepCompress}), nil
 }
