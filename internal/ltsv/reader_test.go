@@ -12,7 +12,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func assertEqual(t *testing.T, actual, expected interface{}) {
+func assertEqual(t *testing.T, actual, expected any) {
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("not matched:\nactual=%q\nexpected=%q", actual, expected)
 	}

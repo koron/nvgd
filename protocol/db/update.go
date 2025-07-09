@@ -36,13 +36,13 @@ func (uh *UpdateHandler) Open(u *url.URL) (*resource.Resource, error) {
 	if !strings.HasPrefix(s, "/") {
 		return nil, errors.New("UpdateHandler#Open: unknown resource")
 	}
-	return uh.openAsset(s[1:], map[string]interface{}{
+	return uh.openAsset(s[1:], map[string]any{
 		"name": name,
 		"db":   p,
 	})
 }
 
-func (uh *UpdateHandler) openAsset(s string, p map[string]interface{}) (*resource.Resource, error) {
+func (uh *UpdateHandler) openAsset(s string, p map[string]any) (*resource.Resource, error) {
 	if s == "" {
 		s = "update.html"
 	}

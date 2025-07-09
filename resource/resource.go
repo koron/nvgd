@@ -61,7 +61,7 @@ func (r *Resource) ReadSeekCloser() (ReadSeekCloser, bool) {
 }
 
 // Put puts a pair of name and value as an option.
-func (r *Resource) Put(name string, value interface{}) *Resource {
+func (r *Resource) Put(name string, value any) *Resource {
 	r.Options[name] = value
 	return r
 }

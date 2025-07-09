@@ -22,7 +22,7 @@ func rows2ltsv(rows *sql.Rows, maxRows int) (io.ReadCloser, bool, error) {
 		n   = len(cols)
 	)
 
-	vals := make([]interface{}, n)
+	vals := make([]any, n)
 	for i := range vals {
 		vals[i] = new(sql.NullString)
 	}
