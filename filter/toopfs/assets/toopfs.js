@@ -25,7 +25,7 @@ function updateTotalSize() {
     count++
   });
   elFileCount.innerText = count;
-  elTotalSize.innerText = totalSize;
+  elTotalSize.innerText = totalSize.toLocaleString();
   elDownload.disabled = selected.length == 0;
 }
 
@@ -153,6 +153,13 @@ function associateCheckboxes(parentCheckbox, ul) {
   updateTotalSize();
 }
 
+function rewriteNumbers(el) {
+  el.querySelectorAll('.number').forEach(v => {
+    console.log(v);
+    v.innerText = new Number(v.innerText).toLocaleString();
+  });
+}
+
 // Events
 
 elClearDestdir.addEventListener('click', on_click_cleanDestdir);
@@ -161,6 +168,9 @@ elDownload.addEventListener('click', on_click_download);
 document.body.addEventListener('htmx:afterSwap', ev => {
   const parentCheckbox = ev.target.parentElement.querySelector('li > label > input[type="checkbox"]');
   associateCheckboxes(parentCheckbox, ev.target);
+  rewriteNumbers(ev.target);
 });
 
-associateCheckboxes(elSelectAll, document.querySelector('#input-section > ul.file-selection'));
+const list = document.querySelector('#input-section > ul.file-selection');
+associateCheckboxes(elSelectAll, list);
+rewriteNumbers(list);

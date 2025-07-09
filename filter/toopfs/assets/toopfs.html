@@ -22,7 +22,7 @@
         <ul hx-get="{{ .Link }}?toopfs" hx-trigger="load" hx-swap="outerHTML" hx-select="ul.file-selection"></ul>
       </li>
       {{- else }}
-      <li><label><input name="{{ .Name }}" type="checkbox" checked data-size="{{.Size}}" data-link="{{ .Link }}" data-isfile="true"></input><a href="{{ .Link }}">{{ .Name }}</a> ({{ .Size }} bytes)</label></li>
+      <li><label><input name="{{ .Name }}" type="checkbox" checked data-size="{{.Size}}" data-link="{{ .Link }}" data-isfile="true"></input><a href="{{ .Link }}">{{ .Name }}</a> (<span class="number">{{ .Size }}</span> bytes)</label></li>
       {{- end }}
       {{- end }}
     </ul>
