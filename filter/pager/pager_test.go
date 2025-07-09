@@ -63,7 +63,7 @@ func TestFail(t *testing.T) {
 	filtertest.Fail(t, newPager, filter.Params{"eop": "^--", "pages": "0"}, "", `invalid "pages": unknown pages item: 0`)
 
 	// Never happen for current parsePages()
-	//filtertest.Fail(t, newPager, filter.Params{"eop": "^--", "pages": ""}, "", `no "pages" choosen`)
+	//filtertest.Fail(t, newPager, filter.Params{"eop": "^--", "pages": ""}, "", `no "pages" chosen`)
 }
 
 func TestAfterEOP(t *testing.T) {

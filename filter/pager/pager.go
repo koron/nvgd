@@ -89,7 +89,7 @@ func (f *Pager) readNext(buf *bytes.Buffer) error {
 		}
 	}
 
-	// flush lastsBuf if "lasts" avaiable
+	// flush lastsBuf if "lasts" available
 	if f.lastsRing != nil {
 		for i := 0; i < f.lastsRing.Len(); i++ {
 			curr := f.lastsRing.Peek(i)
@@ -182,7 +182,7 @@ func newPager(r *resource.Resource, p filter.Params) (*resource.Resource, error)
 		return nil, fmt.Errorf(`invalid "pages": %w`, err)
 	}
 	if len(pages) == 0 {
-		return nil, fmt.Errorf("no \"pages\" choosen")
+		return nil, fmt.Errorf("no \"pages\" chosen")
 	}
 	// prepare for last pages
 	var lasts []int

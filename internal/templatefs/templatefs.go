@@ -67,7 +67,7 @@ func (tfs *FS) Template(name string, opts ...Option) (*template.Template, error)
 		return nil, err
 	}
 	if fi.IsDir() {
-		return nil, fmt.Errorf("file is direcotry: %w", fs.ErrNotExist)
+		return nil, fmt.Errorf("file is directory: %w", fs.ErrNotExist)
 	}
 
 	// Check cache for a parsed Template

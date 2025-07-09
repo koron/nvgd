@@ -17,6 +17,6 @@ func TestVersion(t *testing.T) {
 	got := protocoltest.ReadAllString(t, rsrc)
 	want := version.Version
 	if got != want {
-		t.Errorf("wrong versoin: want=%q got=%q", want, got)
+		t.Errorf("wrong version: want=%q got=%q", want, got)
 	}
 }
