@@ -155,7 +155,6 @@ function associateCheckboxes(parentCheckbox, ul) {
 
 function rewriteNumbers(el) {
   el.querySelectorAll('.number').forEach(v => {
-    console.log(v);
     v.innerText = new Number(v.innerText).toLocaleString();
   });
 }
