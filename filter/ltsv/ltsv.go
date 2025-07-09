@@ -113,5 +113,5 @@ func parseCut(p filter.Params) []string {
 }
 
 func init() {
-	filter.MustRegister("lstv", newLTSV)
+	filter.MustRegister("ltsv", newLTSV)
 }

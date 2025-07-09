@@ -491,7 +491,8 @@ Nvgd supports these filters:
 * [Cutline filter](#cutline-filter)
 * [Pager filter](#pager-filter)
 * [Hash filter](#hash-filter)
-* [LTSV filter](#ltsv-filter)
+* [LTSV Extraction filter](#ltsv-extraction-filter)
+* [LTSV Conversion filter](#ltsv-conversion-filter)
 * [JSONArray filter](#jsonarray-filter)
 * [Index HTML filter](#index-html-filter)
 * [Download to OPFS filter](#download-to-opfs-filter)
@@ -627,7 +628,7 @@ Count lines.
 * filter\_name: `count`
 * options: (none)
 
-### LTSV filter
+### LTSV Extraction filter
 
 A filter that outputs only the specified labels from the rows of LTSV that
 match the another specified label value.
@@ -637,6 +638,15 @@ match the another specified label value.
     * `grep` - match parameter: `{label},{pattern}`
     * `match` - output when match or not match.  default is true.
     * `cut` - selected labels, combinable by comma `,`.
+
+### LTSV Conversion filter
+
+A filter to convert LTSV to another format. You can specify the output format
+with the `format` parameter. The default is `tsv`.
+
+* filter\_name: `ltsvconv`
+* options:
+    * `format` - output format (`tsv`, `csv`. default: `tsv`)
 
 ### JSONArray filter
 
