@@ -50,12 +50,14 @@ func ParseLTSV(s *ltsv.Set) (Entry, error) {
 	nsize, _ := strconv.ParseInt(s.GetFirst("size"), 10, 64)
 	entry.Size = nsize
 
-	modtime, useUnixTime, err := parseTime(s.GetFirst("modified_at"))
-	if err != nil {
-		return Entry{}, nil
+	if v := s.GetFirst("modified_at"); v != "" {
+		modtime, useUnixTime, err := parseTime(v)
+		if err != nil {
+			return Entry{}, err
+		}
+		entry.ModifiedAt = modtime
+		entry.useUnixTime = useUnixTime
 	}
-	entry.ModifiedAt = modtime
-	entry.useUnixTime = useUnixTime
 
 	return entry, nil
 }
@@ -72,6 +74,9 @@ func NewLTSVWriter(w io.Writer) *LTSVWriter {
 }
 
 func (w *LTSVWriter) timeStr(ti time.Time, useUnixTime bool) string {
+	if ti.IsZero() {
+		return ""
+	}
 	if (w.UseUnixTime || useUnixTime) {
 		return strconv.FormatInt(ti.Unix(), 10)
 	}

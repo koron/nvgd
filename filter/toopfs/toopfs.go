@@ -6,6 +6,7 @@ import (
 	"embed"
 	"html/template"
 	"io"
+	"strings"
 
 	"github.com/koron/nvgd/filter"
 	"github.com/koron/nvgd/internal/devfs"
@@ -38,6 +39,7 @@ func toOPFS(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
 		if err != nil {
 			return nil, err
 		}
+		entry.Name = strings.TrimRight(entry.Name, "/")
 		d.Downloads = append(d.Downloads, entry)
 	}
 
