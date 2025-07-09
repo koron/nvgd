@@ -494,6 +494,7 @@ Nvgd supports these filters:
 * [LTSV filter](#ltsv-filter)
 * [JSONArray filter](#jsonarray-filter)
 * [Index HTML filter](#index-html-filter)
+* [Download to OPFS filter](#download-to-opfs-filter)
 * [HTML Table filter](#html-table-filter)
 * [Text Table filter](#text-table-filter)
 * [Markdown filter](#markdown-filter)
@@ -658,6 +659,8 @@ Convert LTSV to Index HTML.
     * `nouplink`: Hide the "Up" link to navigate back through the directory
       hierarchy, when its value is `true`. Default is `false`: show the "Up"
       link.
+    * `noopfs`: Hide links to OPFS uploader, when its value is `true`. Default
+      is `false` show links to OPFS uploader.
 * configurations:
     * `custom_css_urls`: list of URLs to link as CSS.
 
@@ -666,6 +669,17 @@ Example: list objects in S3 bucket "foo" with Index HTML.
     http://127.0.0.1:9280/s3list://foo/?indexhtml
 
 This filter should be the last of filters.
+
+### Download to OPFS filter
+Provides a UI for downloading files from the LTSV file list to OPFS.
+(limited for s3list and files (dir) source for now)
+
+* filter\_name: `toopfs`
+* optoins: (none)
+
+Example: UI for download objects in S3 bucket "foo".
+
+    http://127.0.0.1:9280/s3list://foo/?toopfs
 
 ### HTML Table filter
 

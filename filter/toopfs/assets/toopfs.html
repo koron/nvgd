@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="/default.css">
+<style>
+{{ template "toopfs.css" . -}}
+</style>
+<script src="/htmx.min.js"></script>
+</head>
+
+<body>
+  <h1>Download to OPFS</h1>
+  <section id="input-section">
+    <label><input id="select-all" type="checkbox" checked></input><b>Select/unselect all</b></label>
+    <ul class="file-selection">
+      {{- range .Downloads }}
+      {{- if .IsDir }}
+      <li><label><input name="{{ .Name }}" type="checkbox" checked data-size="0" data-link="{{ .Link }}" data-isfile="false"></input><a href="{{ .Link }}?toopfs">{{ .Name }}/</a></label>
+        <ul hx-get="{{ .Link }}?toopfs" hx-trigger="load" hx-swap="outerHTML" hx-select="ul.file-selection"></ul>
+      </li>
+      {{- else }}
+      <li><label><input name="{{ .Name }}" type="checkbox" checked data-size="{{.Size}}" data-link="{{ .Link }}" data-isfile="true"></input><a href="{{ .Link }}">{{ .Name }}</a> ({{ .Size }} bytes)</label></li>
+      {{- end }}
+      {{- end }}
+    </ul>
+    <b>Selected: </b> <span id="file-count">0</span> files,
+    <b>Total size:</b> <span id="total-size">0</span> bytes
+    <div class="control">
+    <div>
+      <b>OPFS directory for downloads:</b>
+      <input id="destdir" type="text" size="64" placeholder="(root)"></input>
+      <button id="clear-destdir">Clear</button>
+    </div>
+    <div>
+      <button id="download">Download</button>
+    </div>
+    </div>
+  </section>
+
+  <div id="download-cover" class="cover" style="display: none;">
+    <div>
+      <h4>Downloading...</h4>
+      <label for="download-progress" id="download-message">...</label><br>
+      <progress id="download-progress"></progress>
+    </div>
+  </div>
+</body>
+
+<script>
+{{ template "toopfs.js" . -}}
+</script>

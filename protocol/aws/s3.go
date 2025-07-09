@@ -167,7 +167,7 @@ func (ph *S3ListHandler) Open(u *url.URL) (*resource.Resource, error) {
 	// Embed next continuation token to rs if available.
 	if out.NextContinuationToken != nil && *out.NextContinuationToken != "" {
 		t := url.QueryEscape(*out.NextContinuationToken)
-		link := fmt.Sprintf("/s3list://%s/%s?%s=%s&indexhtml",
+		link := fmt.Sprintf("/s3list://%s/%s?%s=%s",
 			bucket, prefix, S3Token, t)
 		rs.Put(commonconst.NextLink, link)
 	}
@@ -188,7 +188,7 @@ func (ph *S3ListHandler) writeAsLTSV(out *s3.ListObjectsV2Output, bucket string)
 	)
 	// add prefixes
 	for _, item := range out.CommonPrefixes {
-		link := fmt.Sprintf("/s3list://%s/%s?indexhtml", bucket, *item.Prefix)
+		link := fmt.Sprintf("/s3list://%s/%s", bucket, *item.Prefix)
 		err := w.Write(*item.Prefix, "prefix", "", "", link, "")
 		if err != nil {
 			return nil, err

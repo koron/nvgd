@@ -36,13 +36,13 @@ func (rh *RestoreHandler) Open(u *url.URL) (*resource.Resource, error) {
 	if !strings.HasPrefix(s, "/") {
 		return nil, errors.New("RestoreHandler#Open: unknown resource")
 	}
-	return rh.openAsset(s[1:], map[string]interface{}{
+	return rh.openAsset(s[1:], map[string]any{
 		"name": name,
 		"db":   p,
 	})
 }
 
-func (rh *RestoreHandler) openAsset(s string, p map[string]interface{}) (*resource.Resource, error) {
+func (rh *RestoreHandler) openAsset(s string, p map[string]any) (*resource.Resource, error) {
 	if s == "" {
 		s = "restore.html"
 	}

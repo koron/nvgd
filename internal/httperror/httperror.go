@@ -10,14 +10,14 @@ import (
 type httpErr struct {
 	status int
 	format string
-	args   []interface{}
+	args   []any
 }
 
 func New(status int) error {
 	return Newf(status, http.StatusText(status))
 }
 
-func Newf(status int, format string, args ...interface{}) error {
+func Newf(status int, format string, args ...any) error {
 	return &httpErr{
 		status: status,
 		format: format,

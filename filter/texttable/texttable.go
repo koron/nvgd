@@ -71,19 +71,11 @@ type row struct {
 func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, error) {
 	// compose document.
 	d := &doc{}
-	lr := filterbase.NewLTSVReader(r)
 	first := true
-	for {
-		s, err := lr.Read()
+	for s, err := range filterbase.NewLTSVReader(r).Iter() {
 		if err != nil {
 			r.Close()
-			if err != io.EOF {
-				return nil, err
-			}
-			break
-		}
-		if s.Empty() {
-			continue
+			return nil, err
 		}
 		if first {
 			d.initHeader(s.Properties)

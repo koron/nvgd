@@ -30,6 +30,8 @@ type doc struct {
 	UpLink   string
 	NextLink string
 
+	OPFSDownloader string
+
 	Config *Config
 }
 
@@ -43,7 +45,7 @@ type entry struct {
 	Download   string
 	QueryLink  string
 	DuckDBLink string
-	OPFSUpload string
+	OPFSDownload string
 }
 
 type Config struct {
@@ -100,22 +102,15 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 
 	timeLayout := chooseTimeLayout(p.String("timefmt", "RFC1123"))
 	noUpLink := p.Bool("nouplink", false)
+	noOPFS := p.Bool("noopfs", false);
 	// compose document.
 	d := &doc{
 		Config: &cfg,
 	}
-	lr := filterbase.NewLTSVReader(r)
-	for {
-		s, err := lr.Read()
+	for s, err := range filterbase.NewLTSVReader(r).Iter() {
 		if err != nil {
 			r.Close()
-			if err != io.EOF {
-				return nil, err
-			}
-			break
-		}
-		if s.Empty() {
-			continue
+			return nil, err
 		}
 		name := s.GetFirst("name")
 		e := entry{
@@ -125,6 +120,12 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 			ModifiedAt: s.GetFirst("modified_at"),
 			Link:       pathPrefix(s.GetFirst("link")),
 			Download:   pathPrefix(s.GetFirst("download")),
+		}
+		if e.Type == "dir" || e.Type == "prefix" {
+			if !noOPFS {
+				e.OPFSDownload = e.Link + "?toopfs"
+			}
+			e.Link += "?indexhtml"
 		}
 		if fmt, ok := supportQuery(name); ok {
 			qlink := "/trdsql/"
@@ -139,8 +140,6 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 			link += "t=" + url.PathEscape(pathPrefix(s.GetFirst("link")))
 			e.DuckDBLink = link
 		}
-		// Downloadable entry can be upload to OPFS too.
-		e.OPFSUpload = e.Download
 		// detect UNIX time, and convert it to specified time layout (default is RFC1123).
 		if sec, err := strconv.ParseInt(e.ModifiedAt, 10, 64); err == nil {
 			e.ModifiedAt = time.Unix(sec, 0).Format(timeLayout)
@@ -151,7 +150,10 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 		d.UpLink = pathPrefix(link)
 	}
 	if link, ok := r.String(commonconst.NextLink); ok {
-		d.NextLink = pathPrefix(link)
+		d.NextLink = pathPrefix(link + "&indexhtml")
+	}
+	if !noOPFS {
+		d.OPFSDownloader = "?toopfs"
 	}
 
 	// execute template.

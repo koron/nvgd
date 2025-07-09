@@ -21,7 +21,7 @@ const (
 )
 
 // Options holds option properties of Resource.
-type Options map[string]interface{}
+type Options map[string]any
 
 func (opts Options) clone() Options {
 	dist := Options{}
