@@ -35,13 +35,13 @@ a {
       {{if .Download}}<a href="{{.Download}}" title="Download">DL</a>{{end}}
       {{if .QueryLink}}<a href="{{.QueryLink}}" title="Open with TRDSQL">Query</a>{{end}}
       {{if .DuckDBLink}}<a href="{{.DuckDBLink}}" title="Open with DuckDB Shell">DuckDB</a>{{end}}
-      {{if .OPFSUpload}}<a href="{{.OPFSUpload}}" title="Open with OPFS Uploader">OPFS</a>{{end}}
+      {{if .OPFSDownload}}<a href="{{.OPFSDownload}}" title="Open with OPFS Downloader">OPFS</a>{{end}}
     </td>
   </tr>
   {{end}}
 </table>
 <div>
-  {{ if .OPFSUploader }}<a href="{{ .OPFSUploader }}">OPFS Uploader</a>{{ end }}
+  {{ if .OPFSDownloader }}<a href="{{ .OPFSDownloader }}">OPFS Downloader</a>{{ end }}
 </div>
 
 </body>

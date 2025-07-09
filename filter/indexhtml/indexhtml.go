@@ -30,7 +30,7 @@ type doc struct {
 	UpLink   string
 	NextLink string
 
-	OPFSUploader string
+	OPFSDownloader string
 
 	Config *Config
 }
@@ -45,7 +45,7 @@ type entry struct {
 	Download   string
 	QueryLink  string
 	DuckDBLink string
-	OPFSUpload string
+	OPFSDownload string
 }
 
 type Config struct {
@@ -123,7 +123,7 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 		}
 		if e.Type == "dir" || e.Type == "prefix" {
 			if !noOPFS {
-				e.OPFSUpload = e.Link + "?toopfs"
+				e.OPFSDownload = e.Link + "?toopfs"
 			}
 			e.Link += "?indexhtml"
 		}
@@ -153,7 +153,7 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 		d.NextLink = pathPrefix(link + "&indexhtml")
 	}
 	if !noOPFS {
-		d.OPFSUploader = "?toopfs"
+		d.OPFSDownloader = "?toopfs"
 	}
 
 	// execute template.
