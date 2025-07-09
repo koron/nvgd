@@ -1,3 +1,5 @@
+// Package rangereader provides a RangeReader that strips out the leading and
+// trailing edges of the underlying io.Reader.
 package rangereader
 
 import "io"

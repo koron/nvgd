@@ -1,3 +1,4 @@
+// Package fileentry provides file entry related operations.
 package fileentry
 
 import (
@@ -77,7 +78,7 @@ func (w *LTSVWriter) timeStr(ti time.Time, useUnixTime bool) string {
 	if ti.IsZero() {
 		return ""
 	}
-	if (w.UseUnixTime || useUnixTime) {
+	if w.UseUnixTime || useUnixTime {
 		return strconv.FormatInt(ti.Unix(), 10)
 	}
 	return ti.Format(time.RFC1123)

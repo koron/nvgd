@@ -1,7 +1,7 @@
-/*
-Package templatefs provides Template set.
-This template set is linked to fs.FS and returns a template parsed from the specified file in fs.FS.
-*/
+// Package templatefs provides Template set.
+//
+// This template set is linked to fs.FS and returns a template parsed from the
+// specified file in fs.FS.
 package templatefs
 
 import (

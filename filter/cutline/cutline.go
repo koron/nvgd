@@ -1,5 +1,5 @@
 // Package cutline provides "cutline" filter for NVGD.
-
+//
 // This filter is a filter for NVGD that extracts a specific range of lines
 // from a text stream. The start and end of the range you want to extract can
 // be specified using regular expression patterns, allowing for flexible data

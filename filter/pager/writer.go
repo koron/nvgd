@@ -10,9 +10,9 @@ type pageWriter struct {
 	showNum bool
 	written bool
 	// w1 write when page matches
-	w1      *bytes.Buffer
+	w1 *bytes.Buffer
 	// w2 write always if available
-	w2      *bytes.Buffer
+	w2 *bytes.Buffer
 }
 
 func (pw *pageWriter) write(b []byte) (int, error) {

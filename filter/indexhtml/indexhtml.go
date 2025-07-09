@@ -42,9 +42,9 @@ type entry struct {
 	ModifiedAt string
 	Link       string
 
-	Download   string
-	QueryLink  string
-	DuckDBLink string
+	Download     string
+	QueryLink    string
+	DuckDBLink   string
 	OPFSDownload string
 }
 
@@ -102,7 +102,7 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 
 	timeLayout := chooseTimeLayout(p.String("timefmt", "RFC1123"))
 	noUpLink := p.Bool("nouplink", false)
-	noOPFS := p.Bool("noopfs", false);
+	noOPFS := p.Bool("noopfs", false)
 	// compose document.
 	d := &doc{
 		Config: &cfg,
