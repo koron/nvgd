@@ -1,4 +1,5 @@
 const elSelectAll = document.getElementById('select-all');
+const elFileCount = document.getElementById('file-count');
 const elTotalSize = document.getElementById('total-size');
 const elDestdir = document.getElementById('destdir');
 const elClearDestdir = document.getElementById('clear-destdir');
@@ -11,30 +12,20 @@ async function sleep(msec) {
   await new Promise((resolve) => setTimeout(resolve, msec));
 }
 
-function dirsAll(base=document) {
-  return base.querySelectorAll('input[type="checkbox"][data-isfile="false"]');
-}
-
-function filesAll(base=document) {
-  return base.querySelectorAll('input[type="checkbox"][data-isfile="true"]');
-}
-
 function selectedFilesAll(base=document) {
   return base.querySelectorAll('input[type="checkbox"][data-isfile="true"]:checked');
 }
 
 function updateTotalSize() {
   const selected = selectedFilesAll();
+  let count = 0;
   let totalSize = 0;
   selected.forEach((e, i) => {
     totalSize += e.dataset.size - 0;
+    count++
   });
+  elFileCount.innerText = count;
   elTotalSize.innerText = totalSize;
-
-  const count = filesAll().length;
-  elSelectAll.checked = selected.length > 0 && selected.length == count;
-  elSelectAll.indeterminate = selected.length > 0 && selected.length < count;
-
   elDownload.disabled = selected.length == 0;
 }
 
@@ -87,19 +78,9 @@ async function downloadFiles() {
   elDownloadMessage.innerText = 'completed.';
 }
 
-function on_change_selectAll(ev) {
-  const v = ev.target.checked;
-  filesAll().forEach((e, i) => e.checked = v);
-  updateTotalSize();
-}
-
 function on_click_cleanDestdir() {
   elDestdir.value = '';
   elDestdir.focus();
-}
-
-function on_change_fileSelection() {
-  updateTotalSize();
 }
 
 async function on_click_download() {
@@ -129,17 +110,56 @@ async function on_click_download() {
   }
 }
 
+function associateCheckboxes(parentCheckbox, ul) {
+  const children = Array.from(ul.querySelectorAll('ul > li > label > input[type="checkbox"]'));
+
+  parentCheckbox.addEventListener('change', ev => {
+    for (const child of children) {
+      child.checked = parentCheckbox.checked;
+      child.indeterminate = false;
+      child.dispatchEvent(new Event('propagateParentChange'));
+    }
+    updateTotalSize();
+  });
+  parentCheckbox.addEventListener('childChange', ev => {
+    const total = children.length;
+    const checked = children.filter(e => e.checked).length;
+    parentCheckbox.checked = checked > 0 && checked == total;
+    parentCheckbox.indeterminate = checked > 0 && checked < total;
+    parentCheckbox.dispatchEvent(new Event('propagateChildChange'));
+  });
+  parentCheckbox.addEventListener('parentChange', ev => {
+    for (const child of children) {
+      child.checked = parentCheckbox.checked;
+      child.indeterminate = false;
+      child.dispatchEvent(new Event('propagateParentChange'));
+    }
+  });
+
+  for (const child of children) {
+    child.addEventListener('change', ev => {
+      updateTotalSize();
+      parentCheckbox.dispatchEvent(new Event('childChange'));
+    });
+    child.addEventListener('propagateChildChange', ev => {
+      parentCheckbox.dispatchEvent(new Event('childChange'));
+    });
+    child.addEventListener('propagateParentChange', ev => {
+      child.dispatchEvent(new Event('parentChange'));
+    });
+  }
+
+  updateTotalSize();
+}
+
 // Events
 
-elSelectAll.addEventListener('change', on_change_selectAll);
 elClearDestdir.addEventListener('click', on_click_cleanDestdir);
 elDownload.addEventListener('click', on_click_download);
 
 document.body.addEventListener('htmx:afterSwap', ev => {
-  console.log(ev.target);
-  filesAll(ev.target).forEach(e => e.addEventListener('change', on_change_fileSelection));
-  updateTotalSize();
+  const parentCheckbox = ev.target.parentElement.querySelector('li > label > input[type="checkbox"]');
+  associateCheckboxes(parentCheckbox, ev.target);
 });
 
-filesAll().forEach((e) => e.addEventListener('change', on_change_fileSelection));
-updateTotalSize();
+associateCheckboxes(elSelectAll, document.querySelector('#input-section > ul.file-selection'));
