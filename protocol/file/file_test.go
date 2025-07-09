@@ -2,11 +2,14 @@ package file
 
 import (
 	"io"
+	"os"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestBzip2(t *testing.T) {
-	r, err := fileOpen("testdata/file_test.bz2")
+	r, err := fileOpen("testdata/file_test.bz2", false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -21,8 +24,29 @@ func TestBzip2(t *testing.T) {
 	}
 }
 
+func TestBzip2KeepCompress(t *testing.T) {
+	r, err := fileOpen("testdata/file_test.bz2", true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer r.Close()
+	got, err := io.ReadAll(r)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	want, err := os.ReadFile("testdata/file_test.bz2")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if d := cmp.Diff(want, got); d != "" {
+		t.Errorf("mismatch: -want +got\n%s", d)
+	}
+}
+
 func TestGzip(t *testing.T) {
-	r, err := fileOpen("testdata/file_test.gz")
+	r, err := fileOpen("testdata/file_test.gz", false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -38,7 +62,7 @@ func TestGzip(t *testing.T) {
 }
 
 func TestLZ4(t *testing.T) {
-	r, err := fileOpen("testdata/file_test.lz4")
+	r, err := fileOpen("testdata/file_test.lz4", false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -59,7 +83,7 @@ func TestMultiRC(t *testing.T) {
 		"testdata/file_test.bz2",
 		"testdata/file_test.gz",
 		"testdata/file_test.lz4",
-	}, "testdata/;file_test.*")
+	}, "testdata/;file_test.*", false)
 	if err != nil {
 		t.Fatal(err)
 	}
