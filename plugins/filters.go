@@ -16,6 +16,6 @@ import (
 	_ "github.com/koron/nvgd/filter/pager"
 	_ "github.com/koron/nvgd/filter/tail"
 	_ "github.com/koron/nvgd/filter/texttable"
-	_ "github.com/koron/nvgd/filter/trdsql"
 	_ "github.com/koron/nvgd/filter/toopfs"
+	_ "github.com/koron/nvgd/filter/trdsql"
 )
