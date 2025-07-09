@@ -53,7 +53,7 @@ func TestEmpty(t *testing.T) {
 func TestNotExist(t *testing.T) {
 	commandHandler.preDefined = map[string]string{"notexist": "__not_exist__"}
 	got := protocoltest.OpenFail(t, "command://notexist").Error()
-	if !strings.HasPrefix(got ,`exec: "__not_exist__": `) {
+	if !strings.HasPrefix(got, `exec: "__not_exist__": `) {
 		t.Fatalf("unexpected error: %s", got)
 	}
 }
