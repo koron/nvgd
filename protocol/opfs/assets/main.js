@@ -436,7 +436,8 @@ function supportedByDuckDB(name) {
   const supportedExtensions = [
     '.csv', '.csv.gz', '.csv.zst',
     '.tsv', '.tsv.gz', '.tsv.zst',
-    '.xlsx',
+    // See https://github.com/koron/nvgd/issues/157 why stop to create views for xlsx files.
+    //'.xlsx',
     '.json',
     '.parquet',
   ];
