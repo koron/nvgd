@@ -13,66 +13,6 @@
 
 <script src="https://unpkg.com/mithril/mithril.js"></script>
 <script>
-  async function uiMkdir() {
-    try {
-      const el = document.querySelector('#mkdir-name');
-      const name = el.value;
-      if (name == '') {
-        alert('Need directory name');
-        return;
-      }
-      await opfs.mkdir(name);
-      el.value = '';
-    } catch (err) {
-      alert(`Failed to create "${name}" directory, because of:\n\n${err}`);
-    }
-  }
-
-  async function uiTouch() {
-    try {
-      const el0 = document.querySelector('#touch-name');
-      const el1 = document.querySelector('#touch-body');
-      const name = el0.value;
-      const body = el1.value;
-      if (name == '') {
-        alert('Need file name');
-        return;
-      }
-      await opfs.touch(name, body);
-      el0.value = '';
-      el1.value = '';
-    } catch (err) {
-      alert(`Failed to create "${name}" file, because of:\n\n${err}`);
-    }
-  }
-
-  async function uiTouchClear() {
-    document.querySelector('#touch-name').value = '';
-    document.querySelector('#touch-body').value = '';
-  }
-
-  async function uiUploadChange() {
-    const elFile = document.querySelector('#upload-file');
-    const name = elFile.files[0].name;
-    const elName = document.querySelector('#upload-name');
-    elName.value = name;
-  }
-
-  async function uiUpload() {
-    const elName = document.querySelector('#upload-name');
-    const name = elName.value;
-    const elFile = document.querySelector('#upload-file');
-    const file = elFile.files[0];
-    if (await opfs.loadAs(name, file)) {
-      elName.value = '';
-      elFile.value = '';
-    }
-  }
-
-  async function uiReload() {
-    await opfs.renderEntries();
-  }
-
   class MaterialSymbol extends HTMLElement {
     constructor() { super(); }
     connectedCallback() {
@@ -92,34 +32,35 @@
   </section>
   <section id="footer">
     <div class="horizontal-menu">
-      <button onclick="uiReload()"><material-symbol name="refresh"> Reload</button>
+      <button id='command-reload'><material-symbol name="refresh"> Reload</button>
       &nbsp;
-      <button id="multiple-delete" disabled="true" onclick="opfs.actDeleteSelectedFiles()"><material-symbol name="delete"> Delete</button>
+      <button id="command-delete" disabled="true"><material-symbol name="delete"> Delete</button>
       &nbsp; &nbsp;
       <span class="small">Open with ...</span>
-      <button id="multiple-duckdb" disabled="true" onclick="opfs.actDuckDBWithSelectedFiles()"><material-symbol name="database"> DuckDB</button>
+      <button id="command-duckdb" disabled="true"><material-symbol name="database"> DuckDB</button>
     </div>
 
     <div>
       <b>Make directory</b><br>
-      <input type="text" id="mkdir-name"></input>
-      <button onclick="uiMkdir()"><material-symbol name="create_new_folder"> Create new directory</button>
+      <input type="text" id="mkdir-name" autocomplete="off" placeholder="Directory name to create"></input>
+      <button id="mkdir-mkdir"><material-symbol name="create_new_folder"> Create new directory</button>
     </div>
 
     <div>
       <b>Upload a local file</b><br>
-      <input type="file" id="upload-file" onchange="uiUploadChange()"></file>
-      Upload as: <input type="text" id="upload-name"></input>
-      <button onclick="uiUpload()"><material-symbol name="upload"> Upload</button>
+      <input type="file" id="upload-file"></file>
+      <span>Upload as: </span>
+      <input type="text" id="upload-name" placeholder="File name to upload"></input>
+      <button id="upload-upload" disabled><material-symbol name="upload"> Upload</button>
     </div>
 
     <div>
-      <b>Editor</b> (Load a file smaller than 64KiB with "Edit" action)<br>
-      Name: <input type="text" id="touch-name"></input>
-      <button onclick="uiTouch()"><material-symbol name="save_as"> Create or update a file</button>
-      <button onclick="uiTouchClear()"><material-symbol name="close"> Clear</button>
+      <b>Simple Editor</b> (Load a file smaller than 64KiB with "Edit" action)<br>
+      Name: <input type="text" id="editor-name" placeholder="File name to create or update" size="40"></input>
+      <button id="editor-save"><material-symbol name="save_as"> Create or update a file</button>
+      <button id="editor-clear"><material-symbol name="close"> Clear</button>
       <br>
-      <textarea id="touch-body"></textarea><br>
+      <textarea id="editor-edit"></textarea><br>
     </div>
 
     <div>
@@ -128,7 +69,7 @@
         <input type="text" id="download-url" placeholder="URL to be downloaded (start with `http:` or `https:`)"></input>
         <span>
           <span>Download as:</span>
-          <input type="text" id="download-as" placeholder="Name to save to OPFS"></input>
+          <input type="text" id="download-as" placeholder="Name to save"></input>
         </span>
         <button id="download-download" disabled><material-symbol name="download_for_offline"> Download</button>
         <button id="download-clear" disabled><material-symbol name="close"> Clear</button>
@@ -138,13 +79,3 @@
 
   <script src="/opfs/main.js"></script>
 </body>
-
-<script>
-  // Pressing the Tab key inserts a tab character.
-  document.querySelector('#touch-body').onkeydown = e => {
-    if (e.keyCode == 9) {
-      e.preventDefault();
-      document.execCommand('insertText', false, '\t');
-    }
-  }
-</script>
