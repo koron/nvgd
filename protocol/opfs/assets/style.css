@@ -40,7 +40,7 @@ a {
     font-size: 1em;
     padding: 0.5em 1em 0.5em 0.5em;
 
-    & > .material-symbols-outlined {
+    & > .material-symbols {
       /*margin-right: 0.25em;*/
       font-size: 1.125em;
       vertical-align: text-bottom;
@@ -107,11 +107,11 @@ a {
   }
 }
 
-span.material-symbols-outlined {
+span.material-symbols {
   font-size: 1em;
   vertical-align: middle;
 }
-button .material-symbols-outlined {
+button .material-symbols {
   font-size: 1.1em;
   vertical-align: text-bottom;
 }

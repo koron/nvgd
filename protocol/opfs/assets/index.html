@@ -8,7 +8,8 @@
 
 <link rel="stylesheet" type="text/css" href="/default.css" />
 <link rel="stylesheet" type="text/css" href="/opfs/style.css" />
-<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" />
+<link rel="stylesheet" type="text/css" href="/material-symbols.css">
+<link rel="preload" href="/material-symbols.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
 
 <script src="https://unpkg.com/mithril/mithril.js"></script>
 <script>
@@ -75,7 +76,7 @@
   class MaterialSymbol extends HTMLElement {
     constructor() { super(); }
     connectedCallback() {
-      this.innerHTML = `<span class="material-symbols-outlined">${this.getAttribute('name')}</span>`;
+      this.innerHTML = `<span class="material-symbols">${this.getAttribute('name')}</span>`;
     }
   }
   customElements.define('material-symbol', MaterialSymbol);

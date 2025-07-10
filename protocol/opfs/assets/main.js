@@ -274,6 +274,7 @@ const opfs = {
       rows.push(m('div.grid-row', cols));
     }
     m.render(document.querySelector('#main > .directory'), rows);
+    this.selectionChanged();
   },
 
   // Selection
@@ -419,7 +420,7 @@ function swapchars(str) {
 }
 
 function icon(name) {
-  return m('span.material-symbols-outlined', name);
+  return m('span.material-symbols', name);
 }
 
 function makehash(queries) {
