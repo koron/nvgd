@@ -101,7 +101,7 @@ async function on_click_download() {
       window.open(url, '_blank');
     }
   } catch (err) {
-    alert(`There was a problem saving the data: ${err.message}`);
+    alert(`Problem occurred while downloading: ${err.message}`);
     throw err;
   } finally {
     elDownloadCover.style.display = 'none';

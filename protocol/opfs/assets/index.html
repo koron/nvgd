@@ -98,17 +98,20 @@
       <span class="small">Open with ...</span>
       <button id="multiple-duckdb" disabled="true" onclick="opfs.actDuckDBWithSelectedFiles()"><material-symbol name="database"> DuckDB</button>
     </div>
+
     <div>
       <b>Make directory</b><br>
       <input type="text" id="mkdir-name"></input>
       <button onclick="uiMkdir()"><material-symbol name="create_new_folder"> Create new directory</button>
     </div>
+
     <div>
       <b>Upload a local file</b><br>
       <input type="file" id="upload-file" onchange="uiUploadChange()"></file>
       Upload as: <input type="text" id="upload-name"></input>
       <button onclick="uiUpload()"><material-symbol name="upload"> Upload</button>
     </div>
+
     <div>
       <b>Editor</b> (Load a file smaller than 64KiB with "Edit" action)<br>
       Name: <input type="text" id="touch-name"></input>
@@ -116,6 +119,19 @@
       <button onclick="uiTouchClear()"><material-symbol name="close"> Clear</button>
       <br>
       <textarea id="touch-body"></textarea><br>
+    </div>
+
+    <div>
+      <b>Download (NVGD) URL</b><br>
+      <div id="download-panel">
+        <input type="text" id="download-url" placeholder="URL to be downloaded (start with `http:` or `https:`)"></input>
+        <span>
+          <span>Download as:</span>
+          <input type="text" id="download-as" placeholder="Name to save to OPFS"></input>
+        </span>
+        <button id="download-download" disabled><material-symbol name="download_for_offline"> Download</button>
+        <button id="download-clear" disabled><material-symbol name="close"> Clear</button>
+      </div>
     </div>
   </section>
 

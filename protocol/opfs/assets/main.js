@@ -1,3 +1,5 @@
+// OPFS directory explorer
+
 const opfs = {
   // Current directory level ([FileSystemDirectoryHandle])
   dirs: [],
@@ -472,6 +474,61 @@ async function enumFiles(root='/') {
   }
   return files;
 }
+
+// Download URL
+
+(function() {
+  const elURL = document.getElementById('download-url');
+  const elAs = document.getElementById('download-as');
+  const elDownload = document.getElementById('download-download');
+  const elClear = document.getElementById('download-clear');
+
+  function updateButtons() {
+    const url = elURL.value;
+      const as = elAs.value;
+    elDownload.disabled = !((url.startsWith('http:') || url.startsWith('https:')) && as.length > 0);
+    elClear.disabled = !(url.length > 0 || as.length > 0);
+  }
+
+  function clearInputs() {
+    elURL.value = '';
+    elAs.value = '';
+  }
+
+  async function download() {
+    try {
+      const url = elURL.value;
+      const as = elAs.value;
+      if (await opfs.exist(as)) {
+        if (!confirm(`Are you sure to overwrite a file with the same name, "${as}"?`)) {
+          return false;
+        }
+      }
+
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch data from ${url}: ${response.statusText}`);
+      }
+      const blob = await response.blob();
+      const fileHandle = await opfs.currDir.getFileHandle(as, { create: true });
+      const writable = await fileHandle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      await opfs.render()
+
+      return true;
+    } catch (err) {
+      await opfs.alertErr(err);
+    }
+  }
+
+  elURL.addEventListener('input', updateButtons);
+  elAs.addEventListener('input', updateButtons);
+  elClear.addEventListener('click', clearInputs);
+  elDownload.addEventListener('click', download);
+})();
+
+// Initialize the application.
 
 async function init() {
   onpopstate = async (ev) => {

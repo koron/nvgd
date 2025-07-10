@@ -66,6 +66,17 @@ The UI supports operations on multiple selected items.
     *   Selecting a directory will cause DuckDB to open all files contained within that directory, recursively.
     *   See "DuckDB Integration" below for more information.
 
+### 4. Download the content of URL to OPFS
+
+Given a URL (of an NVGD), you can download its contents and save it to OPFS with a new name.
+
+1. Enter the URL to download (NVGD) in "Download URL".
+2. Enter the file name to save the downloaded content in "Download as".
+3. Click the “Download” button to download the contents of the URL to OPFS.
+
+If a file with the same name already exists, you will be asked whether to overwrite it.
+Please note that if the file is being used in other tabs, such as DuckDB Shell, overwriting may fail due to a lock.
+
 ## DuckDB Integration
 
 NVGD's OPFS interface offers seamless integration with DuckDB, allowing you to directly query files stored in OPFS using DuckDB's powerful SQL capabilities running in your browser via WebAssembly (WASM).
@@ -76,7 +87,16 @@ The DuckDB integration primarily supports the following file types for direct qu
 
 *   **CSV (Comma Separated Values):** `.csv`, `.csv.gz`, and `.csv.zst` files.
 *   **TSV (Tab Separated Values):** `.tsv`, `.tsv.gz`, and `.tsv.zst` files.
-*   **XLSX (Microsoft Excel Open XML Format Spreadsheet):** `.xlsx` files. DuckDB can read data from sheets within these files.
+*   ~~**XLSX (Microsoft Excel Open XML Format Spreadsheet):** `.xlsx` files. DuckDB can read data from sheets within these files.~~
+
+    Currently, due to [a bug](https://github.com/duckdb/duckdb-wasm/issues/1956) in duckdb-wasm, automatic view creation for Excel files is not supported. To open the Excel file, run the following queries manually:
+
+    ```
+    INSTALL excel FROM core_nightly;
+    LOAD excel;
+    FROM 'opfs://{your excel file}.xlsx';
+    ```
+
 *   **JSON (JavaScript Object Notation):** `.json` files. This includes standard JSON files and newline-delimited JSON (NDJSON).
 *   **Parquet:** `.parquet` files. Parquet is a columnar storage format optimized for analytics.
 

@@ -46,6 +46,18 @@ a {
       vertical-align: text-bottom;
     }
   }
+
+  #download-panel {
+    display: flex;
+    > * {
+      flex: 0 0 auto;
+      margin-left: 0.5ex;
+    }
+    > #download-url {
+      flex: 1 1 auto;
+      margin-left: 0;
+    }
+  }
 }
 
 .grid-table.directory {
