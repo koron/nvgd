@@ -5,6 +5,7 @@
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="/default.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
 <style>
 {{ template "toopfs.css" . -}}
 </style>
@@ -32,10 +33,10 @@
     <div>
       <b>OPFS directory for downloads:</b>
       <input id="destdir" type="text" size="64" placeholder="(root)"></input>
-      <button id="clear-destdir">Clear</button>
+      <button id="clear-destdir"><span class="material-symbols-outlined">close</span>Clear</button>
     </div>
     <div>
-      <button id="download">Download</button>
+      <button id="download"><span class="material-symbols-outlined">download_for_offline</span>Download</button>
     </div>
     </div>
   </section>

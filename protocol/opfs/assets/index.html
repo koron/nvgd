@@ -6,87 +6,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OPFS</title>
 
-<link rel="stylesheet" type="text/css" href="/default.css">
-
-<style>
-section {
-  margin: 1ex 0;
-}
-
-a {
-  color: blue;
-  text-decoration: underline;
-  text-underline-offset: .2rem;
-  cursor: pointer;
-}
-
-#footer div {
-  margin: 1.5ex 0;
-}
-
-.grid-table.directory {
-  grid-template-columns: 1fr auto auto auto auto;
-
-  > *:nth-child(1) > *:nth-child(1) {
-    display: flex;
-    > input[type='checkbox'] {
-      flex: 0 0 auto;
-    }
-    > * {
-      flex: 1 0 auto;
-    }
-  }
-
-  > .grid-row > * {
-    &.name:hover {
-      background-color: var(--anchor-hover-background-color);
-    }
-    label {
-      display: inline-block;
-      width: stretch;
-    }
-    &.modifiedAt {
-      min-width: 20ex;
-    }
-    &.size {
-      text-align: right;
-      min-width: 14ex;
-    }
-  }
-}
-
-#main table {
-  tr:nth-child(1) > th:nth-child(1) {
-    display: flex;
-    > input[type='checkbox'] {
-      flex: 0 0 auto;
-    }
-    > * {
-      flex: 1 0 auto;
-    }
-  }
-
-  tr > td:nth-child(3) {
-    text-align: right;
-  }
-}
-
-span.material-symbols-outlined {
-  font-size: 1rem;
-  vertical-align: middle;
-}
-button .material-symbols-outlined {
-  vertical-align: text-bottom;
-}
-
-.horizontal-menu {
-  span.small {
-    font-size: 0.8rem;
-  }
-}
-</style>
-
-<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/default.css" />
+<link rel="stylesheet" type="text/css" href="/opfs/style.css" />
+<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" />
 
 <script src="https://unpkg.com/mithril/mithril.js"></script>
 <script>
@@ -178,22 +100,22 @@ button .material-symbols-outlined {
     </div>
     <div>
       <b>Make directory</b><br>
-      <input id="mkdir-name"></input>
+      <input type="text" id="mkdir-name"></input>
       <button onclick="uiMkdir()"><material-symbol name="create_new_folder"> Create new directory</button>
     </div>
     <div>
       <b>Upload a local file</b><br>
       <input type="file" id="upload-file" onchange="uiUploadChange()"></file>
-      Upload as: <input id="upload-name"></input>
+      Upload as: <input type="text" id="upload-name"></input>
       <button onclick="uiUpload()"><material-symbol name="upload"> Upload</button>
     </div>
     <div>
       <b>Editor</b> (Load a file smaller than 64KiB with "Edit" action)<br>
-      Name: <input id="touch-name"></input>
+      Name: <input type="text" id="touch-name"></input>
       <button onclick="uiTouch()"><material-symbol name="save_as"> Create or update a file</button>
       <button onclick="uiTouchClear()"><material-symbol name="close"> Clear</button>
       <br>
-      <textarea id="touch-body" style="margin-top: 0.2em; width: 100%; max-width: 100%; min-width: 100%; min-height: 10em;"></textarea><br>
+      <textarea id="touch-body"></textarea><br>
     </div>
   </section>
 
