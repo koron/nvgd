@@ -18,7 +18,13 @@
   }
   button {
     font-size: 1em;
-    padding: 0.5em 1em;
+    padding: 0.5em;
+
+    & > .material-symbols {
+      margin-right: 0.25em;
+      font-size: 1.125em;
+      vertical-align: text-bottom;
+    }
   }
 }
 

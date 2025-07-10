@@ -1,6 +1,23 @@
+// OPFS directory explorer
+
 const opfs = {
   // Current directory level ([FileSystemDirectoryHandle])
   dirs: [],
+
+  // Delegate  event to base eventTarget.
+  eventTarget: new EventTarget(),
+
+  addEventListener() {
+    this.eventTarget.addEventListener.apply(this.eventTarget, arguments);
+  },
+
+  removeEventListener() {
+    this.eventTarget.removeEventListener.apply(this.eventTarget, arguments);
+  },
+
+  dispatchEvent() {
+    this.eventTarget.dispatchEvent.apply(this.eventTarget, arguments);
+  },
 
   // Change current dir with adding the last of hierarchy.
   pushDir(dir, name) {
@@ -272,6 +289,7 @@ const opfs = {
       rows.push(m('div.grid-row', cols));
     }
     m.render(document.querySelector('#main > .directory'), rows);
+    this.selectionChanged();
   },
 
   // Selection
@@ -284,12 +302,7 @@ const opfs = {
     const all = document.querySelectorAll('input.selectedFile');
     const selected = this.selectedFiles();
 
-    // Enable/Disable action buttons.
-    for (const sel of ['#multiple-duckdb', '#multiple-delete']) {
-      //document.querySelector('#multiple-duckdb').disabled = selected.length == 0;
-      //document.querySelector('#multiple-delete').disabled = selected.length == 0;
-      document.querySelector(sel).disabled = selected.length == 0;
-    }
+    this.dispatchEvent(new CustomEvent('selection:change', { detail: selected.length }));
 
     const toggle = document.querySelector('#toggle-selection-all');
     toggle.checked = selected.length > 0 && selected.length == all.length;
@@ -384,11 +397,10 @@ const opfs = {
   async actEdit(name) {
     const fileHandle = await this.currDir.getFileHandle(name);
     const file = await fileHandle.getFile();
-    const el0 = document.querySelector('#touch-name');
-    const el1 = document.querySelector('#touch-body');
+    const el0 = document.querySelector('#editor-name');
+    const el1 = document.querySelector('#editor-edit');
     el0.value = name;
     el1.value = await file.text();
-
   },
 }
 
@@ -417,7 +429,7 @@ function swapchars(str) {
 }
 
 function icon(name) {
-  return m('span.material-symbols-outlined', name);
+  return m('span.material-symbols', name);
 }
 
 function makehash(queries) {
@@ -472,6 +484,183 @@ async function enumFiles(root='/') {
   }
   return files;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+// Command pallet
+
+(function() {
+  // Reload
+  const elReload = document.getElementById('command-reload');
+  async function reload() {
+    await opfs.renderEntries();
+  }
+  elReload.addEventListener('click', reload);
+
+  // Delete
+  const elDelete = document.getElementById('command-delete');
+  elDelete.addEventListener('click', () => opfs.actDeleteSelectedFiles());
+  opfs.addEventListener('selection:change', ev => elDelete.disabled = ev.detail == 0);
+
+  // DuckDB
+  const elDuckDB = document.getElementById('command-duckdb');
+  elDuckDB.addEventListener('click', () => opfs.actDuckDBWithSelectedFiles());
+  opfs.addEventListener('selection:change', ev => elDuckDB.disabled = ev.detail == 0);
+})();
+
+//////////////////////////////////////////////////////////////////////////////
+// Make directory
+
+(function() {
+  const elName = document.getElementById('mkdir-name');
+  const elMkdir = document.getElementById('mkdir-mkdir');
+
+  async function mkdir() {
+    try {
+      const name = elName.value.trim();
+      if (name == '') {
+        alert('Need directory name');
+        return;
+      }
+      await opfs.mkdir(name);
+      elName.value = '';
+    } catch (err) {
+      opfs.alertErr(`Failed to create "${name}" directory, because of:\n\n${err}`);
+    }
+  }
+
+  elMkdir.addEventListener('click', mkdir);
+})();
+
+//////////////////////////////////////////////////////////////////////////////
+// Upload a local file
+
+(function() {
+  const elFile = document.getElementById('upload-file');
+  const elName = document.getElementById('upload-name');
+  const elUpload = document.getElementById('upload-upload');
+
+  async function fileChanged() {
+    if (elFile.files.length == 0) {
+      elName.value = '';
+      elUpload.disabled = true;
+      return;
+    }
+    const name = elFile.files[0].name;
+    elName.value = name;
+    elUpload.disabled = false;
+  }
+
+  async function upload() {
+    const name = elName.value;
+    const file = elFile.files[0];
+    if (await opfs.loadAs(name, file)) {
+      elName.value = '';
+      elFile.value = '';
+      elUpload.disabled = true;
+    }
+  }
+
+  elFile.addEventListener('change', fileChanged);
+  elUpload.addEventListener('click', upload);
+})();
+
+//////////////////////////////////////////////////////////////////////////////
+// Upload a local file
+
+(function() {
+  const elName = document.getElementById('editor-name');
+  const elSave = document.getElementById('editor-save');
+  const elClear = document.getElementById('editor-clear');
+  const elEdit = document.getElementById('editor-edit');
+
+  async function save() {
+    try {
+      const name = elName.value;
+      const body = elEdit.value;
+      if (name == '') {
+        alert('Need file name');
+        return;
+      }
+      await opfs.touch(name, body);
+      clear();
+    } catch (err) {
+      alert(`Failed to create "${name}" file, because of:\n\n${err}`);
+    }
+  }
+
+  function clear() {
+    elName.value = '';
+    elEdit.value = '';
+  }
+
+  // Pressing the Tab key inserts a tab character.
+  function handleTabKey(e) {
+    if (e.keyCode == 9) {
+      e.preventDefault();
+      document.execCommand('insertText', false, '\t');
+    }
+  }
+
+  elSave.addEventListener('click', save);
+  elClear.addEventListener('click', clear);
+  elEdit.addEventListener('keydown', handleTabKey);
+})();
+
+//////////////////////////////////////////////////////////////////////////////
+// Download URL
+
+(function() {
+  const elURL = document.getElementById('download-url');
+  const elAs = document.getElementById('download-as');
+  const elDownload = document.getElementById('download-download');
+  const elClear = document.getElementById('download-clear');
+
+  function updateButtons() {
+    const url = elURL.value;
+      const as = elAs.value;
+    elDownload.disabled = !((url.startsWith('http:') || url.startsWith('https:')) && as.length > 0);
+    elClear.disabled = !(url.length > 0 || as.length > 0);
+  }
+
+  function clearInputs() {
+    elURL.value = '';
+    elAs.value = '';
+  }
+
+  async function download() {
+    try {
+      const url = elURL.value;
+      const as = elAs.value;
+      if (await opfs.exist(as)) {
+        if (!confirm(`Are you sure to overwrite a file with the same name, "${as}"?`)) {
+          return false;
+        }
+      }
+
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch data from ${url}: ${response.statusText}`);
+      }
+      const blob = await response.blob();
+      const fileHandle = await opfs.currDir.getFileHandle(as, { create: true });
+      const writable = await fileHandle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      await opfs.render()
+
+      return true;
+    } catch (err) {
+      await opfs.alertErr(err);
+    }
+  }
+
+  elURL.addEventListener('input', updateButtons);
+  elAs.addEventListener('input', updateButtons);
+  elClear.addEventListener('click', clearInputs);
+  elDownload.addEventListener('click', download);
+})();
+
+// Initialize the application.
 
 async function init() {
   onpopstate = async (ev) => {
