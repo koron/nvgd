@@ -3,14 +3,20 @@ package assert
 
 import (
 	"fmt"
-	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
-// Equals asserts equality of two values.
-func Equals(t *testing.T, actual, expected any, format string, a ...any) {
-	if !reflect.DeepEqual(actual, expected) {
-		msg := fmt.Sprintf(format, a...)
-		t.Errorf("not equal: %s\nactual=%+v\nexpected=%+v", msg, actual, expected)
+// Equal asserts equality of two values.
+func Equal(t *testing.T, want, got any, msgfmt string, msgargs ...any) {
+	t.Helper()
+	if d := cmp.Diff(want, got); d != "" {
+		if msgfmt == "" {
+			t.Errorf("not equal: -want +got\n%s", d)
+			return
+		}
+		msg := fmt.Sprintf(msgfmt, msgargs...)
+		t.Errorf("not equal: %s: -want +got\n%s", msg, d)
 	}
 }
