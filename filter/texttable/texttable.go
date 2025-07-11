@@ -83,7 +83,7 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 		}
 		d.addRow(s.Properties)
 	}
-	if !d.HasOthers {
+	if !d.HasOthers && len(d.Headers) > 0 {
 		d.truncateOthers()
 	}
 	// execute template.
