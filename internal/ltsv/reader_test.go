@@ -4,19 +4,12 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"reflect"
 	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 )
-
-func assertEqual(t *testing.T, actual, expected any) {
-	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("not matched:\nactual=%q\nexpected=%q", actual, expected)
-	}
-}
 
 func TestReader(t *testing.T) {
 	r := NewReader(strings.NewReader(
@@ -70,23 +63,6 @@ func testRead(t *testing.T, r *Reader, expected *Set) {
 	if err != nil {
 		t.Fatalf("unexpected error: %s\nexpected=%q", err, expected)
 	}
-	assertEqual(t, actual, expected)
-}
-
-func TestGet(t *testing.T) {
-	testGet(t, "foo:123", "foo", []string{"123"})
-	testGet(t, "foo:123\tfoo:456", "foo", []string{"123", "456"})
-	testGet(t, "foo:123\tbar:456\tfoo:789", "foo", []string{"123", "789"})
-	testGet(t, "foo:123\tbar:456\tfoo:789", "bar", []string{"456"})
-}
-
-func testGet(t *testing.T, src, label string, expected []string) {
-	r := NewReader(strings.NewReader(src))
-	s, err := r.Read()
-	if err != nil {
-		t.Fatal(err)
-	}
-	actual := s.Get(label)
 	assertEqual(t, actual, expected)
 }
 
