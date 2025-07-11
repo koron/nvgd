@@ -3,7 +3,7 @@ package db
 import (
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
+	"github.com/koron/nvgd/internal/assert"
 )
 
 func TestBadQuery(t *testing.T) {
@@ -74,8 +74,6 @@ func TestSplitQuery(t *testing.T) {
 		},
 	} {
 		got := splitQuery(tc.in)
-		if d := cmp.Diff(tc.want, got); d != "" {
-			t.Errorf("unexpected #%d: -want +got\n%s", i, d)
-		}
+		assert.Equal(t, tc.want, got, "unexpected at #%d", i)
 	}
 }

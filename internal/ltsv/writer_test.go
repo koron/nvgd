@@ -3,6 +3,8 @@ package ltsv
 import (
 	"bytes"
 	"testing"
+
+	"github.com/koron/nvgd/internal/assert"
 )
 
 func TestWriter(t *testing.T) {
@@ -11,17 +13,17 @@ func TestWriter(t *testing.T) {
 	w.Write("101", "102", "103")
 	w.Write("201", "202", "203")
 	w.Write("301", "302", "303")
-	assertEqual(t,
+	assert.Equal(t,
 		"foo:101\tbar:102\tbaz:103\n"+
 			"foo:201\tbar:202\tbaz:203\n"+
 			"foo:301\tbar:302\tbaz:303\n",
-		bb.String())
+		bb.String(), "")
 }
 
 func testEscape(t *testing.T, src, want string) {
 	t.Helper()
 	got := escape(src)
-	assertEqual(t, want, got)
+	assert.Equal(t, want, got, "")
 }
 
 func TestEscape(t *testing.T) {
@@ -43,5 +45,5 @@ func TestWrite(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	assertEqual(t, "foo:123\tbar:456\tbaz:789\n", bb.String())
+	assert.Equal(t, "foo:123\tbar:456\tbaz:789\n", bb.String(), "")
 }

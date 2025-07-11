@@ -3,8 +3,8 @@ package cut
 import (
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
 	"github.com/koron/nvgd/filter"
+	"github.com/koron/nvgd/internal/assert"
 	"github.com/koron/nvgd/internal/filtertest"
 )
 
@@ -68,9 +68,7 @@ func TestSplitWhite(t *testing.T) {
 		for _, v := range raw {
 			got = append(got, string(v))
 		}
-		if d := cmp.Diff(c.want, got); d != "" {
-			t.Errorf("case #%d %+v failed: -want +got\n%s", i, c, d)
-		}
+		assert.Equal(t, c.want, got, "case #%d %+v failed", i, c)
 	}
 }
 

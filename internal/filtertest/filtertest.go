@@ -5,8 +5,8 @@ import (
 	"io"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
 	"github.com/koron/nvgd/filter"
+	"github.com/koron/nvgd/internal/assert"
 	"github.com/koron/nvgd/resource"
 )
 
@@ -25,10 +25,7 @@ func Check(t *testing.T, f filter.Factory, p filter.Params, in, want string) {
 		t.Errorf("failed to read from filter: %s", err)
 		return
 	}
-	got := string(b)
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("unexpected output from filter: -want +got\n%s", diff)
-	}
+	assert.Equal(t, want, string(b), "unexpected output from filter")
 }
 
 // Fail checks the filter.Factory will be failed

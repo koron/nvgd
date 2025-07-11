@@ -3,15 +3,8 @@ package ltsv
 import (
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
+	"github.com/koron/nvgd/internal/assert"
 )
-
-func assertEqual(t *testing.T, want, got any) {
-	t.Helper()
-	if d := cmp.Diff(want, got); d != "" {
-		t.Errorf("not matched: -want +got\n%s", d)
-	}
-}
 
 func TestGet(t *testing.T) {
 	testGet(t, []Property{{"foo", "123"}}, "foo", []string{"123"})
@@ -34,7 +27,7 @@ func testGet(t *testing.T, props []Property, label string, want []string) {
 	s := NewSet()
 	s.PutProperties(props)
 	got := s.Get(label)
-	assertEqual(t, got, want)
+	assert.Equal(t, got, want, "")
 }
 
 func TestNewSet(t *testing.T) {
@@ -59,10 +52,10 @@ func TestGetFirst(t *testing.T) {
 	if got := len(p.Properties); got != 2 {
 		t.Errorf("count of properties should be 2: got=%d", got)
 	}
-	assertEqual(t, 2, len(p.Properties))
-	assertEqual(t, 1, len(p.Index))
-	assertEqual(t, "first", p.GetFirst("foo"))
+	assert.Equal(t, 2, len(p.Properties), "")
+	assert.Equal(t, 1, len(p.Index), "")
+	assert.Equal(t, "first", p.GetFirst("foo"), "")
 
 	// GetFirst with unexist key.
-	assertEqual(t, "", p.GetFirst("bar"))
+	assert.Equal(t, "", p.GetFirst("bar"), "")
 }

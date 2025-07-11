@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
+	"github.com/koron/nvgd/internal/assert"
 )
 
 func TestReader(t *testing.T) {
@@ -63,7 +63,7 @@ func testRead(t *testing.T, r *Reader, expected *Set) {
 	if err != nil {
 		t.Fatalf("unexpected error: %s\nexpected=%q", err, expected)
 	}
-	assertEqual(t, actual, expected)
+	assert.Equal(t, expected, actual, "")
 }
 
 func TestLongLine(t *testing.T) {
@@ -91,18 +91,9 @@ func TestLongLine(t *testing.T) {
 	for i, p := range set.Properties {
 		wantLabel := strconv.Itoa(i)
 		gotLabel := p.Label
-		if d := cmp.Diff(wantLabel, gotLabel); d != "" {
-			t.Errorf("incorrect label for #%d entry: -want +got\n%s", i, d)
-			wantValue := strings.Repeat(gotLabel, 500)
-			if d := cmp.Diff(wantValue, p.Value); d != "" {
-				t.Errorf("  the value for the incorrect label is also incorrect: -want +got (got len=%d)\n%s", len(p.Value), d)
-			}
-			continue
-		}
+		assert.Equal(t, wantLabel, gotLabel, "incorrect label for #%d entry", i)
 		wantValue := strings.Repeat(wantLabel, 500)
-		if p.Value != wantValue {
-			t.Errorf("the value for #%d (label=%s) is incorrect: got=%s", i, p.Label, p.Value)
-		}
+		assert.Equal(t, wantValue, p.Value, "incorrect value for #%d entry", i)
 	}
 }
 
@@ -126,17 +117,8 @@ func TestLongLine2(t *testing.T) {
 	for i, p := range set.Properties {
 		wantLabel := strconv.Itoa(i % 10)
 		gotLabel := p.Label
-		if d := cmp.Diff(wantLabel, gotLabel); d != "" {
-			t.Errorf("incorrect label for #%d entry: -want +got\n%s", i, d)
-			wantValue := strings.Repeat(gotLabel, 500)
-			if d := cmp.Diff(wantValue, p.Value); d != "" {
-				t.Errorf("  the value for the incorrect label is also incorrect: -want +got (got len=%d)\n%s", len(p.Value), d)
-			}
-			continue
-		}
+		assert.Equal(t, wantLabel, gotLabel, "incorrect label for #%d entry", i)
 		wantValue := strings.Repeat(wantLabel, 500)
-		if p.Value != wantValue {
-			t.Errorf("the value for #%d (label=%s) is incorrect: got=%s", i, p.Label, p.Value)
-		}
+		assert.Equal(t, wantValue, p.Value, "incorrect value for #%d entry", i)
 	}
 }
