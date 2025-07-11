@@ -53,9 +53,9 @@ func TestOnlyFilters(t *testing.T) {
 		k3 = "file:///unknown/"
 	)
 	v1 := c.DefaultFilters[k1]
-	assert.Equals(t, v1, Filters{"tail"}, "for path %q", k1)
+	assert.Equal(t, Filters{"tail"}, v1, "for path %q", k1)
 	v2 := c.DefaultFilters[k2]
-	assert.Equals(t, v2, Filters{"head", "tail=limit:5"}, "for path %q", k2)
+	assert.Equal(t, Filters{"head", "tail=limit:5"}, v2, "for path %q", k2)
 	_, v3 := c.DefaultFilters[k3]
 	if v3 {
 		t.Error("Filters should be zero for unknown path")

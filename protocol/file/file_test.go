@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
+	"github.com/koron/nvgd/internal/assert"
 )
 
 func TestBzip2(t *testing.T) {
@@ -40,9 +40,7 @@ func TestBzip2KeepCompress(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if d := cmp.Diff(want, got); d != "" {
-		t.Errorf("mismatch: -want +got\n%s", d)
-	}
+	assert.Equal(t, want, got, "")
 }
 
 func TestGzip(t *testing.T) {

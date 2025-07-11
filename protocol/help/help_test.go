@@ -4,8 +4,8 @@ import (
 	"io"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
 	"github.com/koron/nvgd/doc"
+	"github.com/koron/nvgd/internal/assert"
 	"github.com/koron/nvgd/internal/protocoltest"
 	"github.com/koron/nvgd/protocol"
 )
@@ -21,9 +21,7 @@ func TestRootText(t *testing.T) {
 		rsrc := protocoltest.Open(t, "help:///")
 		defer rsrc.Close()
 		got := protocoltest.ReadAllString(t, rsrc)
-		if d := cmp.Diff(want, got); d != "" {
-			t.Errorf("root text unmatch:\nwant=%q\ngot=%q", want, got)
-		}
+		assert.Equal(t, want, got, "root  text unmatch")
 	}
 	testText(t, "")
 	testText(t, "Hello World")
@@ -57,9 +55,7 @@ func TestDoc(t *testing.T) {
 		// compare content
 		got := protocoltest.ReadAllString(t, rsrc)
 		want := readDoc(t, docpath)
-		if d := cmp.Diff(want, got); d != "" {
-			t.Errorf("contents unmatch %s: +want -got\n%s", docpath, d)
-		}
+		assert.Equal(t, want, got, "contents unmatch")
 	}
 	testNotExist := func(t *testing.T, requrl string) {
 		rsrc := protocoltest.Open(t, requrl)

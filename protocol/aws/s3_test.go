@@ -1,10 +1,10 @@
 package aws
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/koron/nvgd/config"
+	"github.com/koron/nvgd/internal/assert"
 )
 
 func TestS3Config(t *testing.T) {
@@ -20,9 +20,7 @@ func TestS3Config(t *testing.T) {
 			SecretAccessKey: "YYY",
 		}
 	)
-	if !reflect.DeepEqual(act0, exp0) {
-		t.Errorf("default config:%#v is not as expected %#v", act0, exp0)
-	}
+	assert.Equal(t, exp0, act0, "default config")
 
 	var (
 		act1 = s3config.bucketConfig("foo")
@@ -33,9 +31,7 @@ func TestS3Config(t *testing.T) {
 			SessionToken:    "ddd",
 		}
 	)
-	if !reflect.DeepEqual(act1, exp1) {
-		t.Errorf("foo %#v is not as expected %#v", act1, exp1)
-	}
+	assert.Equal(t, exp1, act1, "%q config", "foo")
 
 	var (
 		act2 = s3config.bucketConfig("bar")
@@ -46,7 +42,5 @@ func TestS3Config(t *testing.T) {
 			SessionToken:    "hhh",
 		}
 	)
-	if !reflect.DeepEqual(act2, exp2) {
-		t.Errorf("bar %#v is not as expected %#v", act2, exp2)
-	}
+	assert.Equal(t, exp2, act2, "%q config", "bar")
 }

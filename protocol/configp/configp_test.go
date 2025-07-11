@@ -3,8 +3,8 @@ package configp
 import (
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
 	"github.com/koron/nvgd/config"
+	"github.com/koron/nvgd/internal/assert"
 	"github.com/koron/nvgd/internal/protocoltest"
 	"github.com/koron/nvgd/protocol"
 )
@@ -17,9 +17,7 @@ func testContent(t *testing.T, cfg config.Config, want string) {
 	Config = cfg
 	rsrc := protocoltest.Open(t, "config:///")
 	got := protocoltest.ReadAllString(t, rsrc)
-	if d := cmp.Diff(want, got); d != "" {
-		t.Errorf("content mismatch: -want +got\n%s", d)
-	}
+	assert.Equal(t, want, got, "")
 }
 
 func TestOutput(t *testing.T) {

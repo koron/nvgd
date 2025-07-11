@@ -5,7 +5,7 @@ import (
 	"path"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
+	"github.com/koron/nvgd/internal/assert"
 	"github.com/koron/nvgd/internal/embedresource"
 	"github.com/koron/nvgd/internal/protocoltest"
 )
@@ -33,9 +33,7 @@ func testAsset(t *testing.T, requrl, assetpath string) {
 	want := loadAsset(t, path.Join("assets", assetpath))
 	rsrc := protocoltest.Open(t, requrl)
 	got := protocoltest.ReadAllString(t, rsrc)
-	if d := cmp.Diff(want, got); d != "" {
-		t.Errorf("content mismatch: -want +got\n%s", d)
-	}
+	assert.Equal(t, want, got, "content mismatch")
 }
 
 func TestContents(t *testing.T) {

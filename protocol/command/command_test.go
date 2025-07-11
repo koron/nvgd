@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
+	"github.com/koron/nvgd/internal/assert"
 	"github.com/koron/nvgd/internal/protocoltest"
 )
 
@@ -27,27 +27,21 @@ func TestRun(t *testing.T) {
 	commandHandler.preDefined = map[string]string{"goversion": "go version"}
 	got := protocoltest.OpenString(t, "command://goversion")
 	want := cmdRun(t, "go", "version")
-	if d := cmp.Diff(want, got); d != "" {
-		t.Fatalf("unmatch results: -want +got\n%s", d)
-	}
+	assert.Equal(t, want, got, "")
 }
 
 func TestUnknown(t *testing.T) {
 	commandHandler.preDefined = nil
 	got := protocoltest.OpenFail(t, "command://__unknown__")
 	want := `unknown command: __unknown__`
-	if d := cmp.Diff(want, got.Error()); d != "" {
-		t.Fatalf("unmatch results: -want +got\n%s", d)
-	}
+	assert.Equal(t, want, got.Error(), "")
 }
 
 func TestEmpty(t *testing.T) {
 	commandHandler.preDefined = map[string]string{"empty": ""}
 	got := protocoltest.OpenFail(t, "command://empty")
 	want := `empty command`
-	if d := cmp.Diff(want, got.Error()); d != "" {
-		t.Fatalf("unmatch results: -want +got\n%s", d)
-	}
+	assert.Equal(t, want, got.Error(), "")
 }
 
 func TestNotExist(t *testing.T) {
