@@ -262,7 +262,7 @@ type S3BucketConfig struct {
 	AccessKeyID string `yaml:"access_key_id"`
 
 	// SecrentAccessKey is AWS secrent access key.
-	SecretAccessKey string `yaml:"secret_access_key"`
+	SecretAccessKey config.SecretString `yaml:"secret_access_key"`
 
 	// SessionToken is AWS session token.
 	SessionToken string `yaml:"session_token,omitempty"`
@@ -282,7 +282,7 @@ func (bc *S3BucketConfig) region() string {
 }
 
 func (bc *S3BucketConfig) creds() *credentials.Credentials {
-	return credentials.NewStaticCredentials(bc.AccessKeyID, bc.SecretAccessKey, bc.SessionToken)
+	return credentials.NewStaticCredentials(bc.AccessKeyID, string(bc.SecretAccessKey), bc.SessionToken)
 }
 
 func (bc *S3BucketConfig) awsConfig() *aws.Config {
