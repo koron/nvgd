@@ -43,7 +43,7 @@ root_contents_file: ""
 func TestHideSecrets(t *testing.T) {
 	t.Run("secret_access_key", func(t *testing.T) {
 		type secretAccessKeyHolder struct {
-			SecretAccessKey string `yaml:"secret_access_key"`
+			SecretAccessKey config.SecretString `yaml:"secret_access_key"`
 		}
 		testContent(t,
 			config.Config{

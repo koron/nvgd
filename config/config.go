@@ -158,3 +158,9 @@ func RegisterProtocol(name string, v any) {
 func RegisterFilter(name string, v any) {
 	root.Filters[name] = v
 }
+
+type SecretString string
+
+func (s SecretString) MarshalYAML() ([]byte, error) {
+	return []byte("__SECRET__"), nil
+}
