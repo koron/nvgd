@@ -197,7 +197,7 @@ func (ph *S3ListHandler) writeAsLTSV(out *s3.ListObjectsV2Output, bucket string)
 	// show objects
 	for _, obj := range out.Contents {
 		link := fmt.Sprintf("/s3obj://%s/%s", bucket, *obj.Key)
-		download := link + "?download"
+		download := link + "?all&download"
 		mtime := timeStr(obj.LastModified.In(ph.Config.location()))
 		err := w.Write(*obj.Key, "object", strconv.FormatInt(*obj.Size, 10), mtime, link, download)
 		if err != nil {

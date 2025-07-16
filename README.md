@@ -499,10 +499,10 @@ Nvgd supports these filters:
 * [HTML Table filter](#html-table-filter)
 * [Text Table filter](#text-table-filter)
 * [Markdown filter](#markdown-filter)
-* [Refresh filter](#refresh-filter)
-* [Download filter](#download-filter)
 * [TRDSQL filter](#trdsql-filter)
 * [Echarts filter](#echarts-filter)
+* [Refresh (pseudo) filter](#refresh-pseudo-filter)
+* [Download (pseudo) filter](#download-pseudo-filter)
 * [All (pseudo) filter](#all-pseudo-filter)
 
 ### Filter Spec
@@ -743,7 +743,17 @@ Example: show help in HTML.
     http://127.0.0.1:9280/help://?markdown
     http://127.0.0.1:9280/help/?markdown
 
-### Refresh filter
+### TRDSQL filter
+
+TRDSQL filter provides SQL on CSV.
+[See document for detail](doc/filter-trdsql.md).
+
+### Echarts filter
+
+Echarts filter provides drawing charts feature.
+[See document for detail](doc/filter-echarts.md).
+
+### Refresh (pseudo) filter
 
 Add "Refresh" header with specified time (sec).
 
@@ -755,7 +765,7 @@ automatically.
 
     http://127.0.0.1:9280/file:///var/log/messages?tail&refresh=5
 
-### Download filter
+### Download (pseudo) filter
 
 Add "Content-Disposition: attachment" header to the response.  It make the
 browser to download the resource instead of showing in it.
@@ -766,16 +776,6 @@ browser to download the resource instead of showing in it.
 Example: download the file "messages" and would be saved as file.
 
     http://127.0.0.1:9280/file:///var/log/messages?download
-
-### TRDSQL filter
-
-TRDSQL filter provides SQL on CSV.
-[See document for detail](doc/filter-trdsql.md).
-
-### Echarts filter
-
-Echarts filter provides drawing charts feature.
-[See document for detail](doc/filter-echarts.md).
 
 ### All (pseudo) filter
 
