@@ -8,6 +8,7 @@ import (
 	_ "github.com/koron/nvgd/filter/grep"
 	_ "github.com/koron/nvgd/filter/hash"
 	_ "github.com/koron/nvgd/filter/head"
+	_ "github.com/koron/nvgd/filter/highlight"
 	_ "github.com/koron/nvgd/filter/htmltable"
 	_ "github.com/koron/nvgd/filter/indexhtml"
 	_ "github.com/koron/nvgd/filter/jsonarray"
