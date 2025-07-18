@@ -43,6 +43,7 @@ type entry struct {
 	Link       string
 
 	Download     string
+	Highlight    string
 	QueryLink    string
 	DuckDBLink   string
 	OPFSDownload string
@@ -126,6 +127,8 @@ func filterFunc(r *resource.Resource, p filter.Params) (*resource.Resource, erro
 				e.OPFSDownload = e.Link + "?toopfs"
 			}
 			e.Link += "?indexhtml"
+		} else {
+			e.Highlight = e.Link + "?highlight"
 		}
 		if fmt, ok := supportQuery(name); ok {
 			qlink := "/trdsql/"
