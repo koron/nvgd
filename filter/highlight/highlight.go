@@ -68,6 +68,10 @@ func highlight(r *resource.Resource, p filter.Params) (*resource.Resource, error
 	var lexer chroma.Lexer
 	if paramLexer != "" {
 		lexer = lexers.Get(paramLexer)
+	} else if filename, ok := r.String(resource.Filename); ok {
+		lexer = lexers.Match(filename)
+	} else if ct, ok := r.String(resource.ContentType); ok {
+		lexer = lexers.MatchMimeType(ct)
 	} else {
 		lexer = lexers.Analyse(string(b))
 	}

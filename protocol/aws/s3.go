@@ -78,7 +78,7 @@ func (ph *S3ObjHandler) Open(u *url.URL) (*resource.Resource, error) {
 	if err != nil {
 		return nil, err
 	}
-	return resource.New(out.Body), nil
+	return resource.New(out.Body).PutFilename(key), nil
 }
 
 func (ph *S3ObjHandler) Size(u *url.URL) (int, error) {

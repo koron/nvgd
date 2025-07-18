@@ -113,11 +113,11 @@ func (f *File) openOne(name string, keepCompress bool) (*resource.Resource, erro
 	if fi.IsDir() {
 		return fileOpenDir(name)
 	}
-	rc, err := fileOpen(name, keepCompress)
+	rc, striped, err := fileOpen(name, keepCompress)
 	if err != nil {
 		return nil, err
 	}
-	return resource.New(rc), nil
+	return resource.New(rc).PutFilename(striped), nil
 }
 
 func (f *File) openMulti(names []string, pattern string, keepCompress bool) (*resource.Resource, error) {
@@ -193,28 +193,36 @@ var (
 	rxLastComponent = regexp.MustCompile(`[^/]+/?$`)
 )
 
-func fileOpen(name string, keepCompress bool) (io.ReadCloser, error) {
+const (
+	extGz  = ".gz"
+	extBz2 = ".bz2"
+	extLz4 = ".lz4"
+)
+
+func fileOpen(name string, keepCompress bool) (io.ReadCloser, string, error) {
 	r, err := os.Open(name)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	if keepCompress {
-		return r, nil
+		return r, name, nil
 	}
 	// Apply decompress filter.
-	if rxGz.MatchString(name) {
+	if strings.HasSuffix(name, extGz) {
 		zr, err := gzip.NewReader(r)
 		if err != nil {
 			r.Close()
-			return nil, err
+			return nil, "", err
 		}
-		return zr, nil
-	} else if rxBz2.MatchString(name) {
-		return newWrapRC(bzip2.NewReader(r), r), nil
-	} else if rxLz4.MatchString(name) {
-		return newWrapRC(lz4.NewReader(r), r), nil
+		return zr, name[:len(name)-len(extGz)], nil
 	}
-	return r, nil
+	if strings.HasSuffix(name, extBz2) {
+		return newWrapRC(bzip2.NewReader(r), r), name[:len(name)-len(extBz2)], nil
+	}
+	if strings.HasSuffix(name, extLz4) {
+		return newWrapRC(lz4.NewReader(r), r), name[:len(name)-len(extLz4)], nil
+	}
+	return r, "", nil
 }
 
 type wrapRC struct {
@@ -250,7 +258,7 @@ func (d *delayFile) Read(b []byte) (int, error) {
 		return 0, d.err
 	}
 	if d.rc == nil {
-		d.rc, d.err = fileOpen(d.n, d.keepCompress)
+		d.rc, _, d.err = fileOpen(d.n, d.keepCompress)
 		if d.err != nil {
 			return 0, d.err
 		}
@@ -330,7 +338,7 @@ func (f *File) OpenRange(u *url.URL, start, end int) (*resource.Resource, error)
 		keepCompress = true
 	}
 
-	rc, err := fileOpen(name, keepCompress)
+	rc, striped, err := fileOpen(name, keepCompress)
 	if err != nil {
 		return nil, err
 	}
@@ -339,5 +347,5 @@ func (f *File) OpenRange(u *url.URL, start, end int) (*resource.Resource, error)
 		return nil, err
 	}
 
-	return resource.New(rr).Put(commonconst.ParsedKeys, []string{KeepCompress}), nil
+	return resource.New(rr).PutFilename(striped).Put(commonconst.ParsedKeys, []string{KeepCompress}), nil
 }

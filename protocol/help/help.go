@@ -25,7 +25,7 @@ func Serve(u *url.URL) (*resource.Resource, error) {
 		return resource.NewRedirect(u.String()), nil
 	}
 	if u.Path == "/" {
-		return resource.NewString(Text), nil
+		return resource.NewString(Text).PutFilename("README.md"), nil
 	}
 	reqPath := strings.TrimPrefix(u.Path, "/doc/")
 	f, err := doc.FS.Open(reqPath)
@@ -36,5 +36,5 @@ func Serve(u *url.URL) (*resource.Resource, error) {
 		}
 		return nil, err
 	}
-	return resource.New(f).GuessContentType(reqPath), nil
+	return resource.New(f).PutFilename(reqPath), nil
 }

@@ -1,10 +1,7 @@
 package resource
 
 const (
-	// ContentType is for header.
-	ContentType = "Content-Type"
-
-	// Filename is for header.
+	// Filename is for guessing MIME type.
 	Filename = "File-Name"
 
 	// SkipFilters is a special tag to prevent filters.
@@ -13,11 +10,17 @@ const (
 	// AcceptRanges tag for "Accept-Ranges" header.
 	AcceptRanges = "Accept-Ranges"
 
+	// ContentType is for header.
+	ContentType = "Content-Type"
+
 	// ContentRange tag for partial response.
 	ContentRange = "Content-Range"
 
 	// ContentLength tag for "Content-Length" header.
 	ContentLength = "Content-Length"
+
+	// Filename is for "Content-Disposition: attachemnt; filename=..." header.
+	AttachmentFilename = "Content-Disposition-attachment-filename"
 )
 
 // Options holds option properties of Resource.
