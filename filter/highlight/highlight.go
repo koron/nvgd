@@ -1,3 +1,4 @@
+// Package highlight provides Syntax Highlight "highlight" filter.
 package highlight
 
 import (

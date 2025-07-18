@@ -9,7 +9,7 @@ import (
 )
 
 func TestBzip2(t *testing.T) {
-	r, err := fileOpen("testdata/file_test.bz2", false)
+	r, stripped, err := fileOpen("testdata/file_test.bz2", false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -22,10 +22,11 @@ func TestBzip2(t *testing.T) {
 	if s != "this is bz2 compressed" {
 		t.Errorf("content of \"testdata/file_test.bz2\" is unexpected: %q", s)
 	}
+	assert.Equal(t, "testdata/file_test", stripped, "unmatch stripped")
 }
 
 func TestBzip2KeepCompress(t *testing.T) {
-	r, err := fileOpen("testdata/file_test.bz2", true)
+	r, stripped, err := fileOpen("testdata/file_test.bz2", true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -41,10 +42,12 @@ func TestBzip2KeepCompress(t *testing.T) {
 	}
 
 	assert.Equal(t, want, got, "")
+
+	assert.Equal(t, "testdata/file_test.bz2", stripped, "should not stripped")
 }
 
 func TestGzip(t *testing.T) {
-	r, err := fileOpen("testdata/file_test.gz", false)
+	r, stripped, err := fileOpen("testdata/file_test.gz", false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -57,10 +60,11 @@ func TestGzip(t *testing.T) {
 	if s != "this is gzip compressed" {
 		t.Errorf("content of \"testdata/file_test.gz\" is unexpected: %q", s)
 	}
+	assert.Equal(t, "testdata/file_test", stripped, "unmatch stripped")
 }
 
 func TestLZ4(t *testing.T) {
-	r, err := fileOpen("testdata/file_test.lz4", false)
+	r, stripped, err := fileOpen("testdata/file_test.lz4", false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -73,6 +77,7 @@ func TestLZ4(t *testing.T) {
 	if s != "this is lz4 compressed" {
 		t.Errorf("content of \"testdata/file_test.lz4\" is unexpected: %q", s)
 	}
+	assert.Equal(t, "testdata/file_test", stripped, "unmatch stripped")
 }
 
 func TestMultiRC(t *testing.T) {

@@ -1,3 +1,4 @@
+// Package templateresource provides templated resources.
 package templateresource
 
 import (
