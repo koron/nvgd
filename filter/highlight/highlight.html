@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="/default.css" />
+<style>
+body {
+  position: relative;
+
+  .highlight-info {
+    position: fixed;
+    z-index: 10;
+    top: 0;
+    right: 0;
+
+    padding: 0.5em 1em;
+    background-color: #ccca;
+    color: #000;
+    border-radius: 0 0 0 0.5em;
+    font-size: 0.75em;
+  }
+}
+
+.chroma {
+  code {
+    font-family: "Consolas", monospace;
+    font-size: 12px;
+  }
+  .ln {
+    margin-left: 0.9em;
+  }
+  .line:hover {
+    background-color: var(--anchor-hover-background-color);
+  }
+}
+</style>
+<style>
+{{ .CSS }}
+</style>
+</head>
+
+<body class="bg">
+<div class="highlight-info">
+  <span class="property">
+    <span class="name">lexer:</span><span class="value">{{ .Lexer }}</span>
+  </span>
+  <span class="property">
+    <span class="name">style:</span><span class="value">{{ .Style }}</span>
+  </span>
+</div>
+{{ .Body }}
+</body>
+</html>

@@ -196,7 +196,7 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 	if v, ok := rsrc.Bool(resource.SkipFilters); ok && v {
 		// Prevent to apply filters, compose and return the response directly.
 		status := http.StatusOK
-		if fn, ok := rsrc.String(resource.Filename); ok {
+		if fn, ok := rsrc.String(resource.AttachmentFilename); ok {
 			res.Header().Set("Content-Disposition",
 				fmt.Sprintf(`attachment; filename="%s"`, fn))
 		}
@@ -272,7 +272,7 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 		res.Header().Set("Refresh", v)
 	}
 	// Set Content-Disposition header if required.
-	if fn, ok := r.String(resource.Filename); ok {
+	if fn, ok := r.String(resource.AttachmentFilename); ok {
 		res.Header().Set("Content-Disposition",
 			fmt.Sprintf(`attachment; filename="%s"`, fn))
 	} else if download {

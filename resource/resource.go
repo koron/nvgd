@@ -77,9 +77,13 @@ func (r *Resource) PutString(name, value string) *Resource {
 	return r
 }
 
-// PutFilename puts a filenaem option.
+// PutFilename puts a filename option.
 func (r *Resource) PutFilename(s string) *Resource {
-	return r.PutString(Filename, s).GuessContentType(s)
+	return r.PutString(Filename, path.Base(s)).GuessContentType(s)
+}
+
+func (r *Resource) PutAttachmentFilename(s string) *Resource {
+	return r.PutString(AttachmentFilename, s).GuessContentType(s)
 }
 
 // PutContentType puts a content-type option.

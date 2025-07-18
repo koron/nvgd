@@ -499,6 +499,7 @@ Nvgd supports these filters:
 * [HTML Table filter](#html-table-filter)
 * [Text Table filter](#text-table-filter)
 * [Markdown filter](#markdown-filter)
+* [Syntax Highlight filter](#syntax-highlight-filter)
 * [TRDSQL filter](#trdsql-filter)
 * [Echarts filter](#echarts-filter)
 * [Refresh (pseudo) filter](#refresh-pseudo-filter)
@@ -742,6 +743,20 @@ Example: show help in HTML.
 
     http://127.0.0.1:9280/help://?markdown
     http://127.0.0.1:9280/help/?markdown
+
+### Syntax Highlight filter
+
+Syntax Highlighting content.
+
+*   filter\_name: `highlight`
+*   options:
+    *   `lexer`: Specifying the syntax lexer. A list of all lexers available can be found in [pygments-lexers.txt](https://github.com/alecthomas/chroma/blob/master/pygments-lexers.txt)
+    *   `style`: Specify the style to display. For a quick overview of the available styles and how they look, check out [the Chroma Style Gallery](https://xyproto.github.io/splash/docs/all.html).
+
+Example: syntax highlighting for Markdown instructions and HTML conversions.
+
+    http://127.0.0.1:3000/help://?highlight=lexer:markdown
+    http://127.0.0.1:3000/help://?markdown&highlight=lexer:html
 
 ### TRDSQL filter
 
