@@ -96,7 +96,6 @@ func highlight(r *resource.Resource, p filter.Params) (*resource.Resource, error
 	}
 
 	formatter := html.New(
-		html.WithCustomCSS(nil),
 		html.WithClasses(true),
 		html.WithLineNumbers(true),
 		html.WithLinkableLineNumbers(true, "L"),
