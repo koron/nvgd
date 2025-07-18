@@ -81,7 +81,11 @@ func highlight(r *resource.Resource, p filter.Params) (*resource.Resource, error
 		style = styles.Fallback
 	}
 
-	tokens, err := lexer.Tokenise(nil, string(b))
+	tokens, err := lexer.Tokenise(&chroma.TokeniseOptions{
+		State:    "root",
+		Nested:   true,
+		EnsureLF: true,
+	}, string(b))
 	if err != nil {
 		return nil, err
 	}
