@@ -26,11 +26,14 @@ body {
 
 <script type="module">
 
+const queryOpfs = {{ .query.opfs }};
+const opfsFiles = queryOpfs === null ? [] : queryOpfs.map(p => p.startsWith('opfs://') ? p : 'opfs://' + p);
+
 import * as duckdb from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@{{ .constant.version }}/+esm';
 import * as shell from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm-shell@{{ .constant.version }}/+esm';
 
-// Create a container element  
-const shellDiv = document.getElementById('shell-container');  
+// Create a container element
+const shellDiv = document.getElementById('shell-container');
 
 // Actually, I want to use shell.getJsDelivrModule() like this:
 //
@@ -41,37 +44,43 @@ const shellDiv = document.getElementById('shell-container');
 //
 const shellModule = new URL('https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm-shell@{{ .constant.version }}/dist/shell_bg.wasm');
 
-// Embed the shell  
-await shell.embed({  
-  container: shellDiv,  
+// Embed the shell
+await shell.embed({
+  container: shellDiv,
   shellModule: shellModule,
-  resolveDatabase: async (progress) => {  
+  resolveDatabase: async (progress) => {
     // Select the bundle and load the worker.
-    const bundle = await duckdb.selectBundle(duckdb.getJsDelivrBundles());  
+    const bundle = await duckdb.selectBundle(duckdb.getJsDelivrBundles());
     const worker_url = URL.createObjectURL(new Blob([`importScripts("${bundle.mainWorker}");`], {type: 'text/javascript'}));
 
-    // Create a worker and instantiate the database  
+    // Create a worker and instantiate the database
     const worker = new Worker(worker_url);
-    const db = new duckdb.AsyncDuckDB(new duckdb.ConsoleLogger(), worker);  
-    await db.instantiate(bundle.mainModule, bundle.pthreadWorker, progress);  
-
-    // Register a file in OPFS if available.
-    {{ if .query.opfs }}
-    for (let path of {{ .query.opfs }}) {
-      if (!path.startsWith('opfs://')) {
-        path = 'opfs://' + path;
-      }
-      db.registerOPFSFileName(path);
-    }
-    {{ end }}
-
+    const db = new duckdb.AsyncDuckDB(new duckdb.ConsoleLogger(), worker);
+    await db.instantiate(bundle.mainModule, bundle.pthreadWorker, progress);
     // Revoke the worker URL.
     URL.revokeObjectURL(worker_url);
 
+    // Register a file in OPFS if available.
+    for (const path of opfsFiles) {
+      db.registerOPFSFileName(path);
+    }
+    window.duckdb = db;
+
     return db;
-  }  
+  }
 });
 
+setTimeout(async () => {
+  let needFiles = opfsFiles.reduce((m, key) => { m.set(key, true); return m }, new Map());
+  const loadedFiles = await window.duckdb.globFiles('opfs://*');
+  for (const file of loadedFiles) {
+    needFiles.delete(file.fileName);
+  }
+  if (needFiles.size > 0) {
+    const files = Array.from(needFiles.keys()).map(e => '  ' + e).join('\n');
+    alert(`Files are locked\n\nDuckDB or something others has the following files open in other tabs. To continue using this tab properly, close those tabs and then reload this one:\n\n${files}`);
+  }
+}, 100);
 </script>
 
 <div id="shell-container" />
