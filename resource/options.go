@@ -19,7 +19,7 @@ const (
 	// ContentLength tag for "Content-Length" header.
 	ContentLength = "Content-Length"
 
-	// Filename is for "Content-Disposition: attachemnt; filename=..." header.
+	// Filename is for "Content-Disposition: attachment; filename=..." header.
 	AttachmentFilename = "Content-Disposition-attachment-filename"
 )
 
