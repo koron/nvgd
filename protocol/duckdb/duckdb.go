@@ -20,7 +20,7 @@ var assetFS = devfs.New(embedFS, "protocol/duckdb", "")
 
 // Version of duckdb/duckdb-wasm.
 // See https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm/ for newer version.
-const Version = "1.29.1-dev257.0"
+const Version = "1.29.1-dev263.0"
 
 var getRsrc = sync.OnceValues(func() (*templateresource.TemplateResource, error) {
 	fsys, err := fs.Sub(assetFS, "assets")
