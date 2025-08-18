@@ -110,15 +110,15 @@ jobs:
     needs:
     - build
     steps:
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v5
       with: { name: darwin_amd64 }
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v5
       with: { name: darwin_arm64 }
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v5
       with: { name: linux_amd64 }
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v5
       with: { name: linux_arm64 }
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v5
       with: { name: windows_amd64 }
     - run: ls -lafR
     - name: Release
