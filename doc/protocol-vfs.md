@@ -1,10 +1,12 @@
 # VFS protocol
 
-The VFS (Virtual File System) protocol serves static content from a ZIP archive. It allows you to mount a ZIP file as a file system and access its contents via a URL.
+The VFS (Virtual File System) protocol serves static content from a ZIP archive.
+It allows you to mount a ZIP file as a file system and access its contents via a URL.
 
 ## Configuration
 
-You need to define the archives in your configuration file (e.g., `config.yml`) under the `vfs` protocol section. The configuration is a map of an alias (hostname for the URL) to the path of the ZIP file.
+You need to define the archives in your configuration file (e.g., `config.yml`) under the `vfs` protocol section.
+The configuration is a map of an alias (hostname for the URL) to the path of the ZIP file.
 
 Example:
 
@@ -13,7 +15,6 @@ protocol:
   vfs:
     archives:
       mydocs: /path/to/your/documents.zip
-      site: /var/www/site.zip
 ```
 
 ## URL Structure
@@ -24,38 +25,35 @@ The URL format is `vfs://<alias>/<path-in-zip>`.
 *   `<path-in-zip>`: The path to the file or directory within the ZIP archive.
 
 For example, to access `images/photo.jpg` inside `mydocs.zip`, you would use the URL: `vfs://mydocs/images/photo.jpg`.
+This URL can be accessed as nvgd at the following URL:
+
+    http://127.0.0.1:9280/vfs://mydocs/images/photo.jpg
+
+Also, the `vfs://` scheme has an alias `vfs/`, so the following URL has the same meaning.
+This is a workaround for the problem that in web applications, consecutive slashes in a URL path are sometimes normalized and combined into one.
+
+    http://127.0.0.1:9280/vfs/mydocs/images/photo.jpg
 
 If the path points to a directory, the protocol will attempt to serve the `index.html` file from that directory.
 
----
+## Examples
 
-日本語訳 (Japanese translation):
+### JupyterLite
 
-# VFS プロトコル
-
-VFS (Virtual File System) プロトコルは、ZIPアーカイブから静的コンテンツを提供します。ZIPファイルをファイルシステムとしてマウントし、そのコンテンツにURL経由でアクセスすることができます。
-
-## 設定
-
-設定ファイル（例: `config.yml`）の `vfs` プロトコルセクションで、アーカイブを定義する必要があります。設定は、エイリアス（URLのホスト名）からZIPファイルのパスへのマップです。
-
-例:
+Download [`jupyterlite-playground-0.0.1.zip`][jl_zip] from [here][jl_release] and configure it as follows to use JupyterLite (with OPFS support) at `http://127.0.0.1:9280/vfs/jupyterlite/`.
+The alias name `jupyterlite` can be changed freely.
 
 ```yaml
 protocol:
   vfs:
     archives:
-      mydocs: /path/to/your/documents.zip
-      site: /var/www/site.zip
+      jupyterlite: /path/to/your/jupyterlite-playground-0.0.1.zip
 ```
 
-## URL構造
+[jl_release]:https://github.com/koron/jupyterlite-playground/releases/tag/v0.0.1
+[jl_zip]:https://github.com/koron/jupyterlite-playground/releases/download/v0.0.1/jupyterlite-playground-0.0.1.zip
 
-URLの形式は `vfs://<alias>/<path-in-zip>` です。
+## Remarks
 
-*   `<alias>`: 設定で定義されたエイリアス名（例: `mydocs`）。
-*   `<path-in-zip>`: ZIPアーカイブ内のファイルまたはディレクトリへのパス。
-
-例えば、`mydocs.zip` 内の `images/photo.jpg` にアクセスするには、次のURLを使用します: `vfs://mydocs/images/photo.jpg`
-
-パスがディレクトリを指している場合、プロトコルはそのディレクトリ内の `index.html` ファイルを提供しようとします。
+*   Filters cannot be applied to content provided by the vfs protocol.
+    This is to prevent misinterpretation of query parameters that may be specified in web applications.

@@ -158,6 +158,10 @@ Nvgd supports these `protocol`s:
 
     [See document for detail](doc/protocol-opfs.md).
 
+* `vfs` - Static content served in archive files
+
+    [See document for detail](doc/protocol-vfs.md).
+
 * `examples` - Example files to use demo/document of filters
 
 * `config` - current nvgd's configuration
@@ -755,8 +759,8 @@ Syntax Highlighting content.
 
 Example: syntax highlighting for Markdown instructions and HTML conversions.
 
-    http://127.0.0.1:3000/help://?highlight=lexer:markdown
-    http://127.0.0.1:3000/help://?markdown&highlight=lexer:html
+    http://127.0.0.1:9280/help://?highlight=lexer:markdown
+    http://127.0.0.1:9280/help://?markdown&highlight=lexer:html
 
 ### TRDSQL filter
 
