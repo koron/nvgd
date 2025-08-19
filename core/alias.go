@@ -71,6 +71,7 @@ var defaultAliases = aliases{
 	{"examples/", "examples:/"},
 	{"opfs/", "opfs:/"},
 	{"version/", "version://"},
+	{"vfs/", "vfs://"},
 }
 
 func (a aliases) apply(path string) (string, *alias) {
