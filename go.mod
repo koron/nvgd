@@ -47,7 +47,7 @@ require (
 	github.com/noborus/tbln v0.0.2 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	github.com/ulikunitz/xz v0.5.12 // indirect
+	github.com/ulikunitz/xz v0.5.14 // indirect
 	github.com/yuin/gopher-lua v1.1.1 // indirect
 	golang.org/x/crypto v0.37.0 // indirect
 	golang.org/x/sys v0.35.0 // indirect
