@@ -7,7 +7,6 @@ permissions:
 
 env:
   GO_VERSION: '>=1.24.0'
-  NAME: 'nvgd'
 
 jobs:
 
@@ -45,6 +44,7 @@ jobs:
       id: setup
       shell: bash
       run: |
+        export NAME="${GITHUB_REPOSITORY#${GITHUB_REPOSITORY_OWNER}/}"
         if [[ ${GITHUB_REF} =~ ^refs/tags/v[0-9]+\.[0-9]+ ]] ; then
           export VERSION=${GITHUB_REF_NAME}
         else
@@ -70,6 +70,7 @@ jobs:
         echo "GOOS=${GOOS}" >> $GITHUB_ENV
         echo "GOARCH=${GOARCH}" >> $GITHUB_ENV
         echo "CGO_ENABLED=1" >> $GITHUB_ENV
+        echo "NAME=${NAME}" >> $GITHUB_ENV
         echo "PKGNAME=${NAME}_${VERSION}_${GOOS}_${GOARCH}" >> $GITHUB_ENV
         echo "PKGEXT=${PKGEXT}" >> $GITHUB_ENV
 
@@ -134,3 +135,4 @@ jobs:
         append_body: true
 
 # based on: github.com/koron-go/_skeleton/.github/workflows/release.yml
+# $Hash:56eff628d6b72f94c7a285454a449fbb0770031e5c3ac82101a2cf65$

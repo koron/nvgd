@@ -43,3 +43,4 @@ list-upgradable-modules:
 	@go list -m -u -f '{{if .Update}}{{.Path}} {{.Version}} [{{.Update.Version}}]{{end}}' all
 
 # based on: github.com/koron-go/_skeleton/Makefile
+# $Hash:2c1001edc9ca8359f9467af709ea771dcceb3f831f606f1467284aaa$
