@@ -10,10 +10,50 @@ env:
 
 jobs:
 
-  build:
+  check:
+    name: Check if the main package exists
+    outputs:
+      targets: ${{ steps.list.outputs.targets }}
 
-    name: Build
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - uses: actions/checkout@v5
+    - uses: actions/setup-go@v6
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: List "main" packages to be released
+      id: list
+      run: |
+        found=0
+        echo "targets<<__END__" >> $GITHUB_OUTPUT
+        root=$(go list -f '{{.ImportPath}}' .)
+        for path in $(go list -f '{{if (eq .Name "main")}}{{.ImportPath}}{{end}}' ./... ) ; do
+          found=1
+          dir=".${path#${root}}"
+          name=$(basename "$path")
+          if [ -f "$dir/.norelease" ] ; then
+            echo -e "Skipped $name\t($dir), due to $dir/.norelease found"
+          else
+            echo "$name $dir $path" >> $GITHUB_OUTPUT
+            echo -e "Added   $name\t($dir) to the release"
+          fi
+        done
+        echo "__END__" >> $GITHUB_OUTPUT
+        if [[ $found == 0 ]] ; then
+          echo "⛔ No packages found to release"
+        fi
+
+  build:
+    name: Build releases
+
+    needs: check
+    if: needs.check.outputs.targets != ''
+
+    env:
+      RELEASE_TARGETS: ${{needs.check.outputs.targets}}
 
     strategy:
       matrix:
@@ -32,6 +72,8 @@ jobs:
           arch: arm64
         - os: ubuntu-24.04-arm
           arch: amd64
+
+    runs-on: ${{ matrix.os }}
 
     steps:
 
@@ -70,21 +112,28 @@ jobs:
         echo "GOOS=${GOOS}" >> $GITHUB_ENV
         echo "GOARCH=${GOARCH}" >> $GITHUB_ENV
         echo "CGO_ENABLED=1" >> $GITHUB_ENV
-        echo "NAME=${NAME}" >> $GITHUB_ENV
         echo "PKGNAME=${NAME}_${VERSION}_${GOOS}_${GOARCH}" >> $GITHUB_ENV
         echo "PKGEXT=${PKGEXT}" >> $GITHUB_ENV
 
-    - name: Build
+    - name: Build all "main" packages
       shell: bash
       run: |
-        go build
+        echo "$RELEASE_TARGETS" | while IFS= read -r line ; do
+          read -a entry <<< "$line"
+          printf "building %s\t(%s)\n" "${entry[0]}" "${entry[1]}"
+          ( cd "${entry[1]}" && go build )
+        done
 
     - name: Archive
       shell: bash
       run: |
-        rm -rf _build/${PKGNAME}
         mkdir -p _build/${PKGNAME}
-        cp -p ${NAME} _build/${PKGNAME}
+
+        echo "$RELEASE_TARGETS" | while IFS= read -r line ; do
+          read -a entry <<< "$line"
+          cp "${entry[1]}/${entry[0]}" _build/${PKGNAME}
+        done
+
         cp -p LICENSE _build/${PKGNAME}
         cp -p README.md _build/${PKGNAME}
 
@@ -135,4 +184,4 @@ jobs:
         append_body: true
 
 # based on: github.com/koron-go/_skeleton/.github/workflows/release.yml
-# $Hash:56eff628d6b72f94c7a285454a449fbb0770031e5c3ac82101a2cf65$
+# $Hash:d99d1b5435452a2fc3ff949711abe87b69e047855802ec59910d7132$
