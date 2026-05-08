@@ -3,7 +3,7 @@ name: Go
 on: [push]
 
 env:
-  GO_VERSION: '>=1.24.0'
+  GO_VERSION: 'oldstable'
 
 jobs:
 
@@ -33,14 +33,46 @@ jobs:
     - name: Build all "main" packages
       shell: bash
       run: |
-        go list -f '{{if (eq .Name "main")}}{{.ImportPath}} .{{slice .ImportPath (len .Module.Path)}}{{end}}' ./... | while IFS= read -r line ; do
-          read -a e <<< "$line"
-          path="${e[0]}"
-          dir="${e[1]}"
-          name=$(basename $path)
-          printf "building %s\t(%s)\n" $name $dir
+        go list -f '{{if (eq .Name "main")}}{{.ImportPath}} .{{slice .ImportPath (len .Module.Path)}}{{end}}' ./... | while read -r path dir; do
+          [ -z "$path" ] && continue
+          name=$(basename "$path")
+          printf "building %s\t(%s)\n" "$name" "$dir"
           ( cd "$dir" && go build )
         done
 
+  build-freebsd:
+    name: Build (FreeBSD)
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - uses: actions/checkout@v6
+
+    - name: Build and Test
+      uses: vmactions/freebsd-vm@d1e65811565151536c0c894fff74f06351ed26e6 # v1.4.5
+      with:
+        usesh: true
+        copyback: false
+        disable-cache: true
+
+        prepare: |
+          echo "::group::Install Go"
+          pkg install -y go
+          echo "::endgroup::"
+
+        run: |
+          echo "::group::Test"
+          go test ./...
+          echo "::endgroup::"
+
+          echo "::group::Build all \"main\" packages"
+          go list -f '{{if (eq .Name "main")}}{{.ImportPath}} .{{slice .ImportPath (len .Module.Path)}}{{end}}' ./... | while read -r path dir; do
+            [ -z "$path" ] && continue
+            name=$(basename "$path")
+            printf "building %s\t(%s)\n" "$name" "$dir"
+            ( cd "$dir" && go build )
+          done
+          echo "::endgroup::"
+
 # based on: github.com/koron-go/_skeleton/.github/workflows/go.yml
-# $Hash:5c453adb7ee86afc50e6bbb626326f86d1e9b7ebc92cc12d74227105$
+# $Hash:de15ad34d8719db7fb2c0079a796809196f39413cdd4b15c8132ec2d$
