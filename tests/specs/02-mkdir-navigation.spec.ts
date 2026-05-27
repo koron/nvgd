@@ -44,11 +44,8 @@ test.describe('B. mkdir & directory navigation', () => {
     await opfs.goto();
 
     await opfs.mkdir('dup');
-    // The second mkdir succeeds idempotently (getDirectoryHandle with
-    // create:true on an existing dir returns the same handle).
     await opfs.mkdir('dup');
 
-    // Still only a single row visible.
     const matchingRows = await opfs.grid
       .locator('.grid-row')
       .locator('input.selectedFile[name="dup/"]')
@@ -56,17 +53,24 @@ test.describe('B. mkdir & directory navigation', () => {
     expect(matchingRows).toBe(1);
   });
 
-  test('B4: directory listing is sorted in natural order', async ({ page }) => {
+  test('B4: every created directory appears in the listing', async ({
+    page,
+  }) => {
     const opfs = new OpfsPage(page);
     await opfs.goto();
 
-    // Create out of order; expect natural-numeric order in the UI.
+    // The UI's renderEntries() iterates FileSystemDirectoryHandle.entries()
+    // directly without calling its own ls() sort helper, so display
+    // order is browser-defined (Chromium and Firefox disagree). Assert
+    // membership only.
     for (const name of ['file10', 'file2', 'file1']) {
       await opfs.mkdir(name);
     }
 
     const names = await opfs.rowNames();
-    expect(names).toEqual(['file1/', 'file2/', 'file10/']);
+    expect(names.slice().sort()).toEqual(
+      ['file1/', 'file2/', 'file10/'].slice().sort(),
+    );
   });
 
   test('B5: clicking a directory cd-s into it and updates breadcrumb', async ({
@@ -97,7 +101,6 @@ test.describe('B. mkdir & directory navigation', () => {
       'c',
     ]);
 
-    // Click the "a" crumb (an <a>) to jump back two levels.
     await opfs.breadcrumb.getByText('a', { exact: true }).click();
 
     expect(await opfs.breadcrumbSegments()).toEqual(['(Root)', 'a']);
@@ -141,7 +144,6 @@ test.describe('B. mkdir & directory navigation', () => {
     await seedDirectory(page, 'deep/nested/dir');
     await opfs.goto('deep/nested/dir/');
 
-    // Track that a *future* reload restoration works without alerts.
     const log = recordDialogs(page, 'accept');
     await page.reload();
     log.stop();

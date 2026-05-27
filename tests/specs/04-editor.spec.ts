@@ -49,7 +49,6 @@ test.describe('D. Simple editor', () => {
     await expect(opfs.row('a.txt')).toBeVisible();
 
     await opfs.saveEditor('a.txt', 'v2-updated');
-    // Wait for the second render to reflect the write.
     await expect
       .poll(() => readOPFSFile(page, 'a.txt'))
       .toBe('v2-updated');
@@ -75,9 +74,11 @@ test.describe('D. Simple editor', () => {
 
     const row = opfs.row('huge.bin');
     await expect(row).toBeVisible();
-    // Save as is always present for files; Edit is not.
-    await expect(row.getByText('Save as', { exact: true })).toBeVisible();
-    await expect(row.getByText('Edit', { exact: true })).toHaveCount(0);
+    // Save as is always present for files; Edit is hidden for large
+    // files. The action <a> contains an icon span + the label, so we
+    // match against the substring instead of using exact text.
+    await expect(opfs.saveAsAction('huge.bin')).toBeVisible();
+    await expect(opfs.editAction('huge.bin')).toHaveCount(0);
   });
 
   test('D6: Clear empties editor inputs', async ({ page }) => {

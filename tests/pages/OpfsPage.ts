@@ -5,10 +5,7 @@ import { clearOPFS } from '../helpers/opfs';
  * Page Object for the OPFS Web UI ( /opfs/ ).
  *
  * Centralises every locator and high-level action used by the spec
- * files so individual tests stay readable. Methods that mutate OPFS
- * generally await the UI re-render (Mithril is synchronous but writes
- * are async) by re-locating with `expect(...).toBeVisible()` where
- * appropriate.
+ * files so individual tests stay readable.
  */
 export class OpfsPage {
   readonly page: Page;
@@ -77,11 +74,19 @@ export class OpfsPage {
 
   /**
    * Navigate to /opfs/ (optionally with a hash path like `sub1/sub2/`).
-   * Waits until the grid header is rendered so the page is interactive.
+   * Waits until the grid header is rendered.
+   *
+   * Note: when the previous URL is already /opfs/ and we only change
+   * the hash, the browser treats this as a same-document navigation
+   * and does NOT re-run the page-s init() function. We force a reload
+   * after hashed navigations so init() picks up the new path.
    */
   async goto(hashPath: string = ''): Promise<void> {
     const url = hashPath ? `/opfs/#${hashPath}` : '/opfs/';
     await this.page.goto(url);
+    if (hashPath) {
+      await this.page.reload();
+    }
     await expect(this.grid.locator('.grid-header')).toBeVisible();
   }
 
@@ -104,8 +109,6 @@ export class OpfsPage {
 
   /** Locator for a specific row by display name (e.g. `foo/` or `bar.txt`). */
   row(displayName: string): Locator {
-    // Row label is `<input> <text|<a>>`. Match by the input[name=...]
-    // sibling for robustness against icon/whitespace changes.
     return this.grid.locator('.grid-row', {
       has: this.page.locator(`input.selectedFile[name="${displayName}"]`),
     });
@@ -131,8 +134,6 @@ export class OpfsPage {
 
   /** Click the directory link in a row (navigates into it). */
   async openDirectory(name: string): Promise<void> {
-    // The dir link text is rendered as `${name}/` and is the second <a>
-    // inside the row's name label (first is the checkbox label wrapper).
     await this.row(`${name}/`).locator('a').click();
     await expect(this.grid.locator('.grid-header')).toBeVisible();
   }
@@ -162,14 +163,34 @@ export class OpfsPage {
     await this.editorSaveBtn.click();
   }
 
-  /** Click the "Edit" action on a file row. */
+  /**
+   * Click the "Edit" action on a file row. The action is rendered as
+   * `<a><span class="material-symbols">edit</span>Edit</a>`, so its
+   * textContent is `editEdit` -- `getByText("Edit", exact: true)`
+   * will not match. We pick the `<a>` whose text *contains* "Edit".
+   */
   async clickEdit(fileName: string): Promise<void> {
-    await this.row(fileName).getByText('Edit', { exact: true }).click();
+    await this.row(fileName)
+      .locator('a')
+      .filter({ hasText: 'Edit' })
+      .click();
   }
 
   /** Click the "Save as" action on a file row. */
   async clickSaveAs(fileName: string): Promise<void> {
-    await this.row(fileName).getByText('Save as', { exact: true }).click();
+    await this.row(fileName)
+      .locator('a')
+      .filter({ hasText: 'Save as' })
+      .click();
+  }
+
+  /** Locator helpers for asserting on action visibility. */
+  editAction(fileName: string): Locator {
+    return this.row(fileName).locator('a').filter({ hasText: 'Edit' });
+  }
+
+  saveAsAction(fileName: string): Locator {
+    return this.row(fileName).locator('a').filter({ hasText: 'Save as' });
   }
 
   /** Fill in the URL download form and submit. */
