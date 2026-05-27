@@ -50,8 +50,14 @@ func rows2ltsv(rows *sql.Rows, maxRows int) (io.ReadCloser, bool, error) {
 		nrow++
 		if maxRows > 0 && nrow >= maxRows {
 			truncated = rows.Next()
+			if err := rows.Err(); err != nil {
+				return nil, false, err
+			}
 			break
 		}
+	}
+	if err := rows.Err(); err != nil {
+		return nil, false, err
 	}
 	return io.NopCloser(buf), truncated, nil
 }
