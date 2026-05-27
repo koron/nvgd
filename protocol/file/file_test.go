@@ -1,6 +1,8 @@
 package file
 
 import (
+	"bytes"
+	"fmt"
 	"io"
 	"net/url"
 	"os"
@@ -90,6 +92,30 @@ func TestActualOpenGlobNoMatch(t *testing.T) {
 	}
 	if !strings.HasPrefix(err.Error(), "no matches:") {
 		t.Errorf("expected 'no matches:' error, got: %v", err)
+	}
+}
+
+type errReader struct {
+	io.Reader
+}
+
+func (r *errReader) Close() error {
+	return fmt.Errorf("close error")
+}
+
+func TestMultiRCCollectsErrors(t *testing.T) {
+	r1 := struct {
+		io.Reader
+		io.Closer
+	}{bytes.NewReader([]byte("a")), io.NopCloser(nil)}
+	r2 := &errReader{Reader: bytes.NewReader([]byte("b"))}
+	mrc := newMultiRC(r1, r2)
+	err := mrc.Close()
+	if err == nil {
+		t.Fatal("expected error from multiRC.Close()")
+	}
+	if !strings.Contains(err.Error(), "close error") {
+		t.Errorf("expected 'close error' in: %v", err)
 	}
 }
 

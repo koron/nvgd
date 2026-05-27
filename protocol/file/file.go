@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"compress/bzip2"
 	"compress/gzip"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -296,11 +297,14 @@ func newMultiRC(readers ...io.Reader) *multiRC {
 }
 
 func (mrc *multiRC) Close() error {
+	var errs []error
 	for _, rc := range mrc.rcs {
-		rc.Close()
+		if err := rc.Close(); err != nil {
+			errs = append(errs, err)
+		}
 	}
 	mrc.rcs = nil
-	return nil
+	return errors.Join(errs...)
 }
 
 func (f *File) Size(u *url.URL) (int, error) {
