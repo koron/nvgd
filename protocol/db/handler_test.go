@@ -8,8 +8,12 @@ import (
 
 func TestBadQuery(t *testing.T) {
 	f := func(s string, expected bool) {
-		if reBadQuery.MatchString(s) != expected {
-			t.Errorf("reBadQuery.MatchString(%q) should be %t", s, expected)
+		got := checkSQLSanity(s)
+		if expected && got == nil {
+			t.Errorf("checkSQLSanity(%q) should be an error, got nil", s)
+		}
+		if !expected && got != nil {
+			t.Errorf("checkSQLSanity(%q) should be nil, got %v", s, got)
 		}
 	}
 	// basic keywords
@@ -22,6 +26,7 @@ func TestBadQuery(t *testing.T) {
 	f("TRUNCATE", true)
 	f("EXECUTE", true)
 	f("PREPARE", true)
+	f("REPLACE", true)
 	// variations
 	f("insert", true)
 	f("UpDaTe", true)
@@ -29,9 +34,24 @@ func TestBadQuery(t *testing.T) {
 	f(" CrEaTe", true)
 	f(" DROP", true)
 	f(" ALTer", true)
+	// multi-statement injections
+	f("SELECT 1; DROP TABLE t", true)
+	// comment bypass — block comments
+	f("INS/**/ERT INTO t", true)
+	f("/**/INSERT INTO t", true)
+	f("INSERT/**/INTO t VALUES(1)", true)
+	f("SEL/**/ECT 1", false) // SEL/**/ECT is not a bad keyword
+	// comment bypass — line comments
+	f("-- comment\nINSERT INTO t", true)
+	f("SELECT 1; -- comment\nDROP TABLE t", true)
+	f("SELECT 1;\n-- comment\nDROP TABLE t", true)
 	// inhibits
 	f("SELECT * FROM USERS", false)
 	f("SELECT * FROM UPDATES", false)
+	f("SELECT * FROM INSERTS", false)
+	f("SELECT * FROM DROP_TABLE", false)
+	// subquery with bad keyword in string literal — not blocked (acceptable)
+	f("SELECT * FROM t WHERE name = 'INSERT'", false)
 }
 
 func TestHasLimit(t *testing.T) {
