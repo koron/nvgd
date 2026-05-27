@@ -156,7 +156,7 @@ func hasSelect(q string) bool {
 }
 
 var rxSelectCount = regexp.MustCompile(`(?imsU:\bSELECT\b.*\bCOUNT\b.*\(.*\bFROM\b)`)
-var rxHasLimit = regexp.MustCompile(`(?imsU:\bLIMIT\b\s.*\d+)`)
+var rxHasLimit = regexp.MustCompile(`(?imsU:\bLIMIT\b\s+\S+)`)
 
 // hasLimit checks a query has LIMIT clause or not.
 func hasLimit(q string) bool {

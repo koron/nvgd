@@ -62,14 +62,17 @@ func TestHasLimit(t *testing.T) {
 		{``, false},
 		{`SELECT gid, COUNT(*) FROM user`, true}, // SELECT with COUNT
 		{`select gid, COUNT(*) from user`, true}, // case insensitive
-		{`SELECT * FROM user LIMIT 10000`, true}, // LIMIT with number
-		{`LIMIT 10000`, true},                    // only LIMIT with number
-		{`SELECT * FROM user LIMIT abc`, false},  // LIMIT without number
-		{"LIMIT\n10000", true},                   // LIMIT with a new line
-		{"LIMIT \n10000", true},                  // LIMIT with a new line
-		{"LIMIT\n 10000", true},                  // LIMIT with a new line
-		{"LIMIT\n\n10000", true},                 // LIMIT with new lines
-		{"LIMIT\n\n\n10000", true},               // LIMIT with new lines
+		{`SELECT * FROM user LIMIT 10000`, true},   // LIMIT with number
+		{`LIMIT 10000`, true},                      // only LIMIT with number
+		{`SELECT * FROM user LIMIT ?`, true},       // LIMIT with placeholder
+		{`SELECT * FROM user LIMIT @limit`, true},  // LIMIT with named parameter
+		{`SELECT * FROM user LIMIT :limit`, true},  // LIMIT with named parameter
+		{`SELECT * FROM user LIMIT abc`, true},     // any token after LIMIT is considered a limit clause
+		{"LIMIT\n10000", true},                     // LIMIT with a new line
+		{"LIMIT \n10000", true},                    // LIMIT with a new line
+		{"LIMIT\n 10000", true},                    // LIMIT with a new line
+		{"LIMIT\n\n10000", true},                   // LIMIT with new lines
+		{"LIMIT\n\n\n10000", true},                 // LIMIT with new lines
 	} {
 		got := hasLimit(tc.query)
 		if got != tc.want {
