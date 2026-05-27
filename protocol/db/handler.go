@@ -34,7 +34,7 @@ func (h *Handler) Open(u *url.URL) (*resource.Resource, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := h.checkSanity(query); err != nil {
+	if err := checkSQLSanity(query); err != nil {
 		return nil, err
 	}
 	st := time.Now()
@@ -70,12 +70,27 @@ func (h *Handler) openAsset(s string) (*resource.Resource, error) {
 	return rs, nil
 }
 
-var reBadQuery = regexp.MustCompile(`(?i:^\s*(?:insert|update|delete|create|drop|alter|truncate|prepare|execute))`)
+var reBadKeyword = regexp.MustCompile(`(?i:^\s*(?:insert|update|delete|create|drop|alter|truncate|prepare|execute|replace))`)
 
-func (h *Handler) checkSanity(q string) error {
-	// FIXME: too simple, should do more.
-	if reBadQuery.MatchString(q) {
-		return errors.New("including invalid keywords")
+var rxBlockComment = regexp.MustCompile(`(?s:/\*.*?\*/)`)
+
+func checkSQLSanity(q string) error {
+	// Remove block comments and line comments.
+	cleaned := rxBlockComment.ReplaceAllString(q, "")
+	var buf strings.Builder
+	for _, line := range strings.Split(cleaned, "\n") {
+		if i := strings.Index(line, "--"); i >= 0 {
+			line = line[:i]
+		}
+		buf.WriteString(line)
+		buf.WriteByte('\n')
+	}
+	// Check each statement for bad keywords.
+	cleaned = buf.String()
+	for _, stmt := range strings.Split(cleaned, ";") {
+		if reBadKeyword.MatchString(stmt) {
+			return errors.New("including invalid keywords")
+		}
 	}
 	return nil
 }
@@ -141,7 +156,7 @@ func hasSelect(q string) bool {
 }
 
 var rxSelectCount = regexp.MustCompile(`(?imsU:\bSELECT\b.*\bCOUNT\b.*\(.*\bFROM\b)`)
-var rxHasLimit = regexp.MustCompile(`(?imsU:\bLIMIT\b\s.*\d+)`)
+var rxHasLimit = regexp.MustCompile(`(?imsU:\bLIMIT\b\s+\S+)`)
 
 // hasLimit checks a query has LIMIT clause or not.
 func hasLimit(q string) bool {

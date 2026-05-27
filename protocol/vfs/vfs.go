@@ -89,7 +89,17 @@ func getFsys(name string) (*Fsys, error) {
 	}
 	fsysMap[name] = fsys
 	return fsys, nil
+}
 
+func Reset() {
+	mu.Lock()
+	defer mu.Unlock()
+	for _, fsys := range fsysMap {
+		if fsys.err == nil {
+			fsys.Close()
+		}
+	}
+	fsysMap = map[string]*Fsys{}
 }
 
 func Open(u *url.URL) (*resource.Resource, error) {

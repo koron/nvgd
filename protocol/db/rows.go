@@ -3,6 +3,7 @@ package db
 import (
 	"bytes"
 	"database/sql"
+	"fmt"
 	"io"
 
 	"github.com/koron/nvgd/internal/ltsv"
@@ -24,7 +25,7 @@ func rows2ltsv(rows *sql.Rows, maxRows int) (io.ReadCloser, bool, error) {
 
 	vals := make([]any, n)
 	for i := range vals {
-		vals[i] = new(sql.NullString)
+		vals[i] = new(any)
 	}
 	strs := make([]string, n)
 
@@ -35,19 +36,28 @@ func rows2ltsv(rows *sql.Rows, maxRows int) (io.ReadCloser, bool, error) {
 			return nil, false, err
 		}
 		for i, v := range vals {
-			ns := v.(*sql.NullString)
-			if ns.Valid {
-				strs[i] = ns.String
-			} else {
+			p := v.(*any)
+			switch val := (*p).(type) {
+			case nil:
 				strs[i] = NullReplacement
+			case []byte:
+				strs[i] = string(val)
+			default:
+				strs[i] = fmt.Sprint(val)
 			}
 		}
 		w.Write(strs...)
 		nrow++
 		if maxRows > 0 && nrow >= maxRows {
 			truncated = rows.Next()
+			if err := rows.Err(); err != nil {
+				return nil, false, err
+			}
 			break
 		}
+	}
+	if err := rows.Err(); err != nil {
+		return nil, false, err
 	}
 	return io.NopCloser(buf), truncated, nil
 }

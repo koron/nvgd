@@ -112,7 +112,7 @@ func (ph *S3ObjHandler) OpenRange(u *url.URL, start, end int) (*resource.Resourc
 	if err != nil {
 		return nil, err
 	}
-	return resource.New(out.Body), nil
+	return resource.New(out.Body).PutFilename(key), nil
 }
 
 // S3ListHandler is AWS S3 list protocol handler

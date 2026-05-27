@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"compress/bzip2"
 	"compress/gzip"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -95,7 +96,9 @@ func (f *File) actualOpen(u *url.URL, keepCompress bool) (*resource.Resource, er
 		return nil, err
 	}
 	switch len(m) {
-	case 0, 1:
+	case 0:
+		return nil, fmt.Errorf("no matches: %s", name)
+	case 1:
 		return f.openOne(name, keepCompress)
 	}
 	return f.openMulti(m, name, keepCompress)
@@ -294,11 +297,14 @@ func newMultiRC(readers ...io.Reader) *multiRC {
 }
 
 func (mrc *multiRC) Close() error {
+	var errs []error
 	for _, rc := range mrc.rcs {
-		rc.Close()
+		if err := rc.Close(); err != nil {
+			errs = append(errs, err)
+		}
 	}
 	mrc.rcs = nil
-	return nil
+	return errors.Join(errs...)
 }
 
 func (f *File) Size(u *url.URL) (int, error) {

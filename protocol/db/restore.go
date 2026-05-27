@@ -82,6 +82,7 @@ func (rh *RestoreHandler) Post(u *url.URL, r io.Reader) (*resource.Resource, err
 	if err != nil {
 		return nil, fmt.Errorf("failed to open DB: %w", err)
 	}
+	defer c.Close()
 	tables := parseAsTables(u)
 	err = xlsx4db.Restore(c.db, xf, true, tables...)
 	if err != nil {
