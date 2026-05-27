@@ -3,25 +3,26 @@ import { test, expect } from '@playwright/test';
 const BASE_URL = 'http://localhost:9280';
 
 test.describe('OPFS File I/O', () => {
+  test.skip(({ browserName }) => browserName === 'webkit', 'OPFS API requires secure context not available in headless WebKit');
+
   test.beforeEach(async ({ page }) => {
     await page.goto(`${BASE_URL}/opfs/`);
   });
 
-  test('create a text file with editor', async ({ page }) => {
-    await page.fill('#editor-name', 'hello.txt');
-    await page.fill('#editor-edit', 'Hello, OPFS!');
+  async function createFile(page, name, content) {
+    await page.fill('#editor-name', name);
+    await page.fill('#editor-edit', content);
     await page.click('#editor-save');
-
-    await expect(page.locator('.grid-row')).toContainText('hello.txt');
     await expect(page.locator('#editor-name')).toHaveValue('');
-    await expect(page.locator('#editor-edit')).toHaveValue('');
+    await expect(page.locator('.grid-row').filter({ hasText: name })).toBeVisible();
+  }
+
+  test('create a text file with editor', async ({ page }) => {
+    await createFile(page, 'hello.txt', 'Hello, OPFS!');
   });
 
   test('load file into editor on edit action', async ({ page }) => {
-    await page.fill('#editor-name', 'editme.txt');
-    await page.fill('#editor-edit', 'content to edit');
-    await page.click('#editor-save');
-    await expect(page.locator('.grid-row')).toContainText('editme.txt');
+    await createFile(page, 'editme.txt', 'content to edit');
 
     await page.locator('.grid-row a', { hasText: 'Edit' }).click();
 
@@ -30,24 +31,25 @@ test.describe('OPFS File I/O', () => {
   });
 
   test('modify file content and save', async ({ page }) => {
-    await page.fill('#editor-name', 'modify.txt');
-    await page.fill('#editor-edit', 'original');
-    await page.click('#editor-save');
-    await expect(page.locator('.grid-row')).toContainText('modify.txt');
+    await createFile(page, 'modify.txt', 'original');
 
     await page.locator('.grid-row a', { hasText: 'Edit' }).click();
+    await expect(page.locator('#editor-edit')).toHaveValue('original');
     await page.fill('#editor-edit', 'modified content');
     await page.click('#editor-save');
+    await expect(page.locator('#editor-name')).toHaveValue('');
 
     await page.locator('.grid-row a', { hasText: 'Edit' }).click();
     await expect(page.locator('#editor-edit')).toHaveValue('modified content');
   });
 
   test('tab key in textarea inserts tab character', async ({ page }) => {
-    await page.fill('#editor-name', 'tabtest.txt');
-    await page.fill('#editor-edit', 'before');
+    await createFile(page, 'tabtest.txt', 'before');
+
+    await page.locator('.grid-row a', { hasText: 'Edit' }).click();
+    await expect(page.locator('#editor-edit')).toHaveValue('before');
     await page.locator('#editor-edit').press('Tab');
-    await page.locator('#editor-edit').fill('before\t');
+    await expect(page.locator('#editor-edit')).toHaveValue(/before\t/);
   });
 
   test('editor clear button resets fields', async ({ page }) => {

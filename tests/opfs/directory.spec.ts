@@ -3,6 +3,7 @@ import { test, expect } from '@playwright/test';
 const BASE_URL = 'http://localhost:9280';
 
 test.describe('OPFS Directory Management', () => {
+  test.skip(({ browserName }) => browserName === 'webkit', 'OPFS API requires secure context not available in headless WebKit');
   test.beforeEach(async ({ page }) => {
     await page.goto(`${BASE_URL}/opfs/`);
   });
