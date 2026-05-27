@@ -22,4 +22,8 @@ func TestLTSVConv(t *testing.T) {
 		filter.Params{"format": "csv"},
 		"a:111\tb:222\tc:333\na:444\tb:555\tc:666\na:777\tb:888\tc:999\n",
 		"a,b,c\n111,222,333\n444,555,666\n777,888,999\n")
+	filtertest.Check(t, newLTSVConv,
+		filter.Params{},
+		"a:1\ta:2\tb:3\nx:4\ty:5\n",
+		"a\tb\n1\t3\n\t\n")
 }

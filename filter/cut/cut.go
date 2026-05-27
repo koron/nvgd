@@ -173,10 +173,11 @@ func newCutRange(start, end int) cutSelector {
 			if start >= l {
 				return dst
 			}
-			if end >= l {
-				end = l - 1
+			e := end
+			if e >= l {
+				e = l - 1
 			}
-			return append(dst, src[start:end+1]...)
+			return append(dst, src[start:e+1]...)
 		}
 	}
 	return func(dst, src [][]byte) [][]byte {
@@ -184,10 +185,11 @@ func newCutRange(start, end int) cutSelector {
 		if end >= l {
 			return dst
 		}
-		if start >= l {
-			start = l - 1
+		s := start
+		if s >= l {
+			s = l - 1
 		}
-		for i := start; i >= end; i-- {
+		for i := s; i >= end; i-- {
 			dst = append(dst, src[i])
 		}
 		return dst
@@ -206,10 +208,11 @@ func newCutRangeBegin(n int) cutSelector {
 func newCutRangeEnd(n int) cutSelector {
 	return func(dst, src [][]byte) [][]byte {
 		l := len(src)
-		if n >= l {
-			n = l - 1
+		m := n
+		if m >= l {
+			m = l - 1
 		}
-		return append(dst, src[:n+1]...)
+		return append(dst, src[:m+1]...)
 	}
 }
 

@@ -36,7 +36,7 @@ func (rt *RTail) Read(buf []byte) (int, error) {
 		rt.ft = true
 		err := rt.findTop()
 		if err != nil {
-			return 0, nil
+			return 0, err
 		}
 	}
 	return rt.raw.Read(buf)

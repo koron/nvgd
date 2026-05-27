@@ -182,6 +182,7 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 	}
 
 	if redirect, ok := rsrc.String(commonconst.Redirect); ok {
+		rsrc.Close()
 		http.Redirect(res, req, "/"+redirect, http.StatusSeeOther)
 		return nil
 	}
@@ -223,6 +224,7 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 
 	// Respond to preflight requests only when the resource exists.
 	if req.Method == http.MethodOptions {
+		rsrc.Close()
 		if v, ok := rsrc.Int(resource.ContentLength); ok {
 			res.Header().Set("Content-Length", strconv.Itoa(v))
 		} else {

@@ -23,8 +23,15 @@ type Config struct {
 
 type Fsys struct {
 	err error
-
+	rc  *zip.ReadCloser
 	vfs vfs.FileSystem
+}
+
+func (fsys *Fsys) Close() error {
+	if fsys.rc != nil {
+		return fsys.rc.Close()
+	}
+	return nil
 }
 
 func (fsys *Fsys) Open(name string) (*resource.Resource, error) {
@@ -60,6 +67,7 @@ func openFsys(name string) (*Fsys, error) {
 	}
 	vfs := zipfs.New(r, name)
 	return &Fsys{
+		rc:  r,
 		vfs: vfs,
 	}, nil
 }

@@ -9,11 +9,13 @@ import (
 	"html/template"
 	"io"
 	"io/fs"
+	"sync"
 	"time"
 )
 
 type FS struct {
 	fs.FS
+	mu    sync.RWMutex
 	cache map[string]*cacheEntry
 }
 
@@ -71,8 +73,11 @@ func (tfs *FS) Template(name string, opts ...Option) (*template.Template, error)
 	}
 
 	// Check cache for a parsed Template
-	if entry, ok := tfs.cache[name]; ok && !fi.ModTime().After(entry.ModTime) {
-		return entry.Template, nil
+	tfs.mu.RLock()
+	entry, ok := tfs.cache[name]
+	tfs.mu.RUnlock()
+	if ok && !fi.ModTime().After(entry.ModTime) {
+		return entry.Template.Clone()
 	}
 
 	// Create a new template and apply options
@@ -86,11 +91,16 @@ func (tfs *FS) Template(name string, opts ...Option) (*template.Template, error)
 	if err != nil {
 		return nil, err
 	}
-	tmpl.Parse(string(body))
+	if _, err := tmpl.Parse(string(body)); err != nil {
+		return nil, err
+	}
 
+	tfs.mu.Lock()
 	tfs.cache[name] = &cacheEntry{
 		Template: tmpl,
 		ModTime:  fi.ModTime(),
 	}
-	return tmpl, nil
+	tfs.mu.Unlock()
+
+	return tmpl.Clone()
 }

@@ -45,11 +45,11 @@ func connect(driver, name string, maxRows int) (*conn, error) {
 
 // Close closes underlying connection.
 func (c *conn) Close() error {
+	connLock.Lock()
+	defer connLock.Unlock()
 	if c.db == nil {
 		return nil
 	}
-	connLock.Lock()
-	defer connLock.Unlock()
 	delete(connPool, c.id)
 	err := c.db.Close()
 	c.db = nil

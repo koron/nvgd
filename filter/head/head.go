@@ -56,6 +56,14 @@ func (h *Head) readNext(buf *bytes.Buffer) error {
 		lnum := h.curr
 		b, err := h.reader.ReadLine()
 		if err != nil {
+			if err == io.EOF && len(b) > 0 {
+				h.curr++
+				if lnum >= h.start {
+					_, err := buf.Write(b)
+					return err
+				}
+				return io.EOF
+			}
 			if err != bufio.ErrBufferFull {
 				return err
 			}

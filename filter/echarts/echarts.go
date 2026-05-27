@@ -87,17 +87,20 @@ func buildBarRenderer(serieses []Series, options []charts.GlobalOpts, p filter.P
 }
 
 func buildPieRenderer(serieses []Series, options []charts.GlobalOpts, p filter.Params) (render.Renderer, error) {
-	if len(serieses)%2 != 0 {
-		return nil, fmt.Errorf("bar chart requires pairs of serieses (name, value): %d", len(serieses))
+	if len(serieses) < 2 {
+		return nil, fmt.Errorf("less serieses for pie chart: %d", len(serieses))
 	}
-	if len(serieses[0].Values) != len(serieses[1].Values) {
-		return nil, fmt.Errorf("bar chart requires same length of two serieses")
+	if len(serieses)%2 != 0 {
+		return nil, fmt.Errorf("pie chart requires pairs of serieses (name, value): %d", len(serieses))
 	}
 	pie := charts.NewPie()
 	pie.SetGlobalOptions(options...)
 
 	for i := 0; i+1 < len(serieses); i += 2 {
 		s0, s1 := serieses[i+0], serieses[i+1]
+		if len(s0.Values) != len(s1.Values) {
+			return nil, fmt.Errorf("pie chart requires same length of two serieses")
+		}
 		data := make([]opts.PieData, 0, len(s0.Values)-1)
 		for j, n := range s0.Values[1:] {
 			v := s1.Values[j+1]

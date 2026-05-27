@@ -30,7 +30,53 @@ func TestCutSelector(t *testing.T) {
 	filtertest.Check(t, newCut, filter.Params{"list": "1,5"}, src, "A\tE\na\te")
 	filtertest.Check(t, newCut, filter.Params{"list": "12,26"}, src, "L\tZ\nl\tz")
 
-	// TODO: need complex combinations
+}
+
+func TestCutRangeCorruption_forward(t *testing.T) {
+	// newCutRange(start<=end) mutates captured 'end' when a line has fewer
+	// fields than the requested range. Subsequent lines get the corrupted value.
+	//
+	// input:  line1 has 3 fields, line2/3 have 5 fields
+	// range:  2-4  (fields 2,3,4 → 0-based indices 1,2,3)
+	//
+	// Correct output:
+	//   line1: fields 2-3 (clamped, only 3 fields available)
+	//   line2: fields 2-4
+	//   line3: fields 2-4
+	const src = "A\tB\tC\nA\tB\tC\tD\tE\nF\tG\tH\tI\tJ\n"
+	const want = "B\tC\nB\tC\tD\nG\tH\tI\n"
+	filtertest.Check(t, newCut, filter.Params{"list": "2-4"}, src, want)
+}
+
+func TestCutRangeCorruption_reverse(t *testing.T) {
+	// newCutRange(start>end) mutates captured 'start' when a line has fewer
+	// fields than the requested start.
+	//
+	// input:  line1 has 3 fields, line2/3 have 5 fields
+	// range:  4-2  (fields 4 down to 2 → 0-based indices 3 down to 1)
+	//
+	// Correct output:
+	//   line1: fields 3-2 (clamped, only 3 fields available)
+	//   line2: fields 4-2
+	//   line3: fields 4-2
+	const src = "A\tB\tC\nA\tB\tC\tD\tE\nF\tG\tH\tI\tJ\n"
+	const want = "C\tB\nD\tC\tB\nI\tH\tG\n"
+	filtertest.Check(t, newCut, filter.Params{"list": "4-2"}, src, want)
+}
+
+func TestCutRangeEndCorruption(t *testing.T) {
+	// newCutRangeEnd mutates captured 'n' when a line has fewer fields than N.
+	//
+	// input:  line1 has 1 field, line2/3 have 5 fields
+	// range:  -3  (first 3 fields → 0-based indices 0..2)
+	//
+	// Correct output:
+	//   line1: field 1 (clamped, only 1 field available)
+	//   line2: fields 1-3
+	//   line3: fields 1-3
+	const src = "A\nA\tB\tC\tD\tE\nF\tG\tH\tI\tJ\n"
+	const want = "A\nA\tB\tC\nF\tG\tH\n"
+	filtertest.Check(t, newCut, filter.Params{"list": "-3"}, src, want)
 }
 
 func TestCutEmpty(t *testing.T) {
