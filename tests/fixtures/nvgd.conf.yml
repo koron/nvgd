@@ -1,0 +1,11 @@
+# Minimal nvgd configuration for Playwright E2E tests.
+# Bind to default port 9280 on loopback only.
+addr: "127.0.0.1:9280"
+
+# Permissive CORS so the test pages can also fetch their own origin
+# (used by the URL Download tests).
+access_control_allow_origin: "*"
+
+# Quiet logging to keep terminal output focused on test failures.
+error_log: (stderr)
+access_log: (discard)

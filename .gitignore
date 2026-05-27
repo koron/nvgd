@@ -6,3 +6,14 @@ tmp/
 /nvgd.conf.yml
 dist/
 goxz/
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+/tests/fixtures/large.bin
+nvgd.log
+nvgd.pid
