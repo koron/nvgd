@@ -4,7 +4,11 @@
 import { test, expect } from '@playwright/test';
 import { gotoOPFS } from './helpers';
 
+const SKIP_WEBKIT = 'OPFS は WebKit の HTTP では利用不可（セキュアコンテキスト外）';
+
 test.describe('TC-01: 初期表示', () => {
+  test.skip(({ browserName }) => browserName === 'webkit', SKIP_WEBKIT);
+
   test('空の OPFS ルートが正しく表示される', async ({ page }) => {
     await gotoOPFS(page);
 

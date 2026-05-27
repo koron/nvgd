@@ -8,6 +8,8 @@
 import { test, expect } from '@playwright/test';
 import { createOPFSFile, reloadListing } from './helpers';
 
+const SKIP_WEBKIT = 'OPFS は WebKit の HTTP では利用不可（セキュアコンテキスト外）';
+
 /** showSaveFilePicker のモックを page に注入する */
 async function injectSaveFilePickerMock(page: import('@playwright/test').Page): Promise<void> {
   await page.addInitScript(() => {
@@ -35,6 +37,8 @@ async function injectSaveFilePickerMock(page: import('@playwright/test').Page): 
 }
 
 test.describe('TC-23: Save as — ファイルのローカル保存（正常系）', () => {
+  test.skip(({ browserName }) => browserName === 'webkit', SKIP_WEBKIT);
+
   test('Save as リンクをクリックするとファイル内容が保存され成功アラートが表示される', async ({
     page,
   }) => {

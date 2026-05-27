@@ -5,10 +5,14 @@
 import { test, expect } from '@playwright/test';
 import { gotoOPFS } from './helpers';
 
+const SKIP_WEBKIT = 'OPFS は WebKit の HTTP では利用不可（セキュアコンテキスト外）';
+
 const MOCK_URL = 'http://127.0.0.1:9280/__test-download__.txt';
 const MOCK_BODY = 'Downloaded file content';
 
-test.describe('TC-18: URLからのファイルダウンロード', () => {
+test.describe('TC-18: URL からのファイルダウンロード', () => {
+  test.skip(({ browserName }) => browserName === 'webkit', SKIP_WEBKIT);
+
   test('URL を指定してファイルを OPFS に保存できる', async ({ page }) => {
     // fetch リクエストをインターセプトしてモックレスポンスを返す
     await page.route(MOCK_URL, (route) =>
@@ -45,6 +49,8 @@ test.describe('TC-18: URLからのファイルダウンロード', () => {
 });
 
 test.describe('TC-19: ダウンロード — 無効な URL', () => {
+  test.skip(({ browserName }) => browserName === 'webkit', SKIP_WEBKIT);
+
   test('http/https 以外のプロトコルでは Download ボタンが無効のまま', async ({ page }) => {
     await gotoOPFS(page);
 

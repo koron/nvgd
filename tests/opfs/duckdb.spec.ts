@@ -5,7 +5,11 @@
 import { test, expect } from '@playwright/test';
 import { gotoOPFS, createOPFSFile, reloadListing } from './helpers';
 
+const SKIP_WEBKIT = 'OPFS は WebKit の HTTP では利用不可（セキュアコンテキスト外）';
+
 test.describe('TC-20: DuckDB 連携 — 対応形式ファイル', () => {
+  test.skip(({ browserName }) => browserName === 'webkit', SKIP_WEBKIT);
+
   test('CSV ファイルを選択して DuckDB シェルを開ける', async ({ page }) => {
     await gotoOPFS(page);
     await createOPFSFile(page, 'data.csv', 'id,name\n1,Alice\n');
@@ -27,6 +31,8 @@ test.describe('TC-20: DuckDB 連携 — 対応形式ファイル', () => {
 });
 
 test.describe('TC-21: DuckDB 連携 — 非対応形式ファイル', () => {
+  test.skip(({ browserName }) => browserName === 'webkit', SKIP_WEBKIT);
+
   test('txt ファイルを選択すると DuckDB シェルは開くが VIEW が作られない URL になる', async ({
     page,
   }) => {
@@ -46,7 +52,6 @@ test.describe('TC-21: DuckDB 連携 — 非対応形式ファイル', () => {
     await expect(popup).toHaveURL(/\/duckdb\//);
 
     // opfs= パラメーターは含まれるが、ハッシュ部分に CREATE VIEW がない
-    // （SHOW TABLES のみになる）
     const url = popup.url();
     expect(url).toContain('opfs=');
     expect(url).not.toContain('CREATE+VIEW');

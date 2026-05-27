@@ -4,7 +4,11 @@
 import { test, expect } from '@playwright/test';
 import { gotoOPFS, createOPFSFile } from './helpers';
 
+const SKIP_WEBKIT = 'OPFS は WebKit の HTTP では利用不可（セキュアコンテキスト外）';
+
 test.describe('TC-17: Reload ボタン', () => {
+  test.skip(({ browserName }) => browserName === 'webkit', SKIP_WEBKIT);
+
   test('Reload ボタンでエラーなく一覧が再描画される', async ({ page }) => {
     await gotoOPFS(page);
 
