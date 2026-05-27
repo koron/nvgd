@@ -29,9 +29,10 @@ func New(base io.Reader, start, end, limit int) (*RangeReader, error) {
 	if end < limit-1 {
 		r = io.LimitReader(r, int64(end-start+1))
 	}
+	c, _ := base.(io.Closer)
 	return &RangeReader{
 		r: r,
-		c: base.(io.Closer),
+		c: c,
 	}, nil
 }
 

@@ -25,4 +25,15 @@ func TestHead(t *testing.T) {
 		},
 		"0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n",
 		"3\n4\n5\n6\n7\n")
+	filtertest.Check(t, newHead,
+		filter.Params{},
+		"0\n1\n2",
+		"0\n1\n2")
+	filtertest.Check(t, newHead,
+		filter.Params{
+			"start": "1",
+			"limit": "2",
+		},
+		"0\n1\n2",
+		"1\n2")
 }

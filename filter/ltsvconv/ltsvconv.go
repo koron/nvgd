@@ -104,6 +104,7 @@ func (c *Converter) setupLabels(set *ltsv.Set) []string {
 		if _, ok := seen[p.Label]; ok {
 			continue
 		}
+		seen[p.Label] = struct{}{}
 		labels = append(labels, p.Label)
 	}
 	return labels
