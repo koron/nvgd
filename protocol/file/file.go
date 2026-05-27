@@ -95,7 +95,9 @@ func (f *File) actualOpen(u *url.URL, keepCompress bool) (*resource.Resource, er
 		return nil, err
 	}
 	switch len(m) {
-	case 0, 1:
+	case 0:
+		return nil, fmt.Errorf("no matches: %s", name)
+	case 1:
 		return f.openOne(name, keepCompress)
 	}
 	return f.openMulti(m, name, keepCompress)

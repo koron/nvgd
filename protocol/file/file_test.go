@@ -2,7 +2,9 @@ package file
 
 import (
 	"io"
+	"net/url"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/koron/nvgd/internal/assert"
@@ -78,6 +80,17 @@ func TestLZ4(t *testing.T) {
 		t.Errorf("content of \"testdata/file_test.lz4\" is unexpected: %q", s)
 	}
 	assert.Equal(t, "testdata/file_test", stripped, "unmatch stripped")
+}
+
+func TestActualOpenGlobNoMatch(t *testing.T) {
+	f := &File{}
+	_, err := f.actualOpen(&url.URL{Path: "testdata/nonexistent*"}, false)
+	if err == nil {
+		t.Fatal("expected error for glob with no matches")
+	}
+	if !strings.HasPrefix(err.Error(), "no matches:") {
+		t.Errorf("expected 'no matches:' error, got: %v", err)
+	}
 }
 
 func TestMultiRC(t *testing.T) {
