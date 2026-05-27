@@ -85,7 +85,7 @@ func (uh *UpdateHandler) Post(u *url.URL, r io.Reader) (*resource.Resource, erro
 	tables := parseAsTables(u)
 	err = xlsx4db.Update(c.db, xf, tables...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to restore: %w", err)
+		return nil, fmt.Errorf("failed to update: %w", err)
 	}
 	return resource.NewString("updated successfully"), nil
 }
