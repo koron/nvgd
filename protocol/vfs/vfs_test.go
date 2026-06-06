@@ -58,6 +58,49 @@ func TestFsysOpenAndClose(t *testing.T) {
 	}
 }
 
+func createTestZip(t *testing.T, dir, content string) string {
+	t.Helper()
+	zipPath := filepath.Join(dir, "test.zip")
+	f, err := os.Create(zipPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	zw := zip.NewWriter(f)
+	w, err := zw.Create("hello.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = w.Write([]byte(content))
+	if err != nil {
+		t.Fatal(err)
+	}
+	zw.Close()
+	f.Close()
+	return zipPath
+}
+
+func TestResetClearsCache(t *testing.T) {
+	dir := t.TempDir()
+	zipPath := createTestZip(t, dir, "first")
+
+	fsys1, err := getFsys(zipPath)
+	if err != nil {
+		t.Fatalf("getFsys failed: %s", err)
+	}
+
+	Reset()
+
+	fsys2, err := getFsys(zipPath)
+	if err != nil {
+		t.Fatalf("getFsys after Reset failed: %s", err)
+	}
+	defer fsys2.Close()
+
+	if fsys1 == fsys2 {
+		t.Error("expected new Fsys instance after Reset, got same pointer")
+	}
+}
+
 func TestFsysCloseNil(t *testing.T) {
 	// Close on a zero-value Fsys must not panic
 	fsys := &Fsys{}

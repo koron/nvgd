@@ -1,8 +1,12 @@
 package file
 
 import (
+	"bytes"
+	"fmt"
 	"io"
+	"net/url"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/koron/nvgd/internal/assert"
@@ -78,6 +82,41 @@ func TestLZ4(t *testing.T) {
 		t.Errorf("content of \"testdata/file_test.lz4\" is unexpected: %q", s)
 	}
 	assert.Equal(t, "testdata/file_test", stripped, "unmatch stripped")
+}
+
+func TestActualOpenGlobNoMatch(t *testing.T) {
+	f := &File{}
+	_, err := f.actualOpen(&url.URL{Path: "testdata/nonexistent*"}, false)
+	if err == nil {
+		t.Fatal("expected error for glob with no matches")
+	}
+	if !strings.HasPrefix(err.Error(), "no matches:") {
+		t.Errorf("expected 'no matches:' error, got: %v", err)
+	}
+}
+
+type errReader struct {
+	io.Reader
+}
+
+func (r *errReader) Close() error {
+	return fmt.Errorf("close error")
+}
+
+func TestMultiRCCollectsErrors(t *testing.T) {
+	r1 := struct {
+		io.Reader
+		io.Closer
+	}{bytes.NewReader([]byte("a")), io.NopCloser(nil)}
+	r2 := &errReader{Reader: bytes.NewReader([]byte("b"))}
+	mrc := newMultiRC(r1, r2)
+	err := mrc.Close()
+	if err == nil {
+		t.Fatal("expected error from multiRC.Close()")
+	}
+	if !strings.Contains(err.Error(), "close error") {
+		t.Errorf("expected 'close error' in: %v", err)
+	}
 }
 
 func TestMultiRC(t *testing.T) {

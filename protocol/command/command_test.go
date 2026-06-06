@@ -38,10 +38,16 @@ func TestUnknown(t *testing.T) {
 }
 
 func TestEmpty(t *testing.T) {
-	commandHandler.preDefined = map[string]string{"empty": ""}
-	got := protocoltest.OpenFail(t, "command://empty")
-	want := `empty command`
-	assert.Equal(t, want, got.Error(), "")
+	commandHandler.preDefined = map[string]string{
+		"empty":  "",
+		"spaces": "   ",
+	}
+	t.Cleanup(func() { commandHandler.preDefined = nil })
+	for _, name := range []string{"empty", "spaces"} {
+		got := protocoltest.OpenFail(t, "command://"+name)
+		want := `empty command`
+		assert.Equal(t, want, got.Error(), "case %q", name)
+	}
 }
 
 func TestNotExist(t *testing.T) {

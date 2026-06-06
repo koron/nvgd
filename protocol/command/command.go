@@ -44,7 +44,7 @@ func (c *command) Open(u *url.URL) (*resource.Resource, error) {
 
 func (c *command) run(s string) (io.ReadCloser, error) {
 	ss := strings.Split(s, " ")
-	if len(s) < 1 {
+	if len(ss) == 0 || ss[0] == "" {
 		return nil, errors.New("empty command")
 	}
 	cmd := exec.Command(ss[0], ss[1:]...)
