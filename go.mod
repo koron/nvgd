@@ -10,7 +10,7 @@ require (
 	github.com/go-redis/redis/v7 v7.4.1
 	github.com/go-sql-driver/mysql v1.10.0
 	github.com/goccy/go-yaml v1.19.2
-	github.com/gomarkdown/markdown v0.0.0-20260417124207-7d523f7318df
+	github.com/gomarkdown/markdown v0.0.0-20260614204949-e08cff860f76
 	github.com/google/go-cmp v0.7.0
 	github.com/koron-go/ringbuf v1.0.0
 	github.com/koron/go-xlsx4db v0.0.5
@@ -18,7 +18,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.47
 	github.com/noborus/trdsql v1.2.3
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/pierrec/lz4/v4 v4.1.26
+	github.com/pierrec/lz4/v4 v4.1.27
 	github.com/tealeg/xlsx v1.0.5
 	golang.org/x/tools/godoc v0.1.0-deprecated
 )
