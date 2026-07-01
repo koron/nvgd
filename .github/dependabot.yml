@@ -18,7 +18,7 @@ updates:
     schedule:
       interval: "weekly"
     groups:
-      all-dependencies:
+      go-all-dependencies:
         patterns: ["*"]
 
-# $Hash:bf1054edff4b6fb54deb4508918379b6008ee199bb55486d2cbc00b7$
+# $Hash:2b8a69882cf27ad1ff43ff8a833decf3d0df54c1effeb8efb5bb8244$
