@@ -96,8 +96,8 @@ github.com/klauspost/cpuid/v2 v2.2.10 h1:tBs3QSyvjDyFTq3uoc/9xFpCuOsJQFNPiAhYdw2
 github.com/klauspost/cpuid/v2 v2.2.10/go.mod h1:hqwkgyIinND0mEev00jJYCxPNVRVXFQeu1XKlok6oO0=
 github.com/koron-go/ringbuf v1.0.0 h1:pjQI1WO/brA+mWuLhV28pruWwBPRjveTe2+ZT9tzVkc=
 github.com/koron-go/ringbuf v1.0.0/go.mod h1:DevQjFKZLOEuL9dLRw2NCRLCmFmlbirEhTKBc1e0rCE=
-github.com/koron/go-xlsx4db v0.0.5 h1:aLhuQAyv1nmgtc1+V7hoYfwk8r9XI6foria7s1wbCck=
-github.com/koron/go-xlsx4db v0.0.5/go.mod h1:iDN6OPUCiC8OePS8Cv6kZ5fXRqUT8I9+ZsPxebDH4xI=
+github.com/koron/go-xlsx4db v0.0.6 h1:tNFW0ljuM2Pr/2G/fLtidzPlWEt3Y6nF8Wey3jOA2lI=
+github.com/koron/go-xlsx4db v0.0.6/go.mod h1:058+14knOZKqK+Mk2AWQTSecSoU8E+1Kgt9SekuPbq8=
 github.com/kr/pretty v0.1.0 h1:L/CwN0zerZDmRFUapSPitk6f+Q3+0za1rQkzVuMiMFI=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=

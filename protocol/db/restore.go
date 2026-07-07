@@ -87,7 +87,7 @@ func (rh *RestoreHandler) Post(ctx context.Context, u *url.URL, r io.Reader) (*r
 	}
 	defer c.Close()
 	tables := parseAsTables(u)
-	err = xlsx4db.Restore(c.db, xf, true, tables...) // TODO: support context.Context
+	err = xlsx4db.RestoreContext(ctx, c.db, xf, true, tables...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to restore: %w", err)
 	}
