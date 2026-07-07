@@ -8,7 +8,7 @@ import (
 )
 
 func TestS3Config(t *testing.T) {
-	_, err := config.LoadConfig("s3_test.yml")
+	_, err := config.LoadConfig("testdata/s3_test.yml")
 	if err != nil {
 		t.Fatal(err)
 	}

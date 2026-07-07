@@ -2,6 +2,7 @@ package aws
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"log"
@@ -11,10 +12,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	awsconfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/internal/commonconst"
 	"github.com/koron/nvgd/internal/ltsv"
@@ -54,15 +55,14 @@ type S3ObjHandler struct {
 
 var _ protocol.Rangeable = (*S3ObjHandler)(nil)
 
-func (ph *S3ObjHandler) newS3(u *url.URL) (svc *s3.S3, bucket, key string, err error) {
+func (ph *S3ObjHandler) newS3(u *url.URL) (svc *s3.Client, bucket, key string, err error) {
 	bucket = u.Host
 	key = u.Path
-	conf := ph.Config.bucketConfig(bucket).awsConfig()
-	sess, err := session.NewSession(conf)
+	cfg, err := ph.Config.bucketConfig(bucket).awsConfig(context.Background())
 	if err != nil {
 		return nil, "", "", err
 	}
-	return s3.New(sess), bucket, key, nil
+	return s3.NewFromConfig(cfg), bucket, key, nil
 }
 
 // Open opens a S3 URL.
@@ -71,7 +71,7 @@ func (ph *S3ObjHandler) Open(u *url.URL) (*resource.Resource, error) {
 	if err != nil {
 		return nil, err
 	}
-	out, err := svc.GetObject(&s3.GetObjectInput{
+	out, err := svc.GetObject(context.Background(), &s3.GetObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
 	})
@@ -86,7 +86,7 @@ func (ph *S3ObjHandler) Size(u *url.URL) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	out, err := svc.HeadObject(&s3.HeadObjectInput{
+	out, err := svc.HeadObject(context.Background(), &s3.HeadObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
 	})
@@ -104,7 +104,7 @@ func (ph *S3ObjHandler) OpenRange(u *url.URL, start, end int) (*resource.Resourc
 	if err != nil {
 		return nil, err
 	}
-	out, err := svc.GetObject(&s3.GetObjectInput{
+	out, err := svc.GetObject(context.Background(), &s3.GetObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
 		Range:  aws.String(fmt.Sprintf("bytes=%d-%d", start, end)),
@@ -129,11 +129,11 @@ func (ph *S3ListHandler) Open(u *url.URL) (*resource.Resource, error) {
 		prefix = u.Path
 	)
 	conf := ph.Config.bucketConfig(bucket)
-	sess, err := session.NewSession(conf.awsConfig())
+	cfg, err := conf.awsConfig(context.Background())
 	if err != nil {
 		return nil, err
 	}
-	svc := s3.New(sess)
+	svc := s3.NewFromConfig(cfg)
 	if len(prefix) > 0 {
 		prefix = prefix[1:]
 	}
@@ -147,7 +147,7 @@ func (ph *S3ListHandler) Open(u *url.URL) (*resource.Resource, error) {
 	if s := u.Query().Get(S3Token); len(s) > 0 {
 		in.ContinuationToken = aws.String(s)
 	}
-	out, err := svc.ListObjectsV2(in)
+	out, err := svc.ListObjectsV2(context.Background(), in)
 	if err != nil {
 		return nil, err
 	}
@@ -262,7 +262,7 @@ type S3BucketConfig struct {
 	AccessKeyID string `yaml:"access_key_id"`
 
 	// SecrentAccessKey is AWS secrent access key.
-	SecretAccessKey config.SecretString `yaml:"secret_access_key"`
+	SecretAccessKey string `yaml:"secret_access_key"`
 
 	// SessionToken is AWS session token.
 	SessionToken string `yaml:"session_token,omitempty"`
@@ -281,25 +281,29 @@ func (bc *S3BucketConfig) region() string {
 	return bc.Region
 }
 
-func (bc *S3BucketConfig) creds() *credentials.Credentials {
-	return credentials.NewStaticCredentials(bc.AccessKeyID, string(bc.SecretAccessKey), bc.SessionToken)
+func (bc *S3BucketConfig) creds() aws.CredentialsProvider {
+	return credentials.NewStaticCredentialsProvider(bc.AccessKeyID, bc.SecretAccessKey, bc.SessionToken)
 }
 
-func (bc *S3BucketConfig) awsConfig() *aws.Config {
-	conf := aws.NewConfig().
-		WithRegion(bc.region()).
-		WithCredentials(bc.creds())
-	if cl := bc.httpClient(); cl != nil {
-		conf = conf.WithHTTPClient(cl)
+func (bc *S3BucketConfig) awsConfig(ctx context.Context) (aws.Config, error) {
+	cfg, err := awsconfig.LoadDefaultConfig(ctx,
+		awsconfig.WithRegion(bc.region()),
+		awsconfig.WithCredentialsProvider(bc.creds()),
+	)
+	if err != nil {
+		return aws.Config{}, err
 	}
-	return conf
+	if cl := bc.httpClient(); cl != nil {
+		cfg.HTTPClient = cl
+	}
+	return cfg, nil
 }
 
-func (bc *S3BucketConfig) maxKeys() *int64 {
+func (bc *S3BucketConfig) maxKeys() *int32 {
 	if bc.MaxKeys <= 0 || bc.MaxKeys >= 1000 {
 		return nil
 	}
-	return aws.Int64(bc.MaxKeys)
+	return aws.Int32(int32(bc.MaxKeys))
 }
 
 func (bc *S3BucketConfig) httpClient() *http.Client {
