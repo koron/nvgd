@@ -8,7 +8,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/go-redis/redis/v7"
+	"github.com/redis/go-redis/v9"
 	"github.com/koron/nvgd/config"
 	"github.com/koron/nvgd/protocol"
 	"github.com/koron/nvgd/resource"
@@ -19,7 +19,6 @@ func open(ctx context.Context, u *url.URL) (*resource.Resource, error) {
 	if err != nil {
 		return nil, err
 	}
-	c = c.WithContext(ctx)
 	cmd, args, err := parseCommand(u)
 	if err != nil {
 		return nil, err
@@ -28,10 +27,10 @@ func open(ctx context.Context, u *url.URL) (*resource.Resource, error) {
 	if !ok {
 		return nil, fmt.Errorf("unsupported command: %s", cmd)
 	}
-	return h(c, args)
+	return h(ctx, c, args)
 }
 
-type handler func(*redis.Client, []string) (*resource.Resource, error)
+type handler func(context.Context, *redis.Client, []string) (*resource.Resource, error)
 
 var handlers = map[string]handler{
 	"":     keysForm,

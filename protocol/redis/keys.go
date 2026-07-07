@@ -2,11 +2,12 @@ package redis
 
 import (
 	"bytes"
+	"context"
 	"html/template"
 	"io"
 	"strings"
 
-	"github.com/go-redis/redis/v7"
+	"github.com/redis/go-redis/v9"
 	"github.com/koron/nvgd/resource"
 )
 
@@ -14,12 +15,12 @@ func hasKeysMeta(s string) bool {
 	return strings.ContainsAny(s, "?*[")
 }
 
-func keys(c *redis.Client, args []string) (*resource.Resource, error) {
+func keys(ctx context.Context, c *redis.Client, args []string) (*resource.Resource, error) {
 	q := strings.Join(args, "/")
 	if !hasKeysMeta(q) {
 		q += "*"
 	}
-	r, err := c.Keys(q).Result()
+	r, err := c.Keys(ctx, q).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +71,7 @@ Results:<br>
 </script>
 `))
 
-func keysForm(c *redis.Client, args []string) (*resource.Resource, error) {
+func keysForm(ctx context.Context, c *redis.Client, args []string) (*resource.Resource, error) {
 	buf := new(bytes.Buffer)
 	err := keysTmpl.Execute(buf, nil)
 	if err != nil {
