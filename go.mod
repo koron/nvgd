@@ -15,7 +15,7 @@ require (
 	github.com/gomarkdown/markdown v0.0.0-20260614204949-e08cff860f76
 	github.com/google/go-cmp v0.7.0
 	github.com/koron-go/ringbuf v1.0.0
-	github.com/koron/go-xlsx4db v0.0.5
+	github.com/koron/go-xlsx4db v0.0.6
 	github.com/lib/pq v1.12.3
 	github.com/mattn/go-sqlite3 v1.14.47
 	github.com/noborus/trdsql v1.2.3

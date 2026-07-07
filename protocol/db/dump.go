@@ -33,7 +33,7 @@ func (dh *DumpHandler) Open(ctx context.Context, u *url.URL) (*resource.Resource
 	}
 	xf := xlsx.NewFile()
 	tables := parseAsTables(u)
-	err = xlsx4db.Dump(xf, c.db, tables...) // TODO: support context.Context
+	err = xlsx4db.DumpContext(ctx, xf, c.db, tables...)
 	if err != nil {
 		return nil, err
 	}

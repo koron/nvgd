@@ -87,7 +87,7 @@ func (uh *UpdateHandler) Post(ctx context.Context, u *url.URL, r io.Reader) (*re
 	}
 	defer c.Close()
 	tables := parseAsTables(u)
-	err = xlsx4db.Update(c.db, xf, tables...) // TODO: support context.Context
+	err = xlsx4db.UpdateContext(ctx, c.db, xf, tables...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update: %w", err)
 	}
