@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"compress/bzip2"
 	"compress/gzip"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -76,7 +77,7 @@ func init() {
 }
 
 // Open opens a URL as file.
-func (f *File) Open(u *url.URL) (*resource.Resource, error) {
+func (f *File) Open(ctx context.Context, u *url.URL) (*resource.Resource, error) {
 	var keepCompress bool
 	if _, ok := u.Query()[KeepCompress]; ok {
 		keepCompress = true
@@ -307,7 +308,7 @@ func (mrc *multiRC) Close() error {
 	return errors.Join(errs...)
 }
 
-func (f *File) Size(u *url.URL) (int, error) {
+func (f *File) Size(ctx context.Context, u *url.URL) (int, error) {
 	name := u.Path
 	if !fc.isAccessible(name) {
 		return 0, fs.ErrPermission
@@ -319,7 +320,7 @@ func (f *File) Size(u *url.URL) (int, error) {
 	return int(fi.Size()), nil
 }
 
-func (f *File) OpenRange(u *url.URL, start, end int) (*resource.Resource, error) {
+func (f *File) OpenRange(ctx context.Context, u *url.URL, start, end int) (*resource.Resource, error) {
 	name := u.Path
 	if !fc.isAccessible(name) {
 		return nil, fs.ErrPermission

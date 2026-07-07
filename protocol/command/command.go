@@ -4,6 +4,7 @@ Package command defines a NVGD protocol to execute a command.
 package command
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -27,7 +28,7 @@ func init() {
 	config.RegisterProtocol("command", &commandHandler.preDefined)
 }
 
-func (c *command) Open(u *url.URL) (*resource.Resource, error) {
+func (c *command) Open(ctx context.Context, u *url.URL) (*resource.Resource, error) {
 	var (
 		name = u.Host
 	)
@@ -35,19 +36,19 @@ func (c *command) Open(u *url.URL) (*resource.Resource, error) {
 	if !ok {
 		return nil, fmt.Errorf("unknown command: %s", name)
 	}
-	rc, err := c.run(cmd)
+	rc, err := c.run(ctx, cmd)
 	if err != nil {
 		return nil, err
 	}
 	return resource.New(rc), nil
 }
 
-func (c *command) run(s string) (io.ReadCloser, error) {
+func (c *command) run(ctx context.Context, s string) (io.ReadCloser, error) {
 	ss := strings.Split(s, " ")
 	if len(ss) == 0 || ss[0] == "" {
 		return nil, errors.New("empty command")
 	}
-	cmd := exec.Command(ss[0], ss[1:]...)
+	cmd := exec.CommandContext(ctx, ss[0], ss[1:]...)
 	// clone STDOUT
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {

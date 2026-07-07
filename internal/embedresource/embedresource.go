@@ -2,6 +2,7 @@
 package embedresource
 
 import (
+	"context"
 	"errors"
 	"io/fs"
 	"net/url"
@@ -29,7 +30,7 @@ func New(fs fs.FS, opts ...Option) *EmbedResource {
 	return res
 }
 
-func (res *EmbedResource) Open(u *url.URL) (*resource.Resource, error) {
+func (res *EmbedResource) Open(ctx context.Context, u *url.URL) (*resource.Resource, error) {
 	if u.Path == "" {
 		u.Path = "/"
 		return resource.NewRedirect(u.String()), nil

@@ -2,6 +2,7 @@
 package protocol
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -16,27 +17,27 @@ import (
 
 // Protocol is abstraction of methods to get source stream.
 type Protocol interface {
-	Open(u *url.URL) (*resource.Resource, error)
+	Open(ctx context.Context, u *url.URL) (*resource.Resource, error)
 }
 
 // ProtocolFunc is Protocol wrapper for function.
-type ProtocolFunc func(*url.URL) (*resource.Resource, error)
+type ProtocolFunc func(context.Context, *url.URL) (*resource.Resource, error)
 
 // Open opens URL as protocol.
-func (f ProtocolFunc) Open(u *url.URL) (*resource.Resource, error) {
-	return f(u)
+func (f ProtocolFunc) Open(ctx context.Context, u *url.URL) (*resource.Resource, error) {
+	return f(ctx, u)
 }
 
 // Postable is set of methods for POST acceptable source/protocol.
 type Postable interface {
 	Protocol
-	Post(u *url.URL, r io.Reader) (*resource.Resource, error)
+	Post(ctx context.Context, u *url.URL, r io.Reader) (*resource.Resource, error)
 }
 
 type Rangeable interface {
 	Protocol
-	Size(u *url.URL) (int, error)
-	OpenRange(u *url.URL, start, end int) (*resource.Resource, error)
+	Size(ctx context.Context, u *url.URL) (int, error)
+	OpenRange(ctx context.Context, u *url.URL, start, end int) (*resource.Resource, error)
 }
 
 var protocols = map[string]Protocol{}
@@ -67,26 +68,26 @@ func Find(name string) Protocol {
 	return p
 }
 
-func Open(u *url.URL, req *http.Request) (*resource.Resource, error) {
+func Open(ctx context.Context, u *url.URL, req *http.Request) (*resource.Resource, error) {
 	p := Find(u.Scheme)
 	if p == nil {
 		return nil, fmt.Errorf("not found protocol for %q", u.Scheme)
 	}
 	if post, ok := p.(Postable); ok && req != nil && req.Method == http.MethodPost {
-		return openPost(post, u, req)
+		return openPost(ctx, post, u, req)
 	}
 	if rangeable, ok := p.(Rangeable); ok && req != nil {
 		if req.Method == http.MethodHead {
-			return openRangeHead(rangeable, u, req)
+			return openRangeHead(ctx, rangeable, u, req)
 		}
 		if req.Method == http.MethodGet {
-			return openRangeBody(rangeable, u, req)
+			return openRangeBody(ctx, rangeable, u, req)
 		}
 	}
-	return p.Open(u)
+	return p.Open(ctx, u)
 }
 
-func openPost(p Postable, u *url.URL, req *http.Request) (*resource.Resource, error) {
+func openPost(ctx context.Context, p Postable, u *url.URL, req *http.Request) (*resource.Resource, error) {
 	defer req.Body.Close()
 	data := req.Body
 	// If the body is multi-part, only the "file00" file is extracted and used.
@@ -106,17 +107,17 @@ func openPost(p Postable, u *url.URL, req *http.Request) (*resource.Resource, er
 	} else if !errors.Is(err, http.ErrNotMultipart) {
 		return nil, err
 	}
-	return p.Post(u, data)
+	return p.Post(ctx, u, data)
 }
 
-func openRangeHead(rangeable Rangeable, u *url.URL, req *http.Request) (*resource.Resource, error) {
-	sz, err := rangeable.Size(u)
+func openRangeHead(ctx context.Context, rangeable Rangeable, u *url.URL, req *http.Request) (*resource.Resource, error) {
+	sz, err := rangeable.Size(ctx, u)
 	if err != nil {
 		// TODO: Return better error.
 		return nil, fmt.Errorf("failed to fetch size: %w", err)
 	}
 	// TODO: Prepare better resource.
-	r, err := rangeable.Open(u)
+	r, err := rangeable.Open(ctx, u)
 	if err != nil {
 		return nil, err
 	}
@@ -129,11 +130,11 @@ func openRangeHead(rangeable Rangeable, u *url.URL, req *http.Request) (*resourc
 
 var rxBytesRange = regexp.MustCompile(`^bytes=(\d+)-(\d+)$`)
 
-func openRangeBody(rangeable Rangeable, u *url.URL, req *http.Request) (*resource.Resource, error) {
+func openRangeBody(ctx context.Context, rangeable Rangeable, u *url.URL, req *http.Request) (*resource.Resource, error) {
 	// Parse and extract "Range" header.
 	rangeHeader := req.Header.Get("Range")
 	if rangeHeader == "" {
-		return rangeable.Open(u)
+		return rangeable.Open(ctx, u)
 	}
 	m := rxBytesRange.FindStringSubmatch(rangeHeader)
 	if m == nil {
@@ -143,13 +144,13 @@ func openRangeBody(rangeable Rangeable, u *url.URL, req *http.Request) (*resourc
 	end, _ := strconv.Atoi(m[2])
 
 	// TODO: Check if in range.
-	sz, err := rangeable.Size(u)
+	sz, err := rangeable.Size(ctx, u)
 	if err != nil {
 		// TODO: Return better error.
 		return nil, fmt.Errorf("failed to fetch size: %w", err)
 	}
 
-	r, err := rangeable.OpenRange(u, start, end)
+	r, err := rangeable.OpenRange(ctx, u, start, end)
 	if err != nil {
 		return nil, err
 	}

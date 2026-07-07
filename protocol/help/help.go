@@ -2,6 +2,7 @@
 package help
 
 import (
+	"context"
 	"errors"
 	"io/fs"
 	"net/url"
@@ -19,7 +20,7 @@ func init() {
 // Text is default content of help.
 var Text string
 
-func Serve(u *url.URL) (*resource.Resource, error) {
+func Serve(ctx context.Context, u *url.URL) (*resource.Resource, error) {
 	if u.Path == "" || strings.HasSuffix(u.Path, "/doc/") {
 		u.Path = "/"
 		return resource.NewRedirect(u.String()), nil

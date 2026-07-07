@@ -4,6 +4,7 @@ package vfs
 
 import (
 	"archive/zip"
+	"context"
 	"net/http"
 	"net/url"
 	"path"
@@ -34,13 +35,13 @@ func (fsys *Fsys) Close() error {
 	return nil
 }
 
-func (fsys *Fsys) Open(name string) (*resource.Resource, error) {
+func (fsys *Fsys) Open(ctx context.Context, name string) (*resource.Resource, error) {
 	fi, err := fsys.vfs.Stat(name)
 	if err != nil {
 		return nil, err
 	}
 	if fi.IsDir() {
-		return fsys.Open(path.Join(name, "index.html"))
+		return fsys.Open(ctx, path.Join(name, "index.html"))
 	}
 	r, err := fsys.vfs.Open(name)
 	if err != nil {
@@ -102,7 +103,7 @@ func Reset() {
 	fsysMap = map[string]*Fsys{}
 }
 
-func Open(u *url.URL) (*resource.Resource, error) {
+func Open(ctx context.Context, u *url.URL) (*resource.Resource, error) {
 	alias := u.Hostname()
 	path := u.Path
 	name, ok := cfg.Archives[alias]
@@ -113,7 +114,7 @@ func Open(u *url.URL) (*resource.Resource, error) {
 	if err != nil {
 		return nil, err
 	}
-	return fsys.Open(path)
+	return fsys.Open(ctx, path)
 }
 
 func init() {

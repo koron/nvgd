@@ -2,6 +2,7 @@
 package version
 
 import (
+	"context"
 	"net/url"
 
 	"github.com/koron/nvgd/internal/version"
@@ -13,6 +14,6 @@ func init() {
 	protocol.MustRegister("version", protocol.ProtocolFunc(Open))
 }
 
-func Open(u *url.URL) (*resource.Resource, error) {
+func Open(ctx context.Context, u *url.URL) (*resource.Resource, error) {
 	return resource.NewString(version.Version), nil
 }

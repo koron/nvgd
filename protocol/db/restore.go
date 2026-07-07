@@ -2,6 +2,7 @@ package db
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"html/template"
@@ -17,11 +18,13 @@ import (
 type RestoreHandler struct {
 }
 
+var _ protocol.Postable = (*RestoreHandler)(nil)
+
 func init() {
 	protocol.MustRegister("db-restore", &RestoreHandler{})
 }
 
-func (rh *RestoreHandler) Open(u *url.URL) (*resource.Resource, error) {
+func (rh *RestoreHandler) Open(ctx context.Context, u *url.URL) (*resource.Resource, error) {
 	name, _ := extractNames(u)
 	p, err := getDBParam(name)
 	if err != nil {
@@ -73,7 +76,7 @@ func (rh *RestoreHandler) openAsset(s string, p map[string]any) (*resource.Resou
 	return rs, nil
 }
 
-func (rh *RestoreHandler) Post(u *url.URL, r io.Reader) (*resource.Resource, error) {
+func (rh *RestoreHandler) Post(ctx context.Context, u *url.URL, r io.Reader) (*resource.Resource, error) {
 	xf, err := openXLSX(r)
 	if err != nil {
 		return nil, fmt.Errorf("XLSX format error: %w", err)
@@ -84,7 +87,7 @@ func (rh *RestoreHandler) Post(u *url.URL, r io.Reader) (*resource.Resource, err
 	}
 	defer c.Close()
 	tables := parseAsTables(u)
-	err = xlsx4db.Restore(c.db, xf, true, tables...)
+	err = xlsx4db.Restore(c.db, xf, true, tables...) // TODO: support context.Context
 	if err != nil {
 		return nil, fmt.Errorf("failed to restore: %w", err)
 	}
