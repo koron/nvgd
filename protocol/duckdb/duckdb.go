@@ -2,6 +2,7 @@
 package duckdb
 
 import (
+	"context"
 	"embed"
 	"io/fs"
 	"net/url"
@@ -36,7 +37,7 @@ func init() {
 	protocol.MustRegister("duckdb", protocol.ProtocolFunc(open))
 }
 
-func open(u *url.URL) (*resource.Resource, error) {
+func open(ctx context.Context, u *url.URL) (*resource.Resource, error) {
 	tmplRsrc, err := getRsrc()
 	if err != nil {
 		return nil, err

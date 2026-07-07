@@ -51,7 +51,7 @@ func open(t *testing.T, protocolURL string, req *http.Request) *resource.Resourc
 	if err != nil {
 		t.Fatalf("failed to parse URL %s: %s", protocolURL, err)
 	}
-	r, err := protocol.Open(u, req)
+	r, err := protocol.Open(t.Context(), u, req)
 	if err != nil {
 		t.Fatalf("protocol.Open failed %q: %s", u.String(), err)
 	}
@@ -68,7 +68,7 @@ func OpenFail(t *testing.T, protocolURL string) error {
 	if err != nil {
 		t.Fatalf("failed to parse URL %s: %s", protocolURL, err)
 	}
-	_, err = protocol.Open(u, nil)
+	_, err = protocol.Open(t.Context(), u, nil)
 	if err == nil {
 		t.Fatalf("unexpected success. expected failure: %s", u.String())
 	}

@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -25,7 +26,7 @@ func init() {
 }
 
 // Open creates a database handler.
-func (h *Handler) Open(u *url.URL) (*resource.Resource, error) {
+func (h *Handler) Open(ctx context.Context, u *url.URL) (*resource.Resource, error) {
 	query := regulatePath(u)
 	if query == "" || strings.HasPrefix(query, assetPrefix) {
 		return h.openAsset(query)
@@ -38,7 +39,7 @@ func (h *Handler) Open(u *url.URL) (*resource.Resource, error) {
 		return nil, err
 	}
 	st := time.Now()
-	rc, truncated, err := h.execQuery(c, query)
+	rc, truncated, err := h.execQuery(ctx, c, query)
 	dur := time.Since(st)
 	if err != nil {
 		return nil, err
@@ -96,8 +97,8 @@ func checkSQLSanity(q string) error {
 }
 
 // execQuery executes a query in a transaction which will be rollbacked.
-func (h *Handler) execQuery(c *conn, q string) (io.ReadCloser, bool, error) {
-	tx, err := c.db.Begin()
+func (h *Handler) execQuery(ctx context.Context, c *conn, q string) (io.ReadCloser, bool, error) {
+	tx, err := c.db.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, false, err
 	}
@@ -119,7 +120,7 @@ func (h *Handler) execQuery(c *conn, q string) (io.ReadCloser, bool, error) {
 
 	// Execute pre-queries.
 	for _, query := range preQueries {
-		_, err := tx.Exec(query)
+		_, err := tx.ExecContext(ctx, query)
 		if err != nil {
 			return nil, false, fmt.Errorf("pre query %q failed: %w", query, err)
 		}
@@ -128,7 +129,7 @@ func (h *Handler) execQuery(c *conn, q string) (io.ReadCloser, bool, error) {
 	maxRows := determineMaxRows(q, c.maxRows)
 
 	// do query.
-	rows, err := tx.Query(mainQuery)
+	rows, err := tx.QueryContext(ctx, mainQuery)
 	if err != nil {
 		return nil, false, fmt.Errorf("main query %q failed as: %w", mainQuery, err)
 	}

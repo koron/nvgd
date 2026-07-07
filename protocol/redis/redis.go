@@ -2,6 +2,7 @@
 package redis
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strings"
@@ -13,11 +14,12 @@ import (
 	"github.com/koron/nvgd/resource"
 )
 
-func open(u *url.URL) (*resource.Resource, error) {
+func open(ctx context.Context, u *url.URL) (*resource.Resource, error) {
 	c, err := getClient(u.Hostname())
 	if err != nil {
 		return nil, err
 	}
+	c = c.WithContext(ctx)
 	cmd, args, err := parseCommand(u)
 	if err != nil {
 		return nil, err

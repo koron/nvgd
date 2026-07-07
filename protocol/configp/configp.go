@@ -3,6 +3,7 @@ package configp
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"net/url"
 
@@ -19,7 +20,7 @@ func init() {
 	protocol.MustRegister("config", protocol.ProtocolFunc(Open))
 }
 
-func Open(u *url.URL) (*resource.Resource, error) {
+func Open(ctx context.Context, u *url.URL) (*resource.Resource, error) {
 	b, err := yaml.Marshal(&Config)
 	if err != nil {
 		return nil, err

@@ -1,6 +1,7 @@
 package protocol_test
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/url"
@@ -13,11 +14,13 @@ import (
 
 type dummyPoster struct{}
 
-func (*dummyPoster) Open(u *url.URL) (*resource.Resource, error) {
+var _ protocol.Postable = (*dummyPoster)(nil)
+
+func (*dummyPoster) Open(ctx context.Context, u *url.URL) (*resource.Resource, error) {
 	return resource.NewString("_postable_dummy_open_"), nil
 }
 
-func (*dummyPoster) Post(u *url.URL, r io.Reader) (*resource.Resource, error) {
+func (*dummyPoster) Post(ctx context.Context, u *url.URL, r io.Reader) (*resource.Resource, error) {
 	var body string
 	b, err := io.ReadAll(r)
 	if err != nil {
@@ -34,7 +37,7 @@ func init() {
 	protocol.MustRegister("dummypost", &dummyPoster{})
 }
 
-func dummyProtocol(u *url.URL) (*resource.Resource, error) {
+func dummyProtocol(ctx context.Context, u *url.URL) (*resource.Resource, error) {
 	return resource.NewString("_dummy_content_"), nil
 }
 

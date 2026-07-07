@@ -2,6 +2,7 @@ package db
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"net/url"
@@ -22,7 +23,7 @@ func init() {
 	protocol.MustRegister("db-dump", &DumpHandler{})
 }
 
-func (dh *DumpHandler) Open(u *url.URL) (*resource.Resource, error) {
+func (dh *DumpHandler) Open(ctx context.Context, u *url.URL) (*resource.Resource, error) {
 	if p := regulatePath(u); p == "" || strings.HasPrefix(p, assetPrefix) {
 		return dh.openAsset(p)
 	}
@@ -32,7 +33,7 @@ func (dh *DumpHandler) Open(u *url.URL) (*resource.Resource, error) {
 	}
 	xf := xlsx.NewFile()
 	tables := parseAsTables(u)
-	err = xlsx4db.Dump(xf, c.db, tables...)
+	err = xlsx4db.Dump(xf, c.db, tables...) // TODO: support context.Context
 	if err != nil {
 		return nil, err
 	}

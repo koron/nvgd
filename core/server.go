@@ -173,7 +173,7 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 	u.RawQuery = req.URL.RawQuery
 
 	// Open protocol.
-	rsrc, err := protocol.Open(u, req)
+	rsrc, err := protocol.Open(req.Context(), u, req)
 	if err != nil {
 		return fmt.Errorf("failed to open %s; %w", upath, err)
 	}

@@ -55,10 +55,10 @@ type S3ObjHandler struct {
 
 var _ protocol.Rangeable = (*S3ObjHandler)(nil)
 
-func (ph *S3ObjHandler) newS3(u *url.URL) (svc *s3.Client, bucket, key string, err error) {
+func (ph *S3ObjHandler) newS3(ctx context.Context, u *url.URL) (svc *s3.Client, bucket, key string, err error) {
 	bucket = u.Host
 	key = u.Path
-	cfg, err := ph.Config.bucketConfig(bucket).awsConfig(context.Background())
+	cfg, err := ph.Config.bucketConfig(bucket).awsConfig(ctx)
 	if err != nil {
 		return nil, "", "", err
 	}
@@ -66,12 +66,12 @@ func (ph *S3ObjHandler) newS3(u *url.URL) (svc *s3.Client, bucket, key string, e
 }
 
 // Open opens a S3 URL.
-func (ph *S3ObjHandler) Open(u *url.URL) (*resource.Resource, error) {
-	svc, bucket, key, err := ph.newS3(u)
+func (ph *S3ObjHandler) Open(ctx context.Context, u *url.URL) (*resource.Resource, error) {
+	svc, bucket, key, err := ph.newS3(ctx, u)
 	if err != nil {
 		return nil, err
 	}
-	out, err := svc.GetObject(context.Background(), &s3.GetObjectInput{
+	out, err := svc.GetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
 	})
@@ -81,12 +81,12 @@ func (ph *S3ObjHandler) Open(u *url.URL) (*resource.Resource, error) {
 	return resource.New(out.Body).PutFilename(key), nil
 }
 
-func (ph *S3ObjHandler) Size(u *url.URL) (int, error) {
-	svc, bucket, key, err := ph.newS3(u)
+func (ph *S3ObjHandler) Size(ctx context.Context, u *url.URL) (int, error) {
+	svc, bucket, key, err := ph.newS3(ctx, u)
 	if err != nil {
 		return 0, err
 	}
-	out, err := svc.HeadObject(context.Background(), &s3.HeadObjectInput{
+	out, err := svc.HeadObject(ctx, &s3.HeadObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
 	})
@@ -99,12 +99,12 @@ func (ph *S3ObjHandler) Size(u *url.URL) (int, error) {
 	return int(*out.ContentLength), nil
 }
 
-func (ph *S3ObjHandler) OpenRange(u *url.URL, start, end int) (*resource.Resource, error) {
-	svc, bucket, key, err := ph.newS3(u)
+func (ph *S3ObjHandler) OpenRange(ctx context.Context, u *url.URL, start, end int) (*resource.Resource, error) {
+	svc, bucket, key, err := ph.newS3(ctx, u)
 	if err != nil {
 		return nil, err
 	}
-	out, err := svc.GetObject(context.Background(), &s3.GetObjectInput{
+	out, err := svc.GetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
 		Range:  aws.String(fmt.Sprintf("bytes=%d-%d", start, end)),
@@ -123,13 +123,13 @@ type S3ListHandler struct {
 var _ protocol.Protocol = (*S3ListHandler)(nil)
 
 // Open opens a S3 URL.
-func (ph *S3ListHandler) Open(u *url.URL) (*resource.Resource, error) {
+func (ph *S3ListHandler) Open(ctx context.Context, u *url.URL) (*resource.Resource, error) {
 	var (
 		bucket = u.Host
 		prefix = u.Path
 	)
 	conf := ph.Config.bucketConfig(bucket)
-	cfg, err := conf.awsConfig(context.Background())
+	cfg, err := conf.awsConfig(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +147,7 @@ func (ph *S3ListHandler) Open(u *url.URL) (*resource.Resource, error) {
 	if s := u.Query().Get(S3Token); len(s) > 0 {
 		in.ContinuationToken = aws.String(s)
 	}
-	out, err := svc.ListObjectsV2(context.Background(), in)
+	out, err := svc.ListObjectsV2(ctx, in)
 	if err != nil {
 		return nil, err
 	}

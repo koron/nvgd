@@ -2,6 +2,7 @@ package db
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"html/template"
@@ -17,11 +18,13 @@ import (
 type UpdateHandler struct {
 }
 
+var _ protocol.Postable = (*UpdateHandler)(nil)
+
 func init() {
 	protocol.MustRegister("db-update", &UpdateHandler{})
 }
 
-func (uh *UpdateHandler) Open(u *url.URL) (*resource.Resource, error) {
+func (uh *UpdateHandler) Open(ctx context.Context, u *url.URL) (*resource.Resource, error) {
 	name, _ := extractNames(u)
 	p, err := getDBParam(name)
 	if err != nil {
@@ -73,7 +76,7 @@ func (uh *UpdateHandler) openAsset(s string, p map[string]any) (*resource.Resour
 	return rs, nil
 }
 
-func (uh *UpdateHandler) Post(u *url.URL, r io.Reader) (*resource.Resource, error) {
+func (uh *UpdateHandler) Post(ctx context.Context, u *url.URL, r io.Reader) (*resource.Resource, error) {
 	xf, err := openXLSX(r)
 	if err != nil {
 		return nil, fmt.Errorf("XLSX format error: %w", err)
@@ -84,7 +87,7 @@ func (uh *UpdateHandler) Post(u *url.URL, r io.Reader) (*resource.Resource, erro
 	}
 	defer c.Close()
 	tables := parseAsTables(u)
-	err = xlsx4db.Update(c.db, xf, tables...)
+	err = xlsx4db.Update(c.db, xf, tables...) // TODO: support context.Context
 	if err != nil {
 		return nil, fmt.Errorf("failed to update: %w", err)
 	}
