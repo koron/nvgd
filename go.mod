@@ -6,8 +6,8 @@ require (
 	github.com/alecthomas/chroma/v2 v2.27.0
 	github.com/alicebob/miniredis/v2 v2.39.0
 	github.com/aws/aws-sdk-go-v2 v1.47.0
-	github.com/aws/aws-sdk-go-v2/config v1.33.4
-	github.com/aws/aws-sdk-go-v2/credentials v1.20.4
+	github.com/aws/aws-sdk-go-v2/config v1.33.5
+	github.com/aws/aws-sdk-go-v2/credentials v1.20.5
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.113.1
 	github.com/go-echarts/go-echarts/v2 v2.7.2
 	github.com/go-sql-driver/mysql v1.10.1
@@ -20,7 +20,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.52
 	github.com/noborus/trdsql v1.2.3
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/pierrec/lz4/v4 v4.1.29
+	github.com/pierrec/lz4/v4 v4.1.30
 	github.com/redis/go-redis/v9 v9.22.0
 	github.com/tealeg/xlsx v1.0.5
 	golang.org/x/tools/godoc v0.1.0-deprecated
@@ -41,7 +41,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/signin v1.10.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sso v1.38.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.43.0 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sts v1.50.0 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sts v1.51.0 // indirect
 	github.com/aws/smithy-go v1.28.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
