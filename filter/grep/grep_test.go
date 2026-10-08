@@ -46,3 +46,14 @@ func TestGrepContext(t *testing.T) {
 		"aaa\nbbb\nccc\nXXX\neee\nXXX\nggg\nhhh\niii\n",
 		"bbb\nccc\nXXX\neee\nXXX\nggg\nhhh\n")
 }
+
+func TestGrepOnly(t *testing.T) {
+	filtertest.Check(t, newGrep,
+		filter.Params{"re": `\d+`, "only": "1"},
+		"foo 123 bar 456 baz 789 qux\n",
+		"123\n456\n789\n")
+	filtertest.Check(t, newGrep,
+		filter.Params{"re": `\d+`, "only": "1", "number": "1"},
+		"foo 123 bar\n456 baz\nqux quux 789x999\n",
+		"1: 123\n2: 456\n3: 789\n3: 999\n")
+}
