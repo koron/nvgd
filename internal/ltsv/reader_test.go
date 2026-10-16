@@ -54,14 +54,14 @@ foo:123	bar:456	foo:789`))
 		t.Fatalf("should be io.EOF for end: %v", err)
 	}
 	if last != nil {
-		t.Errorf("last should be nil: actual=%q", last)
+		t.Errorf("last should be nil: actual=%v", last)
 	}
 }
 
 func testRead(t *testing.T, r *Reader, expected *Set) {
 	actual, err := r.Read()
 	if err != nil {
-		t.Fatalf("unexpected error: %s\nexpected=%q", err, expected)
+		t.Fatalf("unexpected error: %s\nexpected=%v", err, expected)
 	}
 	assert.Equal(t, expected, actual, "")
 }
@@ -121,4 +121,24 @@ func TestLongLine2(t *testing.T) {
 		wantValue := strings.Repeat(wantLabel, 500)
 		assert.Equal(t, wantValue, p.Value, "incorrect value for #%d entry", i)
 	}
+}
+
+func TestString(t *testing.T) {
+	empty := NewSet()
+	assert.Equal(t, `ltsv.Set{}`, empty.String(), "")
+
+	one := NewSet()
+	one.Put("foo", "123")
+	assert.Equal(t, `ltsv.Set{foo:123}`, one.String(), "")
+
+	two := NewSet()
+	two.Put("foo", "123")
+	two.Put("bar", "345")
+	assert.Equal(t, "ltsv.Set{foo:123\tbar:345}", two.String(), "")
+
+	multi := NewSet()
+	multi.Put("foo", "123")
+	multi.Put("bar", "345")
+	multi.Put("foo", "999")
+	assert.Equal(t, "ltsv.Set{foo:123\tbar:345\tfoo:999}", multi.String(), "")
 }

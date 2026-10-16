@@ -1,6 +1,10 @@
 // Package ltsv provides LTSV utility functioons.
 package ltsv
 
+import (
+	"bytes"
+)
+
 // Set is a set of LTSV values in a line.
 type Set struct {
 	Properties []Property
@@ -57,4 +61,13 @@ func (s *Set) GetFirst(label string) string {
 // Empty checks set is empty or not.
 func (s *Set) Empty() bool {
 	return len(s.Properties) == 0
+}
+
+func (s *Set) String() string {
+	bb := &bytes.Buffer{}
+	bb.WriteString("ltsv.Set{")
+	Write(bb, s.Properties)
+	bb.Truncate(bb.Len() - 1)
+	bb.WriteString("}")
+	return bb.String()
 }
