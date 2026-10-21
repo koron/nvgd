@@ -182,7 +182,7 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 	}
 
 	if redirect, ok := rsrc.String(commonconst.Redirect); ok {
-		rsrc.Close()
+		rsrc.DiscardClose()
 		http.Redirect(res, req, "/"+redirect, http.StatusSeeOther)
 		return nil
 	}
@@ -224,7 +224,7 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 
 	// Respond to preflight requests only when the resource exists.
 	if req.Method == http.MethodOptions {
-		rsrc.Close()
+		defer rsrc.DiscardClose()
 		if v, ok := rsrc.Int(resource.ContentLength); ok {
 			res.Header().Set("Content-Length", strconv.Itoa(v))
 		} else {
@@ -237,7 +237,7 @@ func (s *Server) serveProtocols(res http.ResponseWriter, req *http.Request) erro
 	// Apply filters to query params.
 	qp, err := qparamsParse(req.URL.RawQuery)
 	if err != nil {
-		rsrc.Close()
+		rsrc.DiscardClose()
 		return fmt.Errorf("failed to parse query string: %w", err)
 	}
 	if parsed, ok := rsrc.Strings(commonconst.ParsedKeys); ok {
