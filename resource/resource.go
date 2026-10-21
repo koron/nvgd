@@ -99,3 +99,12 @@ func (r *Resource) GuessContentType(s string) *Resource {
 	}
 	return r
 }
+
+func (r *Resource) DiscardClose() error {
+	_, err1 := io.Copy(io.Discard, r)
+	err2 := r.Close()
+	if err1 != nil {
+		return err1
+	}
+	return err2
+}
