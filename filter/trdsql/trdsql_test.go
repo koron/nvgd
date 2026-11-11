@@ -149,9 +149,9 @@ id,name,price
 
 func TestAttachDatabaseFail(t *testing.T) {
 	name := filepath.Join(t.TempDir(), "test.db")
-	filtertest.Fail(t, trdsqlFilter, filter.Params{
-		"q": fmt.Sprintf("ATTACH DATABASE '%s' AS extdb", name),
-	}, "N/A", "trdsql error: export: too many attached databases - max 0: ")
+	query := fmt.Sprintf("ATTACH DATABASE '%s' AS extdb", name)
+	wantErr := fmt.Sprintf("trdsql error: export: too many attached databases - max 0 [%s]: ", query)
+	filtertest.Fail(t, trdsqlFilter, filter.Params{"q": query}, "N/A", wantErr)
 }
 
 func TestManyColumns(t *testing.T) {
